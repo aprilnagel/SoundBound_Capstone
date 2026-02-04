@@ -1,13 +1,14 @@
 import os
 
 class DevelopmentConfig:
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or "sqlite:///dev.db"
     DEBUG = True
-    CACHE_TYPE = "SimpleCache"
-    CACHE_DEFAULT_TIMEOUT = 300
-    
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
 class TestingConfig:
     pass
+
 
 class ProductionConfig:
     pass
