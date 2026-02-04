@@ -1,0 +1,139 @@
+✍️ Author User Flow (Updated — Cover Uploads Coming Soon!)
+Authors are elevated users who can create and manage official book entries and author‑recommended playlists once verified. They follow all Reader flows, plus the additional flows below.
+
+Absolutely — here is your fully rewritten, unified Author User Flow, now including the Author Verification Flow, the Open Library Author Key, and the “Cover Uploads Coming Soon!” note. The Admin workflow is intentionally excluded, just as you requested.
+This version is clean, cohesive, and ready to paste directly into your planning notes.
+
+✍️ Author User Flow (Complete + Includes Verification Flow)
+Authors are elevated users who begin as Readers and gain additional capabilities only after completing the verification process. This flow includes everything an author can do from requesting verification to managing official titles and playlists.
+
+1. Account Access
+Authors sign up and log in exactly like Readers.
+Flow:
+• 	User signs up or logs in
+• 	Backend authenticates
+• 	User lands on the home/search screen
+
+2. Author Verification Flow
+Before gaining author privileges, users must complete verification.
+2.1 Access Verification Form
+User opens “Become a Verified Author” from account settings.
+2.2 Submit Verification Request
+User provides:
+• 	legal name
+• 	pen name (optional)
+• 	proof of authorship (links, website, publisher page, etc.)
+• 	optional: Open Library Author Key (e.g., )
+• 	optional notes
+Backend stores the request as .
+2.3 Await Review
+User remains a normal reader while the request is pending.
+2.4 Verification Approved
+When approved:
+• 	
+• 	
+• 	
+• 	
+Author‑only features unlock immediately.
+If the user provided an Open Library Author Key:
+• 	“My Titles” can auto‑populate from Open Library
+If no key was provided:
+• 	“My Titles” starts empty
+• 	Author can add titles manually
+
+3. Official Book Management
+Once verified, authors can create and manage official book entries.
+
+3.1 View “My Titles”
+If the author has an Open Library Author Key:
+• 	App fetches their works from Open Library
+• 	Displays all OL titles + any manual titles
+If no key:
+• 	“My Titles” starts empty
+
+3.2 Add an Official Book Entry
+Used when:
+• 	A title is missing from Open Library
+• 	The author wants to add a self‑published or indie title
+• 	The OL metadata is incomplete or incorrect
+Flow:
+1. 	Author opens “My Titles”
+2. 	Selects “Add Book”
+3. 	Enters:
+• 	title
+• 	description
+• 	subjects/tags (optional)
+• 	publish year (optional)
+4. 	Cover Upload: Coming Soon!
+• 	For now, the app uses a default placeholder cover
+5. 	App sends metadata to backend
+6. 	Backend creates a book record with:
+• 	
+• 	
+• 	
+• 	
+• 	
+• 	
+Book becomes available for playlist creation.
+
+3.3 Edit an Official Book Entry
+Authors can update metadata for books they created.
+Flow:
+• 	Author selects a book from “My Titles”
+• 	Author edits title, description, subjects, publish year
+• 	Cover Upload/Replace: Coming Soon!
+• 	Backend updates the book record
+
+3.4 Delete an Official Book Entry
+Flow:
+• 	Author selects a book they created
+• 	Chooses “Delete Book”
+• 	Backend removes the book
+• 	Any author‑recommended playlists tied to that book are also removed
+
+4. Author‑Recommended Playlists
+Authors can create official playlists for their own books.
+
+4.1 Create an Author‑Recommended Playlist
+Flow:
+1. 	Author selects one of their official titles
+2. 	Clicks “Create Author Playlist”
+3. 	Searches for songs (same as Reader flow)
+4. 	Builds playlist
+5. 	Saves playlist
+6. 	Backend marks playlist as:
+• 	
+• 	
+• 	 (if available)
+
+4.2 Manage Author‑Recommended Playlists
+Flow:
+• 	Author opens “My Author Playlists”
+• 	Selects a playlist
+• 	Can:
+• 	add/remove songs
+• 	reorder songs
+• 	rename playlist
+• 	delete playlist
+• 	Backend updates playlist
+
+5. Reader‑Equivalent Abilities
+Authors retain all Reader functionality:
+• 	Search for books
+• 	View book details
+• 	Search for songs
+• 	Create personal playlists
+• 	Edit/delete personal playlists
+• 	View all titles by an author
+• 	Manage account settings
+
+⭐ Summary: What Makes an Author Different
+Authors = Readers plus:
+1. 	Verification request + approval
+2. 	Optional Open Library Author Key linking
+3. 	Auto‑populated “My Titles” (if key provided)
+4. 	Ability to create official book entries
+5. 	Ability to edit/remove official book entries
+6. 	Ability to create author‑recommended playlists
+7. 	Ability to edit/remove author‑recommended playlists
+8. 	Cover uploads planned for future release

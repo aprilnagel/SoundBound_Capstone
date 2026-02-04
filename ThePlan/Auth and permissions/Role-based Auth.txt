@@ -1,0 +1,66 @@
+🔐 Role‑Based Permissions Model for SoundBound
+
+🎧 1. Reader Permissions
+Readers are your baseline users. They can consume content and create playlists, but they cannot create or modify official book data.
+
+Allowed
+- Create an account
+- Log in / log out
+- Edit their own profile
+- Search books, playlists, songs
+- View book details(minimal data since it's there just to support playlists.)
+- view all titles by an author
+- View playlists
+- Create playlists
+- Edit/delete their own playlists
+- Add/remove songs from their own playlists
+- Create playlists for books not in the system (via custom_book_title)
+- Submit an author verification request (optional)
+- connect their Spotify account (coming soon!)
+
+Not Allowed
+- Create official book entries
+- Edit any book data
+- Create author‑recommended playlists
+- Approve verification requests
+- Access admin dashboard
+
+✍️ 2. Author Permissions
+
+Authors get everything readers have, plus the ability to manage their own books and create official playlists tied to their identity.
+
+Allowed
+Everything a reader can do, plus:
+- Create manual book entries (only for themselves)
+- Edit/delete their own manual books
+- Create author‑recommended playlists for their books
+- Link their Open Library author key
+- Access “My Titles” dashboard. Shows all books they created (public and private toggle so users can see all released books and authors can see drafts)
+- Access “My Author Playlists” dashboard (coming soon!)
+- Connect their Spotify account (coming soon!)
+
+Not Allowed
+- Edit books created by other authors
+- Edit system‑imported books (Open Library data)
+- Approve verification requests
+- Access admin dashboard
+
+🛡️ 3. Admin Permissions
+
+Admins have full control over moderation, verification, and data integrity.
+
+Allowed
+Everything authors can do, plus:
+- Access admin dashboard
+- Review author verification requests
+- Approve/deny verification requests
+- Edit any playlist (for moderation or community violations - coming soon!)
+- Delete any playlist
+- Manage tags (controlled vocabulary)
+- View all users
+- Change user roles (reader → author → admin)
+
+Not Allowed
+- Edit book data (Open Library data is read‑only; manual entries are author‑owned)
+Admins don’t have restrictions, but you may choose to prevent:
+- Admins from creating author‑recommended playlists (to avoid impersonation)

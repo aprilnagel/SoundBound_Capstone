@@ -1,0 +1,110 @@
+### 🟦 PHASE 1 — Planning & Architecture (Jan 30 – Feb 2)
+
+- [x]  Finalize MVP vs stretch features
+- [x]  Create ERD for all tables
+- [ ]  Define Books API integration plan
+- [ ]  Define Music API integration plan
+- [ ]  Map reader + author user flows
+- [ ]  Create wireframes for core screens
+- [ ]  Set up project repo + environment
+- [ ]  Choose UI library + design system
+- [ ]  Define role-based permissions model
+
+### 🟩 PHASE 2 — Backend Foundations (Feb 3 – Feb 7)
+
+**Authentication & Roles**
+
+- [ ]  Implement signup/login
+- [ ]  Add role field (reader/author/admin)
+- [ ]  Add role-based middleware
+- [ ]  Build "request author verification" endpoint
+- [ ]  Build admin approval workflow
+
+**Books System**
+
+- [ ]  Integrate Books API search
+- [ ]  Create Book model + migrations
+- [ ]  Add temporary book entry flow
+- [ ]  Add "verified" flag
+- [ ]  Add author ownership rules
+- [ ]  Add book CRUD endpoints
+
+**Playlists System**
+
+- [ ]  Create Playlist model
+- [ ]  Playlist CRUD endpoints
+- [ ]  Add public/private logic
+- [ ]  Add author-recommended flag
+- [ ]  Create PlaylistSongs join table
+- [ ]  Add ordering logic for songs
+
+### 🟨 PHASE 3 — Music API + Song Search (Feb 8 – Feb 10)
+
+- [ ]  Integrate Music API search
+- [ ]  Create Song model + migrations
+- [ ]  Store API song metadata
+- [ ]  Add "Add to Playlist" endpoint
+- [ ]  Implement mood/genre mapping rules
+- [ ]  Add auto-tag suggestion logic
+
+### 🟧 PHASE 4 — Tagging & Metadata (Feb 10 – Feb 11)
+
+- [ ]  Create Tags table
+- [ ]  Create PlaylistTags join table
+- [ ]  Add manual tag input
+- [ ]  Add mood dropdown + free-text hybrid
+- [ ]  Add tag/mood search endpoints
+- [ ]  Add tag suggestion UI logic
+
+### 🟪 PHASE 5 — Frontend Core UI (Feb 11 – Feb 14)
+
+**Global UI**
+
+- [ ]  Navigation bar
+- [ ]  Auth pages
+- [ ]  Role-based UI states
+
+**Reader UI**
+
+- [ ]  Book search page
+- [ ]  Book detail page
+- [ ]  Playlist list (popular + author recommended)
+- [ ]  Playlist creation page
+- [ ]  Song search modal
+- [ ]  Tag/mood input UI
+
+**Author UI**
+
+- [ ]  Verification request page
+- [ ]  Author dashboard
+- [ ]  Book management UI
+- [ ]  Author-recommended playlist creation
+
+**Profiles**
+
+- [ ]  Reader profile (optional)
+- [ ]  Author public profile
+
+### 🟥 PHASE 6 — Polishing, Testing, Deployment (Feb 14 – Feb 17)
+
+**Testing**
+
+- [ ]  Backend unit tests
+- [ ]  Playlist flow integration tests
+- [ ]  Manual UI testing
+- [ ]  Fix auth edge cases
+- [ ]  Fix playlist ordering bugs
+
+**Polish**
+
+- [ ]  Improve playlist cards
+- [ ]  Add loading states
+- [ ]  Add empty states
+- [ ]  Add error handling
+
+**Deployment**
+
+- [ ]  Deploy backend
+- [ ]  Deploy frontend
+- [ ]  Connect environment variables
+- [ ]  Final smoke test

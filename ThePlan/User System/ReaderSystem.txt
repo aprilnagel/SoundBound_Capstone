@@ -1,0 +1,155 @@
+
+
+📚 Reader User Flow (Complete MVP Version)
+Readers represent the core user role in your app. They can search for books, create playlists, manage their account, and explore titles by an author. This flow outlines every action a Reader can take from onboarding to playlist management.
+
+1. Account Access
+Readers must authenticate before using the app.
+1.1 Sign Up / Log In
+Goal: Access the app.
+Flow:
+- User opens the app
+- User signs up or logs in
+- Backend authenticates credentials
+- User is redirected to the home/search screen
+
+2. Book Discovery
+Readers search for books to begin playlist creation.
+2.1 Search for a Book
+Goal: Find the correct book.
+Flow:
+- User enters a search term (title or author)
+- App calls the book search endpoint
+- Backend returns clean results containing:
+- title
+- author_name
+- cover_url
+- api_id
+- optional: first_publish_year, isbn[]
+- User scrolls and selects a book
+
+2.2 View Book Details
+Goal: Confirm the book and begin playlist creation.
+Flow:
+- App requests full book details
+- Backend returns:
+- title
+- description
+- subjects (tags)
+- cover_url
+- User views the book detail screen
+- User selects “Create Playlist”
+
+3. Song Discovery
+Readers search for songs to add to their playlist.
+3.1 Search for Songs
+Goal: Find songs by title, artist, or mood.
+Flow:
+- User enters a search term
+- App calls one of the music search endpoints:
+- search by title
+- search by artist
+- search by tags (mood/genre)
+- Backend returns clean song results containing:
+- title
+- artist_name
+- album_art_url
+- spotify_id
+- User selects songs to add
+
+4. Playlist Creation
+Readers build and save playlists for a selected book.
+4.1 Build Playlist
+Goal: Assemble the playlist.
+Flow:
+- User adds songs to the playlist draft
+- User can reorder or remove songs
+- User enters playlist title and optional description
+- User selects “Save Playlist”
+
+4.2 Save Playlist
+Goal: Store the playlist in the user’s account.
+Flow:
+- App sends playlist data to backend
+- Backend creates playlist record linked to:
+- user_id
+- book_id
+- playlist_songs
+- Backend returns success
+- User sees confirmation
+
+5. Playlist Management
+Readers can view, edit, and delete their playlists.
+5.1 View My Playlists
+Goal: Access previously created playlists.
+Flow:
+- User opens “My Playlists”
+- App requests user’s playlists
+- Backend returns list of playlists
+- User selects a playlist to view
+
+5.2 Edit or Delete Playlist
+Goal: Manage existing playlists.
+Flow:
+- User opens a playlist
+- User chooses to:
+- add/remove songs
+- reorder songs
+- rename playlist
+- delete playlist
+- Backend updates or deletes the playlist
+- User sees updated playlist
+
+6. Author Title Browsing
+Readers can explore more books by the same author.
+6.1 View All Titles by an Author
+Goal: Discover additional books.
+Flow:
+- User clicks an author name on a book
+- App calls book search filtered by author
+- Backend returns list of titles by that author
+- User selects a book and continues the flow
+
+7. Account Management
+Readers can manage their account at any time.
+7.1 Update Account Information
+Goal: Keep account info accurate.
+Flow:
+- User opens “Account Settings”
+- User updates name, email, or password
+- Backend validates and saves changes
+- User sees confirmation
+
+7.2 Change Password
+Goal: Update password securely.
+Flow:
+- User enters current + new password
+- Backend verifies and updates password
+- User sees confirmation
+
+7.3 Password Reset (Forgot Password)
+Goal: Recover account access.
+Flow:
+- User selects “Forgot Password”
+- User enters email
+- Backend sends reset link
+- User sets new password
+- User logs in
+
+7.4 Delete Account
+Goal: Remove user data.
+Flow:
+- User selects “Delete Account”
+- User confirms
+- Backend deletes:
+- user
+- user playlists
+- User is logged out
+
+7.5 Log Out
+Goal: End session.
+Flow:
+- User selects “Log Out”
+- Backend clears session token
+- User returns to login screen
+

@@ -1,0 +1,132 @@
+📚 1. Home / Search Screen (Reader + Author)
+Top Bar
+- App name / logo
+- Search bar (books, authors, playlists)
+- Profile icon
+Body
+- playlists display/add new playlist
+- Section: “Search Results” (appears after typing)
+- Book card (cover, title, author)
+- Playlist card (title, book, creator)
+Footer / Nav
+- Home
+- My Playlists
+- Profile
+
+📘 2. Book Details Screen
+Top
+- Book cover (large)
+- Title
+- Author name
+- Description
+Buttons
+- View your Playlists for this Book
+- View author playlists
+- Create Playlist
+- If verified author: “Create Author Playlist”
+Additional Info
+- Tags (moods from spotify)
+- Genre (Subjects (if from Open Library))
+
+🎵 3. Playlist Details Screen
+Top
+- Playlist title
+- Created by (user or author)
+- Book reference (title + cover thumbnail)
+Body
+- Song list
+- Song title
+- Artist
+- Drag handle (if editable)
+Buttons
+- Edit Playlist (if owner)
+- Delete Playlist (if owner)
+- Synch to Spotify (coming soon!)
+
+➕ 4. Create Playlist Screen
+Top
+- Playlist title input
+- Description input
+Body
+- Search songs
+- Song results
+- Selected songs list
+Buttons
+- Save Playlist
+- Synch to Spotify (coming soon!)
+
+📝 5. Edit Playlist Screen
+Same layout as Create Playlist, but pre‑filled:
+- Title
+- Description
+- Song list (reorderable)
+- Remove song buttons
+Buttons
+- Save Changes
+- Delete Playlist
+- Synch to Spotify (coming soon!)
+
+🧑‍🎨 6. Become a Verified Author Screen
+Top
+- Header: “Apply for Author Verification”
+Form Fields
+- Legal name
+- Pen name (optional)
+- Proof links (textarea)
+- Notes (optional)
+- Open Library Author Key (optional)
+Buttons
+- Submit Request
+State
+- If already submitted: show “Pending Review”
+
+📚 7. My Titles (Author Only)
+Top
+- Header: “My Titles”
+- Button: “Add Book”
+Body
+- List of titles
+- Cover
+- Title
+- Source (Open Library or Manual)
+- Edit button (manual only)
+
+➕ 8. Add Book (Manual Entry)
+Form Fields
+- Title
+- Description
+- Subjects / tags
+- Publish year
+- Cover Upload: Coming Soon! (disabled or greyed out)
+Buttons
+- Save Book
+
+✏️ 9. Edit Book (Manual Entry)
+Same as Add Book, but pre‑filled.
+Buttons
+- Save Changes
+- Delete Book
+
+🎧 10. Create Author‑Recommended Playlist
+Same layout as Create Playlist, but with:
+Top
+- Book reference (title + cover)
+- Label: “Official Author Playlist”
+Body
+- Song search
+- Song selection
+Buttons
+- Publish Playlist
+
+👤 11. Profile Screen
+Top
+- User info (name, bio, role)
+Sections
+- My Playlists
+- If author: My Titles
+- If not author: Become a Verified Author
+Buttons
+- Edit Profile
+- Log Out
+- Delete Account
+- Connect to Spotify (coming soon!)

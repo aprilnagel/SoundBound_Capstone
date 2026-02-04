@@ -1,0 +1,326 @@
+SEARCH BOOKS:
+api: https://openlibrary.org/dev/docs/api/search
+
+https://openlibrary.org/search.json?q=SEARCH_TERM
+- Query Parameters:
+  - q: string (search query)
+- Response:
+  - 200 OK
+    - JSON body with search results
+      - docs: array of book objects
+        - title: string
+        - author_name: array of strings
+        - first_publish_year: integer
+        - key: string (Open Library key)
+
+What you extract from each result
+- api_id → from key (e.g., /works/OL12345W)
+- title
+- author_name → first author
+- cover_url → built from cover_i
+- subjects → becomes your tags
+
+
+📚 BOOK API INTEGRATION PLAN (Finalized + MVP‑Ready)
+
+1. Goals of the Integration
+
+Your backend should provide:
+
+A. Search results
+
+Lightweight, fast, minimal data so users can pick the right book.
+
+B. Book details
+
+Richer metadata for the selected book so you can store it in your database.
+
+C. Clean, normalized fields
+
+Your backend hides Open Library’s messy structure and returns consistent objects.
+
+2️⃣ Endpoints You Will Implement
+
+A. /api/books/search
+
+Purpose:Return a clean list of books based on a user’s search term.
+
+External API used
+
+https://openlibrary.org/search.json?q=SEARCH_TERM
+
+Fields you return (finalized)
+
+Required
+
+title
+
+author_name
+
+cover_url
+
+api_id (Open Library work key)
+
+Optional
+
+first_publish_year
+
+isbn[]
+
+Backend responsibilities
+
+Call Open Library search
+
+Extract only the fields you need
+
+Build cover URLs from cover_i
+
+Normalize missing fields
+
+Return a clean array of book objects
+
+B. /api/books/<api_id>
+
+Purpose:Return full details for a selected book so you can store it in your database.
+
+External API used
+
+https://openlibrary.org/works/WORK_ID.json
+
+Fields you return
+
+api_id
+
+title
+
+description (cleaned)
+
+subjects (your book tags)
+
+cover_url (from covers[])
+
+author_keys (optional)
+
+author_name (optional, if you want to fetch it)
+
+Backend responsibilities
+
+Fetch the work details
+
+Normalize description (Open Library sometimes nests it)
+
+Build cover URL
+
+Return clean metadata
+
+C. (Optional) /api/authors/<author_id>
+
+Only needed if you want author bios or photos.
+
+3️⃣ Data Flow Summary
+
+Search Flow
+
+User types “night circus”
+
+Frontend calls /api/books/search?q=night circus
+
+Backend calls Open Library search
+
+Backend returns clean list of:
+
+title
+
+author_name
+
+cover_url
+
+api_id
+
+optional publish year / ISBN
+
+User picks the correct book.
+
+Details Flow
+
+User selects a book
+
+Frontend calls /api/books/<api_id>
+
+Backend fetches full metadata
+
+Backend returns:
+
+description
+
+subjects
+
+cover_url
+
+title
+
+author info
+
+Frontend displays the book page or stores it in DB.
+
+4️⃣ Database Mapping (Your ERD)
+
+Your books table fields map cleanly:
+
+DB Field
+
+Source
+
+api_id
+
+Open Library work key
+
+title
+
+search + details
+
+author_name
+
+search
+
+cover_url
+
+search or details
+
+description
+
+details
+
+api_source
+
+"openlibrary"
+
+verified
+
+your own logic
+
+created_at
+
+your backend
+
+Your book_tags table maps from:
+
+subjects[] returned by the details endpoint
+
+5️⃣ Error Handling Plan
+
+Your backend should gracefully handle:
+
+No results
+
+Return an empty array.
+
+Missing fields
+
+Use None or empty lists.
+
+Missing covers
+
+Return null for cover_url.
+
+Rate limits
+
+Open Library rarely rate-limits, but if it does:
+
+Return a friendly error message
+
+Suggest retrying
+
+⭐ Final Summary
+
+Your Book API Integration Plan includes:
+
+One broad search endpoint
+
+One details endpoint
+
+Clean, normalized fields
+
+Consistent mapping to your database
+
+Optional author enrichment
+
+Graceful error handling
+
+      
+
+📚 BOOK API INTEGRATION PLAN (Architecture‑Level Only)
+1. External API Chosen
+Open Library
+• 	Chosen for clean, predictable data
+• 	No API key required
+• 	Stable IDs and consistent structure
+• 	Easy cover image handling
+This is your single source of truth for book metadata in the MVP.
+
+2. Core Use Cases
+Your app needs to support:
+A. Searching for books
+Users type a title or author to find the correct book to create a playlist for.
+B. Selecting a book
+Once a user chooses a book, the app fetches richer metadata to store in your database.
+These two use cases define the entire integration.
+
+3. Required Data for Search Results
+Search results should return only the fields needed for users to confidently identify the correct book:
+Required
+• 	title
+• 	author_name
+• 	cover_url
+• 	api_id (Open Library work key)
+Optional (include if available)
+• 	first_publish_year
+• 	isbn[]
+This keeps search results lightweight, clean, and consistent.
+
+4. Required Data for Book Details
+When a user selects a book, you fetch richer metadata:
+• 	title
+• 	description
+• 	subjects (used as tags)
+• 	cover_url
+• 	api_id
+• 	author information (optional)
+This is the data you’ll store in your  and  tables.
+
+5. External Endpoints Used
+You will rely on two Open Library endpoints:
+A. Search endpoint
+Used for broad queries:
+
+B. Work details endpoint
+Used for full metadata:
+
+No other endpoints are required for MVP.
+
+6. Backend Responsibilities (Conceptual Only)
+Your backend will:
+• 	Call Open Library
+• 	Extract only the fields you need
+• 	Normalize inconsistent fields
+• 	Build cover URLs from Open Library’s cover IDs
+• 	Return clean, predictable objects to the frontend
+• 	Map subjects → tags in your database
+This ensures your database stays clean and your UI stays consistent.
+
+7. Error Handling Strategy
+At the planning level, you define:
+• 	Return empty arrays when no results
+• 	Gracefully handle missing fields
+• 	Use null for missing covers
+• 	Provide stable, predictable response shapes
+This avoids surprises later.
+
+8. Future‑Proofing
+Your plan leaves room for:
+• 	Adding Google Books as a fallback
+• 	Adding author bios
+• 	Adding edition‑specific metadata
+• 	Caching search results
+• 	Pagination
+But none of these are required for MVP.

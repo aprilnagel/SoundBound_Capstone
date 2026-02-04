@@ -1,0 +1,62 @@
+✅ MVP Features (Must‑Have)
+Core App
+- User authentication (reader + admin)
+- Book search via Books API
+- Create playlists for a book
+- Add songs via Music API search
+- Store playlists + songs in database
+- Public/private playlists
+- Basic book page with playlists
+- Basic user profile
+- CRUD for playlists + songs
+
+Backend
+- Flask API (users, books, playlists, songs)
+- PostgreSQL database
+- Role-based permissions (reader/admin)
+- Temporary book entries
+
+Frontend
+- React UI for:
+- Login/signup
+- Book search
+- Book detail page
+- Playlist builder
+- Song search modal
+- Viewing playlists
+
+Deployment
+- Backend deployed
+- Frontend deployed
+This is enough to fully demonstrate your concept.
+
+⭐ Stretch Features (Nice‑to‑Have)
+
+Author System
+- Author verification flow
+- Author dashboard
+- Author‑recommended playlists
+- Author public profile
+
+Tagging & Metadata
+- Mood tags
+- Genre/vibe tags
+- Auto‑suggested tags
+- Mood‑based search
+
+Smart Features
+- Book‑based song recommendations
+- Mood → music mapping
+- Popular playlists ranking
+
+UI Enhancements
+- Drag‑and‑drop playlist ordering
+- Reader profiles with activity
+- Analytics for authors
+Social Features
+- Follow authors
+- Like/save playlists
+
+Connect Spotify accounts
+- synch SoundBound playlists to Spotify
+

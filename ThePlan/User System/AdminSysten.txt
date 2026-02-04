@@ -1,0 +1,50 @@
+🛡️ Admin Workflow (MVP)
+Admins are special users with the ability to review and approve author verification requests. They do not manage books, playlists, or users beyond this single responsibility.
+
+1. Admin Logs In
+Admins authenticate exactly like any other user.
+Flow:
+- Admin logs in
+- Backend recognizes role = admin
+- Admin sees an “Admin Panel” link or section
+
+2. View Pending Author Verification Requests
+Admins need to see which users have requested verification.
+Flow:
+- Admin opens “Author Verification Requests”
+- Backend returns a list of pending requests, each containing:
+- user name
+- pen name
+- submitted proof/links
+- date submitted
+
+3. Review a Verification Request
+Admins inspect the details to confirm legitimacy.
+Flow:
+- Admin selects a request
+- Admin views:
+- user info
+- proof provided
+- any notes
+- Admin decides whether the user is a real author
+
+4. Approve or Deny
+This is the admin’s only real action.
+Flow:
+- Admin clicks Approve or Deny
+- Backend updates:
+- If approved → user.role = “author”
+- If denied → request marked as denied
+- User receives a notification (email or in‑app)
+
+5. Admin Done
+Admins have no other responsibilities in the MVP.
+They do not:
+- edit books
+- delete playlists
+- manage users
+- moderate content
+- upload covers
+- manage tags
+- manage system settings
+Your admin role is intentionally tiny and focused.

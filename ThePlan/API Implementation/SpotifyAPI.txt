@@ -1,0 +1,131 @@
+🎧 MUSIC API INTEGRATION PLAN (Architecture‑Level Only)
+1. External API Chosen
+Spotify Web API
+Why Spotify fits your app:
+- Best metadata for songs
+- Stable track IDs
+- High‑quality artist + album info
+- Rich audio features (energy, valence, danceability, etc.)
+- Genre data for artists
+- Perfect for mood‑based playlist generation
+This will be your single music source for the MVP.
+
+2. Core Use Cases
+Your app needs to support:
+A. Searching for songs
+Users search by:
+- Song title
+- Artist name
+- Mood/genre tags
+B. Selecting a song
+Once a user chooses a track, you fetch richer metadata to store in your database.
+C. Generating vibe‑based recommendations (optional)
+Using Spotify’s audio features + genres.
+These use cases define the entire integration.
+
+3️⃣ Endpoints You Will Implement (Conceptual Only)
+A. /api/songs/search/title
+Purpose:
+Search for tracks by song title.
+Backend responsibilities:
+- Call Spotify’s search endpoint with type=track
+- Normalize track metadata
+- Return clean, minimal results
+
+B. /api/songs/search/artist
+Purpose:
+Search for tracks by artist name.
+Backend responsibilities:
+- Search for artists
+- Fetch top tracks or related tracks
+- Normalize results
+
+C. /api/songs/search/tags
+Purpose:
+Search for tracks by mood/genre tag.
+Backend responsibilities:
+- Map your controlled tag → Spotify genre or audio feature filters
+- Call Spotify’s recommendations endpoint
+- Return vibe‑matched tracks
+This is where your tag system becomes powerful.
+
+D. /api/songs/<song_id>
+Purpose:
+Fetch full metadata for a selected track.
+Backend responsibilities:
+- Fetch track details
+- Fetch audio features
+- Normalize fields
+- Return clean metadata for database storage
+
+4️⃣ Required Data for Search Results
+Search results should be lightweight and consistent.
+Required
+- title
+- artist_name
+- album_art_url
+- spotify_id
+Optional
+- preview_url
+- album_name
+This is enough for users to confidently pick the correct song.
+
+5️⃣ Required Data for Song Details
+When a user selects a song, you fetch richer metadata:
+- title
+- artist_name
+- album_art_url
+- spotify_id
+- preview_url
+- audio_features (energy, valence, tempo, etc.)
+- genres (from artist)
+- metadata JSON (stored in your DB)
+This maps perfectly to your songs table.
+
+6️⃣ External Spotify Endpoints Used
+You will rely on:
+A. Search endpoint
+/search?type=track
+/search?type=artist
+
+
+B. Track details
+/tracks/{id}
+
+
+C. Audio features
+/audio-features/{id}
+
+
+D. Recommendations (for tag search)
+/recommendations
+
+
+No other endpoints are required for MVP.
+
+7️⃣ Backend Responsibilities (Conceptual Only)
+Your backend will:
+- Call Spotify
+- Normalize track + artist data
+- Merge audio features
+- Map tags → Spotify genres or audio features
+- Return clean, predictable objects
+- Store metadata in your database
+This keeps your app consistent and scalable.
+
+8️⃣ Error Handling Strategy
+At the planning level, you define:
+- Empty arrays for no results
+- Graceful handling of missing preview URLs
+- Stable response shapes
+- Fallback behavior for rate limits
+
+⭐ Final Summary
+Your Music API Integration Plan includes:
+- Three search endpoints (title, artist, tags)
+- One details endpoint
+- Clean, normalized fields
+- Consistent mapping to your database
+- Mood‑based search powered by your tag system
+- Graceful error handling
+- Future‑proof structure
