@@ -1,8 +1,7 @@
 from .extensions import db
 from sqlalchemy.orm import relationship
-from sqlalchemy import ForeignKey, Table, Column, Integer, String
 from sqlalchemy.sql import func
-from sqlalchemy import Enum
+
 
 
 

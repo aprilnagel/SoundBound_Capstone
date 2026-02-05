@@ -1,22 +1,24 @@
 from flask import Flask
-from .extensions import db, migrate, ma, cors
+from .extensions import db, ma, cors
 
 def create_app():
     app = Flask(__name__)
 
-    # Load configuration (DevelopmentConfig inside config.py)
+    # Load config
     app.config.from_object("config.DevelopmentConfig")
 
     # Initialize extensions
     db.init_app(app)
-    migrate.init_app(app, db)
     ma.init_app(app)
     cors.init_app(app)
 
-    # Import models AFTER db is initialized
+    # Import models so SQLAlchemy knows them
     from . import models
 
-    # Simple test route
+    # Create tables automatically
+    with app.app_context():
+        db.create_all()
+
     @app.get("/")
     def home():
         return {"message": "SoundBound API running"}
