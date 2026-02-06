@@ -24,6 +24,7 @@ class Users(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
     openlib_author_key = db.Column(db.String(250), nullable=True)
+    library = db.Column(db.JSON, nullable=True) #storing as JSON to accommodate multiple books with title and author name for unverified books
     
     #------------RELATIONSHIPS-----------------
     

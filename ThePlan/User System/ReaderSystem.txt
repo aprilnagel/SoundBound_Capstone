@@ -228,10 +228,10 @@ Playlists, authors, and contributors all link back to user profiles.
 
 ⭐ Summary: What you need to build for USERS
 Users Blueprint
-- GET /users/<id>
-- POST /users/me/library
-- GET /users/me/library
-- DELETE /users/me/library/<book_id> (optional)
+- x GET /users/<id>
+- x POST /users/me/library
+- x GET /users/me/library
+- x DELETE /users/me/library/<book_id> (optional)
 - POST /users/apply-author
 Playlists Blueprint
 - POST /playlists
@@ -268,9 +268,9 @@ Postman
 - x test users/me
 - x test users/me (update)
 - x test users/<id> (view public author profile)
-- test users/me/library (add book)
-- test users/me/library (view library)
-- test users/me/library/<book_id> (remove book)
+- x test users/me/library (add book)
+- x test users/me/library (view library)
+- x test users/me/library(remove book)
 - x test users/apply-author
 - x test users/me/applications (view own author app status)
 - x test users/author-applications (admin)

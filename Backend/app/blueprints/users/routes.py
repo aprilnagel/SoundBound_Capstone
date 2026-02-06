@@ -39,6 +39,8 @@ def add_book_to_library(current_user):
             return jsonify({'message': 'Book ID is required'}), 400
     except Exception as e:
         return jsonify({'message': 'Invalid input', 'error': str(e)}), 400
+    
+    book_id = str(book_id) # Ensure book_id is stored as a string for consistency
 
     # Ensure library exists
     if current_user.library is None:
@@ -49,7 +51,7 @@ def add_book_to_library(current_user):
         return jsonify({'message': 'Book already in library'}), 400
 
     # Add book
-    current_user.library.append(book_id)
+    current_user.library = current_user.library + [book_id]
     db.session.commit()
 
     return jsonify({'message': f'Book {book_id} added to library'}), 200
@@ -83,20 +85,22 @@ def remove_book_from_library(current_user):
             return jsonify({'message': 'Book ID is required'}), 400
     except Exception as e:
         return jsonify({'message': 'Invalid input', 'error': str(e)}), 400
+    
+    book_id = str(book_id)
 
-    # Ensure library exists
     if current_user.library is None:
         current_user.library = []
 
-    # Check if book is in library
     if book_id not in current_user.library:
         return jsonify({'message': 'Book not found in library'}), 404
 
-    # Remove book
-    current_user.library.remove(book_id)
+    # REASSIGN instead of mutating
+    current_user.library = [b for b in current_user.library if b != book_id]
+
     db.session.commit()
 
     return jsonify({'message': f'Book {book_id} removed from library'}), 200
+
 
 
 #------------------3. Get user's library------------------#
