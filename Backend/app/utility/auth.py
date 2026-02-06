@@ -5,6 +5,8 @@ from functools import wraps
 from flask import request, jsonify
 import os
 
+from app.models import Users
+
 SECRET_KEY = os.getenv("SECRET_KEY") or "supersecretkey"
 ALGORITHM = "HS256"
 
@@ -46,7 +48,13 @@ def token_required(f): #main function
         except jose.exceptions.JWTError:
             return jsonify({'message': 'Invalid token!'}), 401
         
-        return f(*args, **kwargs) #if the token is valid, we proceed to call the original route function.
+        
+        current_user = Users.query.get(request.logged_in_user_id)
+        
+        if not current_user:
+            return jsonify({'message': 'User not found!'}), 401
+        
+        return f(current_user, *args, **kwargs)
     
     return decorator
         

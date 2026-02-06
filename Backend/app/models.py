@@ -27,12 +27,25 @@ class Users(db.Model):
     
     #------------RELATIONSHIPS-----------------
     
-    playlists = relationship("Playlists", backref="user", lazy=True)
+    playlists = relationship(
+        "Playlists", 
+        back_populates="users", 
+        lazy=True)
+    
     authored_books = relationship(
-        "Books", 
-        secondary="book_authors", 
-        backref="authors", 
-        lazy='dynamic')
+        "Books",
+        secondary="book_authors", #junction table name
+        back_populates="authors",
+        lazy="dynamic"
+    )
+    
+    verification_requests = relationship(
+        "Author_verification_requests",
+        back_populates="users",
+        lazy="dynamic",
+        foreign_keys="[Author_verification_requests.user_id]"
+    )
+    
 
 #_____________AUTHOR VERIFICATION REQUESTS_____________________
 class Author_verification_requests(db.Model):
@@ -54,8 +67,14 @@ class Author_verification_requests(db.Model):
     reviewed_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
 
 #------------RELATIONSHIPS-----------------
-    user = relationship("Users", foreign_keys=[user_id], backref="verification_requests")
-    reviewer = relationship("Users", foreign_keys=[reviewed_by])
+    users = relationship(
+        "Users", 
+        foreign_keys=[user_id], 
+        back_populates="verification_requests")
+
+    reviewer = relationship(
+        "Users", 
+        foreign_keys=[reviewed_by])
 
 
 #_____________BOOKS_____________________
@@ -81,7 +100,7 @@ class Books(db.Model):
     authors = relationship(
         "Users",
         secondary="book_authors",
-        backref="authored_books",
+        back_populates="authored_books",
         lazy="dynamic"
     )
 
@@ -89,7 +108,7 @@ class Books(db.Model):
     tags = relationship(
         "Tags",
         secondary="book_tags",
-        backref="books",
+        back_populates="books",
         lazy="dynamic"
     )
 
@@ -97,7 +116,7 @@ class Books(db.Model):
     playlists = relationship(
         "Playlists",
         secondary="playlist_books",
-        backref="books",
+        back_populates="books",
         lazy="dynamic"
     )
 
@@ -125,7 +144,7 @@ class Playlists(db.Model):
     books = relationship(
         "Books",
         secondary="playlist_books",
-        backref="playlists",
+        back_populates="playlists",
         lazy="dynamic"
     )
 
@@ -133,18 +152,21 @@ class Playlists(db.Model):
     tags = relationship(
         "Tags",
         secondary="playlist_tags",
-        backref="playlists",
+        back_populates="playlists",
         lazy="dynamic"
     )
 
-    # Songs in this playlist (ordered)
-    songs = relationship(
-        "Songs",
-        secondary="playlist_songs",
-        backref="playlists",
+    playlist_songs = relationship(
+        "Playlist_Songs",
+        back_populates="playlist",
+        cascade="all, delete-orphan",
         lazy="dynamic"
     )
 
+    users = relationship(
+        "Users", 
+        back_populates="playlists", 
+        lazy=True)
     
 #_____________SONGS_____________________
 class Songs(db.Model):
@@ -160,13 +182,13 @@ class Songs(db.Model):
     api_metadata = db.Column(db.String(1000), nullable=True)
     source = db.Column(db.String(250), nullable=False, default="Spotify")
 
-#------------RELATIONSHIPS-----------------
-    playlists = relationship(
-    "Playlists",
-    secondary="playlist_songs",
-    backref="songs",
-    lazy="dynamic"
-)
+    playlist_songs = relationship(
+            "Playlist_Songs",
+            back_populates="song",
+            cascade="all, delete-orphan",
+            lazy="dynamic"
+        )
+
 
 #_____________TAGS_____________________
 class Tags(db.Model):
@@ -176,19 +198,17 @@ class Tags(db.Model):
     name = db.Column(db.String(100), unique=True, nullable=False)
 
 #------------RELATIONSHIPS-----------------
-    # Books that use this tag
     books = relationship(
         "Books",
         secondary="book_tags",
-        backref="tags",
+        back_populates="tags",
         lazy="dynamic"
     )
-
-    # Playlists that use this tag
+    
     playlists = relationship(
         "Playlists",
         secondary="playlist_tags",
-        backref="tags",
+        back_populates="tags",
         lazy="dynamic"
     )
 
@@ -197,8 +217,14 @@ class Tags(db.Model):
 class Playlist_Songs(db.Model):
     __tablename__ = 'playlist_songs'
 
-    playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id'), primary_key=True)
-    song_id = db.Column(db.Integer, db.ForeignKey('songs.id'), primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
+    playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id'), nullable=False)
+    song_id = db.Column(db.Integer, db.ForeignKey('songs.id'), nullable=False)
+    order_index = db.Column(db.Integer, nullable=True)
+
+    playlist = relationship("Playlists", back_populates="playlist_songs")
+    song = relationship("Songs", back_populates="playlist_songs")
+
     
 #_____________JUNCTION TABLES_____________________
 #all tables use composite primary keys to prevent duplicate entries
