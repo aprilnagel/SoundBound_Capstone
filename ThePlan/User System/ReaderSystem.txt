@@ -153,3 +153,146 @@ Flow:
 - Backend clears session token
 - User returns to login screen
 
+
+⭐ USER ROADMAP (Reader Role)
+1. Library (Book Collection)
+This is the first real feature users interact with.
+Blueprint: users
+Model: Library (user_id, book_id)
+Routes:
+- POST /users/me/library
+Add a book to the user’s library.
+- GET /users/me/library
+View the user’s library.
+- DELETE /users/me/library/<book_id> (optional)
+Remove a book from the library.
+Why this matters:
+Users must own a book before they can create playlists for it.
+
+2. Playlists (for books in their library)
+Once a user has a book, they can create playlists for it.
+Blueprint: playlists
+Models:
+- Playlist (id, user_id, book_id, title, description)
+- PlaylistSong (playlist_id, song_id, order)
+Routes:
+- POST /playlists
+Create a playlist for a book in the user’s library.
+- GET /playlists/<id>
+View a playlist.
+- PUT /playlists/<id>
+Update playlist details.
+- DELETE /playlists/<id>
+Delete playlist.
+- POST /playlists/<id>/songs
+Add a song to a playlist.
+- DELETE /playlists/<id>/songs/<song_id>
+Remove a song.
+Why this matters:
+This is the core of your app — the “playlist for a book” experience.
+
+3. Search (Books, Songs, Authors)
+These are discovery features.
+Blueprints:
+- books
+- songs
+- authors
+Routes:
+- GET /books/search
+- GET /books/<id>
+- GET /songs/search
+- GET /authors/search
+- GET /authors/<id>
+Why this matters:
+Users need to find books → add to library → create playlists.
+
+4. Apply for Author Role
+This is how a user becomes an author.
+Blueprint: users or authors
+Model: AuthorApplication (user_id, status, notes)
+Route:
+- POST /users/apply-author
+Why this matters:
+This is the bridge between Reader → Author.
+
+5. View Profiles
+Users should be able to view:
+- their own profile
+- other users’ profiles (especially authors)
+Blueprint: users
+Routes:
+- GET /users/me (already done in auth)
+- GET /users/<id>
+Why this matters:
+Playlists, authors, and contributors all link back to user profiles.
+
+⭐ Summary: What you need to build for USERS
+Users Blueprint
+- GET /users/<id>
+- POST /users/me/library
+- GET /users/me/library
+- DELETE /users/me/library/<book_id> (optional)
+- POST /users/apply-author
+Playlists Blueprint
+- POST /playlists
+- GET /playlists/<id>
+- PUT /playlists/<id>
+- DELETE /playlists/<id>
+- POST /playlists/<id>/songs
+- DELETE /playlists/<id>/songs/<song_id>
+Books Blueprint
+- GET /books/search
+- GET /books/<id>
+Songs Blueprint
+- GET /songs/search
+Authors Blueprint
+- GET /authors/search
+- GET /authors/<id>
+
+users_bp
+- x GET /users/me
+- x PUT /users/me (update)
+- x GET /users/<id> (view public author profile)
+- x POST /users/me/library
+- x GET /users/me/library
+- x DELETE /users/me/library/<book_id>
+- x POST /users/apply-author
+- x GET /users/me/applications (view own author app status)
+- x GET /users/author-applications (admin)
+- x PUT /users/<id>/approve-author (admin)
+- x PUT /users/<id>/reject-author (admin)
+- GET /users/authors (list all authors)
+Postman
+- x test users/signup
+- x test users/login
+- x test users/me
+- x test users/me (update)
+- x test users/<id> (view public author profile)
+- test users/me/library (add book)
+- test users/me/library (view library)
+- test users/me/library/<book_id> (remove book)
+- x test users/apply-author
+- x test users/me/applications (view own author app status)
+- x test users/author-applications (admin)
+- x test users/<id>/approve-author (admin)
+- x test users/<id>/reject-author (admin)
+- x test users/authors (list all authors)
+- x test users/id (author profile view)
+- x test users/me/author-profile (update author profile
+)
+playlists_bp
+- playlist CRUD
+- playlist songs CRUD
+books_bp
+- search
+- metadata
+- book details
+songs_bp
+- search
+auth_bp
+- login
+- register
+- refresh
+
+
+

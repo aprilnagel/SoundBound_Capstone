@@ -8,27 +8,6 @@ from app.extensions import ma
     # dump() is for output.
 
 
-#_____________USER SCHEMA_____________________
-#used for: 
-    #  serializing and deserializing user data - meaning sending back to the  frontend.
-    #  /me endpoint, when the backend needs to send user info to the frontend
-
-#SERIALIZATION (dump) excludes password for security reasons
-class UserSchema(ma.SQLAlchemyAutoSchema): 
-    class Meta:
-        from app.models import Users
-        model = Users
-        load_instance = True
-        include_fk = True
-        include_relationships = True
-        exclude = (
-            "playlists",
-            "verification_requests",
-            "authored_books",
-        ) # Exclude relationships and sensitive fields in order to prevent circular references and data leaks.
-
-user_schema = UserSchema()
-users_schema = UserSchema(many=True)
 
 #_____________SIGNUP SCHEMA_____________________
 #used for:
@@ -59,3 +38,5 @@ class LoginUserSchema(Schema):
     password = fields.String(required=True)
 
 login_user_schema = LoginUserSchema()
+
+

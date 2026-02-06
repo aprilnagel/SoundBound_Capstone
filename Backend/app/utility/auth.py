@@ -60,7 +60,7 @@ def token_required(f): #main function
         
 #_______________ROLE-BASED ACCESS DECORATORS_____________________
 
-#so for routes, we will drop in the roles when using the required decorator like @require_role("admin"), @require_role("author", "admin"), etc.
+#so for routes, we will drop in the roles when using the required decorator like @require_role("admin"), @require_role("author", "admin"), etc. if all roles are allowed, we can just use @token_required without the role requirement decorator. This way, we can have more flexible access control based on user roles.
 
 def require_role(*roles):
     def wrapper(f):

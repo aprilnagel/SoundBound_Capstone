@@ -41,7 +41,7 @@ class Users(db.Model):
     
     verification_requests = relationship(
         "Author_verification_requests",
-        back_populates="users",
+        back_populates="user",
         lazy="dynamic",
         foreign_keys="[Author_verification_requests.user_id]"
     )
@@ -56,7 +56,7 @@ class Author_verification_requests(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     author_bio = db.Column(db.String(1000), nullable=False)
     openlib_author_key = db.Column(db.String(250), nullable=False)
-    proof_links = db.Column(db.String(1000), nullable=True)
+    proof_links = db.Column(db.JSON, nullable=True)
     notes = db.Column(db.String(1000), nullable=True)
     status = db.Column(
         db.Enum('pending', 'approved', 'rejected', name='verification_statuses'), 
@@ -67,7 +67,7 @@ class Author_verification_requests(db.Model):
     reviewed_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
 
 #------------RELATIONSHIPS-----------------
-    users = relationship(
+    user = relationship(
         "Users", 
         foreign_keys=[user_id], 
         back_populates="verification_requests")
