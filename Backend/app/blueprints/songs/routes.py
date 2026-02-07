@@ -13,6 +13,12 @@ from app.models import Playlists, Playlist_Songs, Songs
 
 # Auth
 from app.utility.auth import token_required
+from app.utility.spotify import (
+    fetch_spotify_track,
+    fetch_audio_features,
+    fetch_artist_genres,
+    sync_song_genres_to_tags
+)
 
 # Blueprint
 from . import songs_bp
@@ -56,6 +62,54 @@ def add_song_to_playlist(current_user, playlist_id):
     db.session.commit()
 
     return jsonify(playlist_detail_schema.dump(playlist)), 201
+
+#____________________IMPORT SONG FROM SPOTIFY_____________________#
+@songs_bp.route("/import", methods=["POST"])
+@token_required
+def import_song(current_user):
+    data = request.get_json()
+    spotify_id = data.get("spotify_id")
+
+    if not spotify_id:
+        return jsonify({"error": "spotify_id is required"}), 400
+
+    # 1. Check if song already exists
+    existing = Songs.query.filter_by(spotify_id=spotify_id).first()
+    if existing:
+        return jsonify({"song_id": existing.id}), 200
+
+    # 2. Fetch track metadata
+    track = fetch_spotify_track(spotify_id)
+    if not track:
+        return jsonify({"error": "Failed to fetch track from Spotify"}), 400
+
+    # 3. Fetch audio features
+    features = fetch_audio_features(spotify_id)
+
+    # 4. Fetch genres from the first artist
+    genres = []
+    if track["artist_ids"]:
+        genres = fetch_artist_genres(track["artist_ids"][0])
+
+    # 5. Create Song instance
+    song = Songs(
+        title=track["title"],
+        artists=track["artists"],
+        album=track["album"],
+        preview_url=track["preview_url"],
+        spotify_id=spotify_id,
+        audio_features=features,
+        genres=genres,
+        source="spotify"
+    )
+
+    db.session.add(song)
+    db.session.commit()
+
+    # 6. Sync genres → tags
+    sync_song_genres_to_tags(song)
+
+    return jsonify({"song_id": song.id}), 201
 
 #_________________REMOVE SONG FROM PLAYLIST_____________________
 

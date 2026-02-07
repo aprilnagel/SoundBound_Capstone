@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from .extensions import db
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -99,6 +100,7 @@ class Books(db.Model):
     isbn_list = db.Column(db.JSON, nullable=True)
     first_publish_year = db.Column(db.Integer, nullable=True)
     subjects = db.Column(db.JSON, nullable=True)
+    source = db.Column(db.String, default="verified")
     
 #------------RELATIONSHIPS-----------------
     # Multi-author support
@@ -140,9 +142,8 @@ class Playlists(db.Model):
     is_author_reco = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
-    openlib_author_keys = db.Column(db.JSON, nullable=True)
-    custom_book_title = db.Column(db.String(250), nullable=True)
-    custom_author_name = db.Column(db.String(250), nullable=True)
+    
+    
     
 #------------RELATIONSHIPS-----------------
     # Books included in this playlist
@@ -178,13 +179,14 @@ class Songs(db.Model):
     __tablename__ = 'songs'
     
     id = db.Column(db.Integer, primary_key=True)
-    api_id = db.Column(db.String(250), nullable=False)
+    spotify_id = db.Column(db.String(250), nullable=False)
     title = db.Column(db.String(500), nullable=False)
     artists = db.Column(db.JSON, nullable=False) #storing as JSON to accommodate multiple artists
     album = db.Column(db.String(250), nullable=True)
     album_art = db.Column(db.String(500), nullable=True)
     preview_url = db.Column(db.String(500), nullable=True)
-    api_metadata = db.Column(db.String(1000), nullable=True)
+    audio_features = db.Column(db.JSON, nullable=True)
+    genres = db.Column(db.JSON, nullable=True)
     source = db.Column(db.String(250), nullable=False, default="Spotify")
 
     playlist_songs = relationship(
@@ -200,7 +202,20 @@ class Tags(db.Model):
     __tablename__ = 'tags'
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    source = db.Column(db.String(50), nullable=False) 
+    category = db.Column(db.String(50), nullable=True)
+    normalized_name = db.Column(db.String(250), nullable=False, index=True)
+    is_official = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    updated_at = db.Column(
+    db.DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    description = db.Column(db.String(500), nullable=True)
+    parent_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=True)
+    parent = relationship("Tags", remote_side=[id])
+
+
+
 
 #------------RELATIONSHIPS-----------------
     books = relationship(

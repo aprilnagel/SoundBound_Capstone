@@ -25,7 +25,6 @@ class SignupSchema(ma.SQLAlchemyAutoSchema):
         exclude = (
             "id",
             "role",
-            "openlib_author_key",
             "library",
             "created_at",
             "updated_at",

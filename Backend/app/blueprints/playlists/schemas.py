@@ -1,6 +1,7 @@
 from marshmallow import Schema, fields, validate
 from app.blueprints.users.schemas import UserPublicSchema
 
+
 class PlaylistBaseSchema(Schema):
     title = fields.String(required=True, validate=validate.Length(min=1))
     description = fields.String(allow_none=True)
@@ -8,10 +9,10 @@ class PlaylistBaseSchema(Schema):
     # book selection (verified or author-reco)
     book_id = fields.Int(allow_none=True)
 
-    # custom book fields
+    # custom book fields (for user-created playlists without verified book)
     custom_book_title = fields.String(allow_none=True)
     custom_author_name = fields.String(allow_none=True)
-
+    
     # author recommendation toggle
     is_author_reco = fields.Boolean(load_default=False)
 
@@ -21,8 +22,6 @@ class PlaylistUpdateSchema(Schema):
     title = fields.String(validate=validate.Length(min=1))
     description = fields.String(allow_none=True)
     is_public = fields.Boolean()
-    custom_book_title = fields.String(allow_none=True)
-    custom_author_name = fields.String(allow_none=True)
 
 playlist_update_schema = PlaylistUpdateSchema()
 
@@ -32,8 +31,6 @@ class PlaylistDumpSchema(Schema):
     description = fields.String()
     is_public = fields.Boolean()
     is_author_reco = fields.Boolean()
-    custom_book_title = fields.String(allow_none=True)
-    custom_author_name = fields.String(allow_none=True)
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
 

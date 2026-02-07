@@ -50,3 +50,11 @@ class AuthorApplicationSchema(Schema):
     
 author_app_schema = AuthorApplicationSchema()
 
+class UserPublicSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Users
+        load_instance = False
+        include_fk = False
+        fields = ("id", "username")  # minimal, safe
+
+user_public_schema = UserPublicSchema()

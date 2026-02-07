@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.blueprints.playlists import playlists_bp
-from app.models import Books, Playlists, Playlist_Songs, Playlist_Books, Songs
+from app.models import Books, Playlists, Songs
 from app.extensions import db
 
 from app.blueprints.playlists.schemas import (
@@ -56,6 +56,13 @@ def create_playlist(current_user):
         if is_author_reco:
             if current_user.role != "author":
                 return jsonify({"error": "Only authors can create author recommendation playlists."}), 403
+            
+            user_keys = set(current_user.openlib_author_keys or [])
+            book_keys = set(book.openlib_author_keys or [])
+            if not user_keys.intersection(book_keys):
+                return jsonify({
+                    "error": "You can only create author recommendation playlists for books you've authored."
+                }), 403
 
             # TODO: Validate book belongs to this author
             new_playlist = Playlists(
@@ -83,6 +90,8 @@ def create_playlist(current_user):
             )
 
         db.session.add(new_playlist)
+        db.session.flush()  # get new_playlist.id before creating association
+        
         new_playlist.books.append(book)
         db.session.commit()
         return jsonify(playlist_dump_schema.dump(new_playlist)), 201
@@ -95,18 +104,39 @@ def create_playlist(current_user):
             return jsonify({
                 "error": "custom_book_title and custom_author_name are required."
             }), 400
+            
+        # 1. Create the custom book in the Books table
+        custom_book = Books(
+            title=custom_title,
+            author_names=[custom_author],   # supports multi-author later
+            api_source=None,
+            api_id=None,
+            cover_url=None,
+            description=None,
+            openlib_author_keys=None,
+            openlib_work_key=None,
+            cover_id=None,
+            isbn_list=None,
+            first_publish_year=None,
+            subjects=None,
+            source="custom"
+        )
 
+        db.session.add(custom_book)
+        db.session.flush()  # get custom_book.id before creating playlist
+
+        # 2. Create the playlist
         new_playlist = Playlists(
             title=data["title"],
             description=data.get("description"),
             is_public=False,
             is_author_reco=False,
-            custom_book_title=custom_title,
-            custom_author_name=custom_author,
             user_id=current_user.id
         )
-
         db.session.add(new_playlist)
+        db.session.flush()  # get new_playlist.id before creating association
+        
+        new_playlist.books.append(custom_book)
         db.session.commit()
         return jsonify(playlist_dump_schema.dump(new_playlist)), 201
 

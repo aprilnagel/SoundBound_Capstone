@@ -1,12 +1,18 @@
+
+from dotenv import load_dotenv
+load_dotenv()
 from flask import Flask
+
+
 from .extensions import db, ma, cors
 from .blueprints.auth import auth_bp
-from .blueprints.admin import admin_bp
 from .blueprints.books import books_bp
 from .blueprints.playlists import playlists_bp
 from .blueprints.songs import songs_bp
 from .blueprints.tags import tags_bp
 from .blueprints.users import users_bp
+
+
 
 def create_app():
     app = Flask(__name__)
@@ -26,6 +32,7 @@ def create_app():
     with app.app_context():
         # db.drop_all()
         db.create_all()
+        
 
     @app.get("/")
     def home():
@@ -33,7 +40,6 @@ def create_app():
     
     #register blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(admin_bp, url_prefix='/admin')
     app.register_blueprint(books_bp, url_prefix='/books')
     app.register_blueprint(playlists_bp, url_prefix='/playlists')
     app.register_blueprint(songs_bp, url_prefix='/songs')

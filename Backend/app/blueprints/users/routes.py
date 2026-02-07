@@ -11,12 +11,78 @@ from app.extensions import limiter
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+#________________USER PROFILE ROUTES________________#
+            # - All roles have the same access. 
+            # - Role dependent fields (front end will handle)
+
+#✅------------------1. Get current user's profile------------------#
+@users_bp.route('/me', methods=['GET'])
+@token_required
+def get_current_user_profile(current_user):
+    """
+    Retrieve the authenticated user's full profile.
+
+    Behavior:
+        - Serializes the user using UserSchema.
+        - Returns all non-sensitive user fields.
+
+    Returns:
+        200 OK: Serialized user profile.
+    """
+
+    user_schema = UserSchema()
+    return jsonify(user_schema.dump(current_user)), 200
+
+#✅-------------------2. Update current user's profile------------------#
+@users_bp.route('/me', methods=['PUT'])
+@token_required
+def update_current_user(current_user):
+    """
+    Update the authenticated user's profile.
+
+    Request JSON:
+        Any subset of fields allowed by UserUpdateSchema.
+
+    Behavior:
+        - Validates input using Marshmallow.
+        - Hashes password if provided.
+        - Applies partial updates to the user model.
+
+    Returns:
+        200 OK: Updated user profile.
+        400 Bad Request: Validation errors.
+    """
+    # Use your update schema (must allow partial updates)
+    user_update_schema = UserUpdateSchema(partial=True)
+
+    try:
+        update_data = user_update_schema.load(request.json, partial=True)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+    
+    #block readers from updating author_bio. They shouldnt see it anyway, but just in case they try to update it via API call, we want to prevent that since its an author-only field.
+    if 'author_bio' in update_data and current_user.role != 'author':
+        return jsonify({'error': 'Only authors can update their author bio.'}), 403
+
+    # Apply updates
+    for key, value in update_data.items():
+        if key == "password":
+            value = generate_password_hash(value)
+        setattr(current_user, key, value)
+
+    db.session.commit()
+
+    # Return updated user
+    user_schema = UserSchema()
+    return jsonify(user_schema.dump(current_user)), 200
+
+
+
 #________________LIBRARY ROUTES________________#
 
         # - Library = internal
             # - Users can add/remove books to their library (list of book IDs)
             
-
 #✅------------------1. Add a book to library------------------#
 
 @users_bp.route('/me/library', methods=['POST'])
@@ -125,71 +191,6 @@ def get_user_library(current_user):
     return jsonify({'library': current_user.library}), 200
 
 
-#________________USER PROFILE ROUTES________________#
-            # - All roles have the same access. 
-            # - Role dependent fields (front end will handle)
-
-#✅------------------1. Get current user's profile------------------#
-@users_bp.route('/me', methods=['GET'])
-@token_required
-def get_current_user_profile(current_user):
-    """
-    Retrieve the authenticated user's full profile.
-
-    Behavior:
-        - Serializes the user using UserSchema.
-        - Returns all non-sensitive user fields.
-
-    Returns:
-        200 OK: Serialized user profile.
-    """
-
-    user_schema = UserSchema()
-    return jsonify(user_schema.dump(current_user)), 200
-
-#✅-------------------2. Update current user's profile------------------#
-@users_bp.route('/me', methods=['PUT'])
-@token_required
-def update_current_user(current_user):
-    """
-    Update the authenticated user's profile.
-
-    Request JSON:
-        Any subset of fields allowed by UserUpdateSchema.
-
-    Behavior:
-        - Validates input using Marshmallow.
-        - Hashes password if provided.
-        - Applies partial updates to the user model.
-
-    Returns:
-        200 OK: Updated user profile.
-        400 Bad Request: Validation errors.
-    """
-
-    from werkzeug.security import generate_password_hash
-    from marshmallow import ValidationError
-
-    # Use your update schema (must allow partial updates)
-    user_update_schema = UserUpdateSchema(partial=True)
-
-    try:
-        update_data = user_update_schema.load(request.json, partial=True)
-    except ValidationError as err:
-        return jsonify(err.messages), 400
-
-    # Apply updates
-    for key, value in update_data.items():
-        if key == "password":
-            value = generate_password_hash(value)
-        setattr(current_user, key, value)
-
-    db.session.commit()
-
-    # Return updated user
-    user_schema = UserSchema()
-    return jsonify(user_schema.dump(current_user)), 200
-
 
 
 #________________AUTHOR APPLICATION ROUTES________________#
@@ -221,7 +222,7 @@ def apply_to_be_author(current_user):
         user_id=current_user.id,
         author_bio=validated.get("author_bio"),
         proof_links=validated.get("proof_links"),
-        openlib_author_key=validated.get("openlib_author_key"),
+        openlib_author_keys=validated.get("openlib_author_keys"),
         notes=validated.get("notes"),
         status='pending'  # system-generated
     )
