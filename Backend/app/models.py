@@ -23,14 +23,15 @@ class Users(db.Model):
         nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
-    openlib_author_key = db.Column(db.String(250), nullable=True)
+    openlib_author_keys = db.Column(db.JSON, nullable=True)
+    author_bio = db.Column(db.String(1000), nullable=True)
     library = db.Column(db.JSON, nullable=True) #storing as JSON to accommodate multiple books with title and author name for unverified books
     
     #------------RELATIONSHIPS-----------------
     
     playlists = relationship(
         "Playlists", 
-        back_populates="users", 
+        back_populates="user", 
         lazy=True)
     
     authored_books = relationship(
@@ -56,7 +57,7 @@ class Author_verification_requests(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     author_bio = db.Column(db.String(1000), nullable=False)
-    openlib_author_key = db.Column(db.String(250), nullable=False)
+    openlib_author_keys = db.Column(db.JSON, nullable=False)
     proof_links = db.Column(db.JSON, nullable=True)
     notes = db.Column(db.String(1000), nullable=True)
     status = db.Column(
@@ -85,16 +86,19 @@ class Books(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(500), nullable=False)
-    author_name = db.Column(db.String(250), nullable=False)
+    author_names = db.Column(db.JSON, nullable=False) 
     api_source = db.Column(db.String(250), nullable=True)
     api_id = db.Column(db.String(250), nullable=True)
     cover_url = db.Column(db.String(500), nullable=True)
     description = db.Column(db.String(2000), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
-    openlib_author_key = db.Column(db.String(250), nullable=True)
+    openlib_author_keys = db.Column(db.JSON, nullable=True)
     openlib_work_key = db.Column(db.String(250), nullable=True)
+    cover_id = db.Column(db.Integer, nullable=True)
+    isbn_list = db.Column(db.JSON, nullable=True)
     first_publish_year = db.Column(db.Integer, nullable=True)
+    subjects = db.Column(db.JSON, nullable=True)
     
 #------------RELATIONSHIPS-----------------
     # Multi-author support
@@ -136,7 +140,7 @@ class Playlists(db.Model):
     is_author_reco = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
-    openlib_author_key = db.Column(db.String(250), nullable=True)
+    openlib_author_keys = db.Column(db.JSON, nullable=True)
     custom_book_title = db.Column(db.String(250), nullable=True)
     custom_author_name = db.Column(db.String(250), nullable=True)
     
@@ -164,7 +168,7 @@ class Playlists(db.Model):
         lazy="dynamic"
     )
 
-    users = relationship(
+    user = relationship(
         "Users", 
         back_populates="playlists", 
         lazy=True)

@@ -1,31 +1,44 @@
 from . import auth_bp
 from .schemas import signup_schema, login_user_schema
 from app.blueprints.users.schemas import UserSchema
+from app.blueprints.auth.schemas import SignupSchema, signup_schema
 from app.utility.auth import encode_token, token_required, require_role
 from flask import request, jsonify
-from app.models import db, Users
+from app.models import Users
 from marshmallow import ValidationError
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.extensions import limiter
+from app.extensions import limiter, db
 
 
 #__________________1. USER SIGNUP_____________________
 @auth_bp.route('/signup', methods=['POST'])
-# @limiter.limit("5 per minute") # Limit to 5 signup attempts per minute per IP
 def signup():
     try:
-        data = signup_schema.load(request.json)  # Validate and deserialize input data using Marshmallow schema. Json > Python dictionary
+        # Only loads allowed fields from SignupSchema
+        data = signup_schema.load(request.json)
     except ValidationError as err:
-        return jsonify(err.messages), 400  # If validation fails, return error messages with a 400 Bad Request status code.
-    
-    data['password'] = generate_password_hash(data['password'])  # Hash the password before storing it in the database for security.
-    
-    new_user = Users(**data)  # Create a new user instance using the validated data.
-    db.session.add(new_user)  # Add the new user to the database session.
-    db.session.commit()  # Commit the session to save the new user to the database.
+        return jsonify(err.messages), 400
 
-    user_schema = UserSchema()  # Use the canonical UserSchema from the users blueprint
-    return user_schema.jsonify(new_user), 201  # Return the newly created user as a JSON response with a 201 Created status code.
+    # Hash password
+    hashed_pw = generate_password_hash(data["password"])
+
+    # Create user with SAFE, WHITELISTED fields
+    new_user = Users(
+        first_name=data["first_name"],
+        last_name=data["last_name"],
+        username=data["username"],
+        email=data["email"],
+        password=hashed_pw,
+        role="reader",              # force default
+        openlib_author_key=None     # prevent injection
+    )
+
+    db.session.add(new_user)
+    db.session.commit()
+
+    # Use your canonical public user schema
+    user_schema = UserSchema()
+    return user_schema.jsonify(new_user), 201
 
 
 #__________________2. USER LOGIN_____________________

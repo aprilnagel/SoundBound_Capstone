@@ -261,7 +261,7 @@ users_bp
 - x GET /users/author-applications (admin)
 - x PUT /users/<id>/approve-author (admin)
 - x PUT /users/<id>/reject-author (admin)
-- GET /users/authors (list all authors)
+- x GET /users/authors (list all authors)
 Postman
 - x test users/signup
 - x test users/login
@@ -281,18 +281,31 @@ Postman
 - x test users/me/author-profile (update author profile
 )
 playlists_bp
-- playlist CRUD
+
+-  POST playlist (create: verified book only)
+-  POST playlist (create: author recommendation)
+-  POST playlist (create: unverified book with manual title/author entry)
+- GET playlist (view my playlists)
+- GET playlist (view author recommendation playlists)
+- GET playlist details (including songs)
+- POST playlist songs
+- DELETE playlist songs
+- PUT playlist songs (reorder)
 - playlist songs CRUD
+
 books_bp
-- search
-- metadata
-- book details
+- GET /books/search
+- GET /books/<id>
 songs_bp
 - search
 auth_bp
-- login
-- register
-- refresh
+- x login
+- x register
+tags_bp
+- search by tag
+- create tag (admin)
+- add tag to playlists (dropdown of existing tags
+
 
 
 

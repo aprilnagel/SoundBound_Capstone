@@ -1,9 +1,11 @@
-from email import message
+
 from app.blueprints.users import users_bp
 from app.blueprints.users.schemas import UserUpdateSchema, UserSchema, AuthorApplicationSchema, author_app_schema
+from app.blueprints.auth.schemas import signup_schema
 from app.utility.auth import token_required, require_role
 from flask import request, jsonify
-from app.models import Users, db, Author_verification_requests as VerificationRequest
+from app.models import Users, Author_verification_requests as VerificationRequest
+from app.extensions import db
 from marshmallow import ValidationError
 from app.extensions import limiter
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,8 +13,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 #________________LIBRARY ROUTES________________#
 
-#------------------1. Add a book to library------------------#
-#add a book to users library. Users search books and click "add to library" button. the library is a list of book IDs. book ids are assigned when books are added to the main book database. the actual book API is handled elsewhere.
+        # - Library = internal
+            # - Users can add/remove books to their library (list of book IDs)
+            
+
+#✅------------------1. Add a book to library------------------#
+
 @users_bp.route('/me/library', methods=['POST'])
 @token_required
 def add_book_to_library(current_user):
@@ -57,7 +63,7 @@ def add_book_to_library(current_user):
     return jsonify({'message': f'Book {book_id} added to library'}), 200
 
 
-#------------------2. Remove a book from library------------------#
+#✅------------------2. Remove a book from library------------------#
 @users_bp.route('/me/library', methods=['DELETE'])
 @token_required
 def remove_book_from_library(current_user):
@@ -103,31 +109,27 @@ def remove_book_from_library(current_user):
 
 
 
-#------------------3. Get user's library------------------#
+#✅------------------3. Get user's library------------------#
 @users_bp.route('/me/library', methods=['GET'])
 @token_required
 def get_user_library(current_user):
     """
     Retrieve the authenticated user's library.
-
-    Behavior:
-        - Ensures the library list exists.
-        - Returns the list of stored book IDs.
-
-    Returns:
-        200 OK: { "library": [...] }
     """
 
-    # Ensure library exists
+    # Initialize library if missing
     if current_user.library is None:
         current_user.library = []
+        db.session.commit()
 
     return jsonify({'library': current_user.library}), 200
 
 
 #________________USER PROFILE ROUTES________________#
+            # - All roles have the same access. 
+            # - Role dependent fields (front end will handle)
 
-#------------------1. Get current user's profile------------------#
+#✅------------------1. Get current user's profile------------------#
 @users_bp.route('/me', methods=['GET'])
 @token_required
 def get_current_user_profile(current_user):
@@ -145,7 +147,7 @@ def get_current_user_profile(current_user):
     user_schema = UserSchema()
     return jsonify(user_schema.dump(current_user)), 200
 
-#-------------------2. Update current user's profile------------------#
+#✅-------------------2. Update current user's profile------------------#
 @users_bp.route('/me', methods=['PUT'])
 @token_required
 def update_current_user(current_user):
@@ -189,109 +191,10 @@ def update_current_user(current_user):
     return jsonify(user_schema.dump(current_user)), 200
 
 
-#________________LOOK UP/VIEW AUTHOR BY ID ROUTE________________#
-#only authors have public profiles, so this route is for looking up an author by their user ID. If the user with that ID is not an author, we return a 404 since they don't have a public profile to view. This allows readers to view author profiles and bios, but not other readers' profiles.
-
-#------------------1. Get author profile by ID------------------#
-@users_bp.route('/<int:user_id>', methods=['GET'])
-def get_public_user_profile(user_id):
-    """
-    Retrieve a public author profile by user ID.
-
-    Behavior:
-        - Returns 404 if the user does not exist.
-        - Returns 404 if the user is not a verified author.
-        - Combines user fields with approved author verification metadata.
-        - Returns a complete public author profile.
-
-    Returns:
-        200 OK: Public author profile.
-        404 Not Found: User not found or not an author.
-    """
-
-    user = Users.query.get_or_404(user_id)
-
-    if user.role != 'author':
-        return jsonify({"message": "This user does not have a public profile."}), 404
-
-    # Fetch approved verification request
-    approved_request = VerificationRequest.query.filter_by(
-        user_id=user.id,
-        status='approved'
-    ).first()
-
-    if not approved_request:
-        return jsonify({"message": "Author profile metadata not found."}), 404
-
-    # Build combined public profile
-    public_profile = {
-        "id": user.id,
-        "first_name": user.first_name,
-        "last_name": user.last_name,
-        "username": user.username,
-        "openlib_author_key": approved_request.openlib_author_key or user.openlib_author_key,
-        "author_bio": approved_request.author_bio,
-        "proof_links": approved_request.proof_links,
-        "created_at": user.created_at,
-    }
-
-    return jsonify(public_profile), 200
-
-
-#------------------UPDATE AUTHOR ROUTE------------------#
-@users_bp.route('/me/author-profile', methods=['PUT'])
-@token_required
-def update_author_profile(current_user):
-    """
-    Update the authenticated author's public author profile information.
-
-    Request JSON:
-        {
-            "author_bio": <string>,
-            "openlib_author_key": <string>
-        }
-
-    Behavior:
-        - Only authors can update their author profile.
-        - Updates fields stored in the approved verification request.
-        - Returns the updated author profile.
-    """
-
-    if current_user.role != 'author':
-        return jsonify({"message": "Only authors can update their public profile."}), 403
-
-    # Fetch the approved verification request
-    approved_request = VerificationRequest.query.filter_by(
-        user_id=current_user.id,
-        status='approved'
-    ).first()
-
-    if not approved_request:
-        return jsonify({"message": "No approved author profile found."}), 404
-
-    data = request.json or {}
-
-    # Update allowed fields
-    if "author_bio" in data:
-        approved_request.author_bio = data["author_bio"]
-
-    if "openlib_author_key" in data:
-        approved_request.openlib_author_key = data["openlib_author_key"]
-
-    db.session.commit()
-
-    return jsonify({
-        "message": "Author profile updated successfully.",
-        "author_profile": {
-            "author_bio": approved_request.author_bio,
-            "openlib_author_key": approved_request.openlib_author_key
-        }
-    }), 200
-
 
 #________________AUTHOR APPLICATION ROUTES________________#
 
-#------------------1. Apply to be an author------------------#
+#✅------------------1. Apply to be an author------------------#
 @users_bp.route('/apply-author', methods=['POST'])
 @token_required
 def apply_to_be_author(current_user):
@@ -330,11 +233,10 @@ def apply_to_be_author(current_user):
 
 
 
-#------------------2. View own author application status------------------#
+#✅------------------2. View own author application status------------------#
 
 @users_bp.route('/me/applications', methods=['GET'])
 @token_required
-@require_role('reader')
 def view_own_author_application_status(current_user):
     """
     View all author verification requests submitted by the authenticated user.
@@ -347,9 +249,9 @@ def view_own_author_application_status(current_user):
         200 OK: List of applications.
         404 Not Found: No applications submitted.
     """
-
+    requests = current_user.verification_requests.all()
     # If the user has never submitted an application
-    if not current_user.verification_requests:
+    if not requests:
         return jsonify({'message': 'You have not submitted any author applications.'}), 404
 
     # Return only safe, user-facing fields
@@ -359,13 +261,13 @@ def view_own_author_application_status(current_user):
             "status": req.status,
             "submitted_at": req.submitted_at
         }
-        for req in current_user.verification_requests
+        for req in requests
     ]
 
     return jsonify({'applications': applications}), 200
 
 
-#------------------3. View all author applications (admin)------------------#
+#✅------------------3. View all author applications (admin)------------------#
 @users_bp.route('/author-applications', methods=['GET'])
 @token_required
 @require_role('admin')
@@ -385,14 +287,19 @@ def view_all_author_applications(current_user):
     result = [] #empty list to hold application requests with user info
 
     for app in applications: #looping through each app request
-        user = Users.query.get(app.user_id) #fetch user who submitted the app request.
+        user = app.user #get the user associated with the app request
+        
 
         result.append({ #build dictionary 
             "application_id": app.id,
             "user_id": app.user_id,
-            "user_email": user.email if user else "User not found",
+            "first_name": user.first_name if user else "User not found",
+            "last_name": user.last_name if user else "User not found",
+            "full_name": f"{user.first_name} {user.last_name}" if user else "User not found",
+            "username": user.username if user else "User not found",
+            "email": user.email if user else "User not found",
             "author_bio": app.author_bio,
-            "openlib_author_key": app.openlib_author_key,
+            "openlib_author_keys": app.openlib_author_keys,
             "proof_links": app.proof_links,
             "status": app.status,
             "submitted_at": app.submitted_at,
@@ -403,7 +310,7 @@ def view_all_author_applications(current_user):
 
     return jsonify({'applications': result}), 200 #return the python list of dictionaries as JSON response
 
-#------------------4. View pending author applications (admin)------------------#
+#✅------------------4. View pending author applications (admin)------------------#
 @users_bp.route('/author-applications/pending', methods=['GET'])
 @token_required
 @require_role('admin')
@@ -428,13 +335,17 @@ def get_pending_author_applications(current_user):
 
     results = []
     for app in pending_apps:
+        user = app.user
         results.append({
             "application_id": app.id,
             "user_id": app.user_id,
-            "user_email": app.user.email,
-            "user_name": f"{app.user.first_name} {app.user.last_name}",
+            "first_name": user.first_name if user else "User not found",
+            "last_name": user.last_name if user else "User not found",
+            "full_name": f"{user.first_name} {user.last_name}" if user else "User not found",
+            "username": user.username if user else "User not found",
+            "email": user.email if user else "User not found",
             "author_bio": app.author_bio,
-            "openlib_author_key": app.openlib_author_key,
+            "openlib_author_keys": app.openlib_author_keys,
             "proof_links": app.proof_links,
             "notes": app.notes,
             "status": app.status,
@@ -444,25 +355,54 @@ def get_pending_author_applications(current_user):
 
     return jsonify({"pending_applications": results}), 200
 
+#--------------------Get one author application by ID (admin)------------------#
+@users_bp.route('/author-applications/<int:application_id>', methods=['GET'])
+@token_required
+@require_role('admin')
+def get_author_application_by_id(current_user, application_id):
+    """
+    Retrieve a specific author verification request by its ID (admin only).
 
-#------------------5. Approve author application (admin)------------------#
+    Behavior:
+        - Returns 404 if the application does not exist.
+        - Includes full moderation context and user info for the application.
+
+    Returns:
+        200 OK: Application details with user info.
+        404 Not Found: Application not found.
+    """
+
+    app = VerificationRequest.query.get_or_404(application_id)
+    user = app.user
+
+
+    result = {
+        "application_id": app.id,
+        "user_id": app.user_id,
+        "email": user.email if user else "User not found",
+        "first_name": user.first_name if user else "User not found",
+        "last_name": user.last_name if user else "User not found",
+        "full_name": f"{user.first_name} {user.last_name}" if user else "User not found",
+        "username": user.username if user else "User not found",
+        "author_bio": app.author_bio,
+        "openlib_author_keys": app.openlib_author_keys,
+        "proof_links": app.proof_links,
+        "status": app.status,
+        "submitted_at": app.submitted_at,
+        "reviewed_at": app.reviewed_at,
+        "reviewed_by": app.reviewed_by,
+        "notes": app.notes
+    }
+
+    return jsonify(result), 200
+
+#✅------------------5. Approve author application (admin)------------------#
 @users_bp.route('/<int:user_id>/approve-author', methods=['PUT'])
 @token_required
 @require_role('admin')
 def approve_author_application(current_user, user_id):
     """
     Approve a user's pending author verification request (admin only).
-
-    Behavior:
-        - Ensures the user exists and is not already an author.
-        - Ensures a pending request exists.
-        - Promotes the user to author.
-        - Updates the verification request with approval metadata.
-
-    Returns:
-        200 OK: User approved.
-        400 Bad Request: Already an author.
-        404 Not Found: No pending request.
     """
 
     user = Users.query.get_or_404(user_id)
@@ -470,39 +410,31 @@ def approve_author_application(current_user, user_id):
     if user.role == 'author':
         return jsonify({'message': 'User is already an author!'}), 400
 
-    pending_request = VerificationRequest.query.filter_by(user_id=user_id, status='pending').first()
+    pending_request = VerificationRequest.query.filter_by(
+        user_id=user_id, 
+        status='pending'
+    ).first()
+
     if not pending_request:
         return jsonify({'message': 'No pending author application found for this user!'}), 404
 
-    # Update user role to author
+    # Promote user + update request
     user.role = 'author'
-    db.session.commit()
-
-    # Update verification request status
     pending_request.status = 'approved'
     pending_request.reviewed_at = db.func.now()
     pending_request.reviewed_by = current_user.id
+
     db.session.commit()
 
     return jsonify({'message': f'User {user.email} has been approved as an author!'}), 200
 
-#------------------6. Reject author application (admin)------------------#
+#✅------------------6. Reject author application (admin)------------------#
 @users_bp.route('/<int:user_id>/reject-author', methods=['PUT'])
 @token_required
 @require_role('admin')
 def reject_author_application(current_user, user_id):
     """
     Reject a user's pending author verification request (admin only).
-
-    Behavior:
-        - Ensures the user exists and is not already an author.
-        - Ensures a pending request exists.
-        - Updates the verification request with rejection metadata.
-
-    Returns:
-        200 OK: User rejected.
-        400 Bad Request: User already an author.
-        404 Not Found: No pending request.
     """
 
     user = Users.query.get_or_404(user_id)
@@ -510,21 +442,26 @@ def reject_author_application(current_user, user_id):
     if user.role == 'author':
         return jsonify({'message': 'User is already an author and cannot be rejected!'}), 400
 
-    pending_request = VerificationRequest.query.filter_by(user_id=user_id, status='pending').first()
+    pending_request = VerificationRequest.query.filter_by(
+        user_id=user_id,
+        status='pending'
+    ).first()
+
     if not pending_request:
         return jsonify({'message': 'No pending author application found for this user!'}), 404
 
-    # Update verification request status to rejected
+    # Update verification request status
     pending_request.status = 'rejected'
     pending_request.reviewed_at = db.func.now()
     pending_request.reviewed_by = current_user.id
+
     db.session.commit()
 
-    return jsonify({'message': f'User {user.email}\'s author application has been rejected.'}), 200
+    return jsonify({'message': f"User {user.email}'s author application has been rejected."}), 200
 
-#_____________________AUTHOR LIST ROUTE_____________________#
+#_____________________AUTHOR LIST ROUTE_____________________# #MAY NOT USE THIS, DEPENDS ON FRONTEND DESIGN. IF WE HAVE A PUBLIC AUTHOR DIRECTORY PAGE, THIS WILL BE USEFUL. IF NOT, MAYBE NOT NEEDED. CAN ALSO IMPLEMENT LATER IF WE DECIDE TO ADD AN AUTHOR DIRECTORY PAGE.could use it for internal stats or future features even if we don't have a public author directory page, so might be worth implementing regardless.
 
-#------------------1. Get list of all authors------------------#
+#✅------------------1. Get list of all authors (admin)------------------#
 @users_bp.route('/authors', methods=['GET'])
 def get_all_authors():
     """

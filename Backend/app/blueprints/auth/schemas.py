@@ -1,4 +1,5 @@
 from marshmallow import Schema, fields
+from app.models import Users
 from app.extensions import ma
 
 
@@ -17,15 +18,22 @@ from app.extensions import ma
 #CREATING USER (LOAD) includes password
 class SignupSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
-        from app.models import Users
         model = Users
         load_instance = False
-        include_fk = True
+        include_fk = False
+        # Explicitly block fields users should NEVER set
         exclude = (
-            "playlists", 
+            "id",
+            "role",
+            "openlib_author_key",
+            "library",
+            "created_at",
+            "updated_at",
+            "playlists",
             "authored_books",
-            "verification_requests")  # allow password on load but not on dump and prevent circular references.
-
+            "verification_requests"
+        )
+        
 signup_schema = SignupSchema()
 
 #VALIDATION

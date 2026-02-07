@@ -33,7 +33,7 @@ users_schema = UserSchema(many=True)
 class UserUpdateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Users
-        fields = ("first_name", "last_name", "email", "password")
+        fields = ("first_name", "last_name", "email", "password", "author_bio")
         load_only = ("password",)
         partial = True  # Allow partial updates
         
@@ -43,9 +43,10 @@ user_update_schema = UserUpdateSchema()
 class AuthorApplicationSchema(Schema):
     class Meta:
         unknown = "EXCLUDE"
-    author_bio = fields.String(required=True, validate=validate.Length(min=10))
-    proof_links = fields.List(fields.String(), required=False)
-    openlib_author_key = fields.String(required=False)
+    author_bio = fields.String(required=False, validate=validate.Length(min=10))
+    proof_links = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
+    openlib_author_keys = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
     notes = fields.String(required=False)
     
 author_app_schema = AuthorApplicationSchema()
+

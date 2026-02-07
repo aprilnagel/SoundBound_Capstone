@@ -65,11 +65,11 @@ def token_required(f): #main function
 def require_role(*roles):
     def wrapper(f):
         @wraps(f)
-        def decorated(*args, **kwargs):
+        def decorated(current_user, *args, **kwargs):
             if request.logged_in_user_role not in roles:
                 return jsonify({'message': 'Access forbidden: insufficient permissions!'}), 403 #403 Forbidden status code for insufficient permissions
             
-            return f(*args, **kwargs)
+            return f(current_user, *args, **kwargs)
         return decorated
     return wrapper     
         
