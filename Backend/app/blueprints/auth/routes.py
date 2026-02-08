@@ -1,7 +1,6 @@
 from . import auth_bp
 from .schemas import signup_schema, login_user_schema
 from app.blueprints.users.schemas import UserSchema
-from app.blueprints.auth.schemas import SignupSchema, signup_schema
 from app.utility.auth import encode_token, token_required, require_role
 from flask import request, jsonify
 from app.models import Users

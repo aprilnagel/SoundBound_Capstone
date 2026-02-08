@@ -187,7 +187,7 @@ def apply_to_be_author(current_user):
         user_id=current_user.id,
         author_bio=validated.get("author_bio"),
         proof_links=validated.get("proof_links"),
-        openlib_author_keys=validated.get("openlib_author_keys"),
+        author_keys=validated.get("author_keys"),
         notes=validated.get("notes"),
         status='pending'  # system-generated
     )
@@ -265,7 +265,7 @@ def view_all_author_applications(current_user):
             "username": user.username if user else "User not found",
             "email": user.email if user else "User not found",
             "author_bio": app.author_bio,
-            "openlib_author_keys": app.openlib_author_keys,
+            "author_keys": app.author_keys,
             "proof_links": app.proof_links,
             "status": app.status,
             "submitted_at": app.submitted_at,
@@ -311,7 +311,7 @@ def get_pending_author_applications(current_user):
             "username": user.username if user else "User not found",
             "email": user.email if user else "User not found",
             "author_bio": app.author_bio,
-            "openlib_author_keys": app.openlib_author_keys,
+            "author_keys": app.author_keys,
             "proof_links": app.proof_links,
             "notes": app.notes,
             "status": app.status,
@@ -351,7 +351,7 @@ def get_author_application_by_id(current_user, application_id):
         "full_name": f"{user.first_name} {user.last_name}" if user else "User not found",
         "username": user.username if user else "User not found",
         "author_bio": app.author_bio,
-        "openlib_author_keys": app.openlib_author_keys,
+        "author_keys": app.author_keys,
         "proof_links": app.proof_links,
         "status": app.status,
         "submitted_at": app.submitted_at,
@@ -386,6 +386,8 @@ def approve_author_application(current_user, user_id):
 
     # Promote user + update request
     user.role = 'author'
+    user.author_keys = pending_request.author_keys #copy author keys from the request to the user model when approving
+    user.author_bio = pending_request.author_bio #copy author bio from the request to the user model when approving
     pending_request.status = 'approved'
     pending_request.reviewed_at = db.func.now()
     pending_request.reviewed_by = current_user.id

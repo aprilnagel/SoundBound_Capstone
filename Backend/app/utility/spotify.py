@@ -93,6 +93,7 @@ def fetch_artist_genres(artist_id):
     Returns a list of strings.
     """
     token = get_spotify_token()
+    print("TOKEN:", token)
     if not token:
         return []
 

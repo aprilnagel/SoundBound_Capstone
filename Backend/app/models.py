@@ -2,6 +2,8 @@ from datetime import datetime, timezone
 from .extensions import db
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+from sqlalchemy.ext.mutable import MutableList
+
 
 
 
@@ -26,7 +28,7 @@ class Users(db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
     author_keys = db.Column(db.JSON, nullable=True)
     author_bio = db.Column(db.String(1000), nullable=True)
-    library = db.Column(db.JSON, nullable=True) #storing as JSON to accommodate multiple books with title and author name for unverified books
+    library = db.Column(MutableList.as_mutable(db.JSON), default=list)
     
     #------------RELATIONSHIPS-----------------
     
@@ -111,13 +113,6 @@ class Books(db.Model):
         lazy="dynamic"
     )
 
-    # Tags on books
-    tags = relationship(
-        "Tags",
-        secondary="book_tags",
-        back_populates="books",
-        lazy="dynamic"
-    )
 
     # Playlists that include this book
     playlists = relationship(
@@ -202,28 +197,14 @@ class Tags(db.Model):
     __tablename__ = 'tags'
     
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    source = db.Column(db.String(50), nullable=False) 
-    category = db.Column(db.String(50), nullable=True)
-    normalized_name = db.Column(db.String(250), nullable=False, index=True)
-    is_official = db.Column(db.Boolean, default=False)
+    mood_name = db.Column(db.String(100), unique=True, nullable=False)
+    category = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    updated_at = db.Column(
-    db.DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-    description = db.Column(db.String(500), nullable=True)
-    parent_id = db.Column(db.Integer, db.ForeignKey('tags.id'), nullable=True)
-    parent = relationship("Tags", remote_side=[id])
-
-
+    updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
 
 
 #------------RELATIONSHIPS-----------------
-    books = relationship(
-        "Books",
-        secondary="book_tags",
-        back_populates="tags",
-        lazy="dynamic"
-    )
+    
     
     playlists = relationship(
         "Playlists",

@@ -6,9 +6,7 @@ from . import books_bp
 from app.models import Books, Users
 from app.extensions import db
 from sqlalchemy import func
-
 from app.utility.openlibrary import fetch_openlibrary_work
-from app.utility.tags import sync_book_subjects_to_tags
 
 
 #_____________________BOOKS SEARCH_____________________#
@@ -79,6 +77,7 @@ def get_book_details(current_user, openlib_id):
     # 3. Return the preview metadata (NOT inserted into DB)
     return jsonify(ol_data), 200
 
+
 #_____________________IMPORT BOOK FROM OPEN LIBRARY_____________________#
 
 @books_bp.route("/add-book", methods=["POST"])
@@ -137,12 +136,7 @@ def import_book(current_user):
     db.session.commit()  # book.id now exists
 
     # ---------------------------------------------------------
-    # 4. SYNC SUBJECTS → TAGS
-    # ---------------------------------------------------------
-    sync_book_subjects_to_tags(book)
-
-    # ---------------------------------------------------------
-    # 5. ADD INTERNAL BOOK ID TO USER'S LIBRARY
+    # 4. ADD INTERNAL BOOK ID TO USER'S LIBRARY
     # ---------------------------------------------------------
     user_library = current_user.library or []
     current_user.library = user_library + [book.id]

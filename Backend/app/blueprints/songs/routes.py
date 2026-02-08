@@ -13,18 +13,21 @@ from app.models import Playlists, Playlist_Songs, Songs
 
 # Auth
 from app.utility.auth import token_required
+
+# Spotify helpers
 from app.utility.spotify import (
     fetch_spotify_track,
     fetch_audio_features,
-    fetch_artist_genres
+    fetch_genres_for_artists
 )
 
 # Blueprint
 from . import songs_bp
 
 
-#_________________ADD SONG TO PLAYLIST_____________________
-
+# ---------------------------------------------------------
+# ADD SONG TO PLAYLIST
+# ---------------------------------------------------------
 @songs_bp.route("/playlists/<int:playlist_id>/songs", methods=["POST"])
 @token_required
 def add_song_to_playlist(current_user, playlist_id):
@@ -37,32 +40,59 @@ def add_song_to_playlist(current_user, playlist_id):
         return jsonify({"error": "You do not own this playlist."}), 403
 
     data = playlist_song_schema.load(request.get_json())
-    song_id = data["song_id"]
+    spotify_id = data["spotify_id"]
 
-    song = Songs.query.get(song_id)
+    # 1. Check if song exists
+    song = Songs.query.filter_by(spotify_id=spotify_id).first()
+
+    # 2. If not, import it
     if not song:
-        return jsonify({"error": "Song not found"}), 404
+        track = fetch_spotify_track(spotify_id)
+        if not track:
+            return jsonify({"error": "Failed to fetch track from Spotify"}), 400
 
-    # Prevent duplicates
+        features = fetch_audio_features(spotify_id)
+        genres = fetch_genres_for_artists(track["artist_ids"])
+
+        song = Songs(
+            title=track["title"],
+            artists=track["artists"],
+            album=track["album"],
+            preview_url=track["preview_url"],
+            spotify_id=spotify_id,
+            audio_features=features,
+            genres=genres,
+            source="spotify"
+        )
+
+        db.session.add(song)
+        db.session.commit()
+
+    # 3. Prevent duplicates
     existing = Playlist_Songs.query.filter_by(
         playlist_id=playlist_id,
-        song_id=song_id
+        song_id=song.id
     ).first()
 
     if existing:
         return jsonify({"error": "Song already in playlist"}), 400
 
+    # 4. Add to playlist
     new_entry = Playlist_Songs(
         playlist_id=playlist_id,
-        song_id=song_id
+        song_id=song.id
     )
 
     db.session.add(new_entry)
     db.session.commit()
+    db.session.refresh(playlist)
 
     return jsonify(playlist_detail_schema.dump(playlist)), 201
 
-#____________________IMPORT SONG FROM SPOTIFY_____________________#
+
+# ---------------------------------------------------------
+# IMPORT SONG FROM SPOTIFY (standalone)
+# ---------------------------------------------------------
 @songs_bp.route("/import", methods=["POST"])
 @token_required
 def import_song(current_user):
@@ -85,10 +115,8 @@ def import_song(current_user):
     # 3. Fetch audio features
     features = fetch_audio_features(spotify_id)
 
-    # 4. Fetch genres from the first artist
-    genres = []
-    if track["artist_ids"]:
-        genres = fetch_artist_genres(track["artist_ids"][0])
+    # 4. Fetch genres for ALL artists
+    genres = fetch_genres_for_artists(track["artist_ids"])
 
     # 5. Create Song instance
     song = Songs(
@@ -105,12 +133,12 @@ def import_song(current_user):
     db.session.add(song)
     db.session.commit()
 
-    
-
     return jsonify({"song_id": song.id}), 201
 
-#_________________REMOVE SONG FROM PLAYLIST_____________________
 
+# ---------------------------------------------------------
+# REMOVE SONG FROM PLAYLIST
+# ---------------------------------------------------------
 @songs_bp.route("/playlists/<int:playlist_id>/songs/<int:song_id>", methods=["DELETE"])
 @token_required
 def remove_song_from_playlist(current_user, playlist_id, song_id):

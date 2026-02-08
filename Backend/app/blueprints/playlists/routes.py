@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.blueprints.playlists import playlists_bp
-from app.models import Books, Playlists, Songs
+from app.models import Books, Playlists, Songs, Tags
 from app.extensions import db
 
 from app.blueprints.playlists.schemas import (
@@ -15,7 +15,7 @@ from app.blueprints.playlists.schemas import (
 from app.utility.auth import require_role, token_required
 
 
-#_________________CREATE PLAYLISTS_____________________
+#_________________CREATE PLAYLISTS_____________________#
 
 @playlists_bp.route("", methods=["POST"])
 @token_required
@@ -25,24 +25,11 @@ def create_playlist(current_user):
     book_id = data.get("book_id")
     custom_title = data.get("custom_book_title")
     custom_author = data.get("custom_author_name")
+    custom_year = data.get("custom_publish_year")
     is_author_reco = data.get("is_author_reco", False)
 
-    #---------------------------------------------------------
-    # 1. VALIDATION: Prevent mixing verified + custom fields
-    #---------------------------------------------------------
-    if book_id and (custom_title or custom_author):
-        return jsonify({
-            "error": "Cannot provide custom book fields when book_id is present."
-        }), 400
-
-    if not book_id and (custom_title or custom_author):
-        playlist_type = "custom"
-    elif book_id:
-        playlist_type = "verified"
-    else:
-        return jsonify({
-            "error": "Either book_id OR custom book fields are required."
-        }), 400
+    # Determine playlist type
+    playlist_type = "verified" if book_id else "custom"
 
     #---------------------------------------------------------
     # 2. VERIFIED PLAYLIST LOGIC
@@ -57,14 +44,13 @@ def create_playlist(current_user):
             if current_user.role != "author":
                 return jsonify({"error": "Only authors can create author recommendation playlists."}), 403
             
-            user_keys = set(current_user.openlib_author_keys or [])
-            book_keys = set(book.openlib_author_keys or [])
+            user_keys = set(current_user.author_keys or [])
+            book_keys = set(book.author_keys or [])
             if not user_keys.intersection(book_keys):
                 return jsonify({
                     "error": "You can only create author recommendation playlists for books you've authored."
                 }), 403
 
-            # TODO: Validate book belongs to this author
             new_playlist = Playlists(
                 title=data["title"],
                 description=data.get("description"),
@@ -75,8 +61,7 @@ def create_playlist(current_user):
 
         # Normal Verified Playlist
         else:
-            # Must be in user's library
-            if not current_user.library or str(book_id) not in current_user.library:
+            if not current_user.library or book_id not in current_user.library:
                 return jsonify({
                     "error": "You must add this book to your library before creating a playlist."
                 }), 403
@@ -90,8 +75,8 @@ def create_playlist(current_user):
             )
 
         db.session.add(new_playlist)
-        db.session.flush()  # get new_playlist.id before creating association
-        
+        db.session.flush()
+
         new_playlist.books.append(book)
         db.session.commit()
         return jsonify(playlist_dump_schema.dump(new_playlist)), 201
@@ -100,32 +85,30 @@ def create_playlist(current_user):
     # 3. CUSTOM PLAYLIST LOGIC
     #---------------------------------------------------------
     if playlist_type == "custom":
-        if not custom_title or not custom_author:
-            return jsonify({
-                "error": "custom_book_title and custom_author_name are required."
-            }), 400
-            
-        # 1. Create the custom book in the Books table
+        # Create the custom book
         custom_book = Books(
             title=custom_title,
-            author_names=[custom_author],   # supports multi-author later
+            author_names=[custom_author],
             api_source=None,
             api_id=None,
             cover_url=None,
             description=None,
-            openlib_author_keys=None,
+            author_keys=[],
             openlib_id=None,
             cover_id=None,
-            isbn_list=None,
-            first_publish_year=None,
-            subjects=None,
+            isbn_list=[],
+            first_publish_year=custom_year,
+            subjects=[],
             source="custom"
         )
 
         db.session.add(custom_book)
-        db.session.flush()  # get custom_book.id before creating playlist
+        db.session.flush()
 
-        # 2. Create the playlist
+        # Add custom book to user's library
+        current_user.library = (current_user.library or []) + [custom_book.id]
+
+        # Create the playlist
         new_playlist = Playlists(
             title=data["title"],
             description=data.get("description"),
@@ -133,22 +116,30 @@ def create_playlist(current_user):
             is_author_reco=False,
             user_id=current_user.id
         )
+
         db.session.add(new_playlist)
-        db.session.flush()  # get new_playlist.id before creating association
-        
+        db.session.flush()
+
         new_playlist.books.append(custom_book)
         db.session.commit()
+
         return jsonify(playlist_dump_schema.dump(new_playlist)), 201
 
 
 #_____________________GET ALL MY PLAYLISTS_____________________#
+
 @playlists_bp.route("/me", methods=["GET"])
 @token_required
 def get_my_playlists(current_user):
     playlists = Playlists.query.filter_by(user_id=current_user.id).all()
+    
+    if not playlists:
+        return jsonify({"message": "You have no playlists yet."}), 200
     return jsonify(playlist_dump_schema.dump(playlists, many=True)), 200
 
+
 #_____________________GET SPECIFIC PLAYLIST_____________________#
+
 @playlists_bp.route("/<int:playlist_id>", methods=["GET"])
 @token_required
 def get_playlist_detail(current_user, playlist_id):
@@ -163,13 +154,17 @@ def get_playlist_detail(current_user, playlist_id):
 
     return jsonify(playlist_detail_schema.dump(playlist)), 200
 
+
 #_____________________GET AUTHOR RECOMMENDATION PLAYLISTS_____________________#
+
 @playlists_bp.route("/author-reco", methods=["GET"])
 def get_author_reco_playlists():
     playlists = Playlists.query.filter_by(is_author_reco=True).all()
     return jsonify(playlist_dump_schema.dump(playlists, many=True)), 200
 
+
 #_____________________UPDATE PLAYLIST_____________________#
+
 @playlists_bp.route("/<int:playlist_id>", methods=["PUT"])
 @token_required
 def update_playlist(current_user, playlist_id):
@@ -200,7 +195,9 @@ def update_playlist(current_user, playlist_id):
     db.session.commit()
     return jsonify(playlist_dump_schema.dump(playlist)), 200
 
+
 #_____________________DELETE PLAYLIST_____________________#
+
 @playlists_bp.route("/<int:playlist_id>", methods=["DELETE"])
 @token_required
 def delete_playlist(current_user, playlist_id):
@@ -217,3 +214,59 @@ def delete_playlist(current_user, playlist_id):
     db.session.commit()
 
     return jsonify({"message": "Playlist deleted successfully."}), 200
+
+
+#_____________________ADD TAG TO PLAYLIST_____________________#
+
+@playlists_bp.route("/<int:playlist_id>/tags", methods=["POST"])
+@token_required
+def add_tag_to_playlist(current_user, playlist_id):
+    playlist = Playlists.query.get(playlist_id)
+    if not playlist:
+        return jsonify({"error": "Playlist not found"}), 404
+
+    if playlist.user_id != current_user.id:
+        return jsonify({"error": "You do not own this playlist."}), 403
+
+    data = request.get_json()
+    tag_id = data.get("tag_id")
+    if not tag_id:
+        return jsonify({"error": "tag_id is required"}), 400
+
+    tag = Tags.query.get(tag_id)
+    if not tag:
+        return jsonify({"error": "Tag not found"}), 404
+
+    # Prevent duplicates
+    if tag in playlist.tags:
+        return jsonify({"message": "Tag already added"}), 200
+
+    playlist.tags.append(tag)
+    db.session.commit()
+
+    return jsonify(playlist_detail_schema.dump(playlist)), 200
+
+
+#_____________________REMOVE TAG FROM PLAYLIST_____________________#
+
+@playlists_bp.route("/<int:playlist_id>/tags/<int:tag_id>", methods=["DELETE"])
+@token_required
+def remove_tag_from_playlist(current_user, playlist_id, tag_id):
+    playlist = Playlists.query.get(playlist_id)
+    if not playlist:
+        return jsonify({"error": "Playlist not found"}), 404
+
+    if playlist.user_id != current_user.id:
+        return jsonify({"error": "You do not own this playlist."}), 403
+
+    tag = Tags.query.get(tag_id)
+    if not tag:
+        return jsonify({"error": "Tag not found"}), 404
+
+    if tag not in playlist.tags:
+        return jsonify({"error": "Tag not in playlist"}), 400
+
+    playlist.tags.remove(tag)
+    db.session.commit()
+
+    return jsonify(playlist_detail_schema.dump(playlist)), 200

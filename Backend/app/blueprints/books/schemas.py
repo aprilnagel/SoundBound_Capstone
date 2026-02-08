@@ -13,3 +13,10 @@ class BookDumpSchema(Schema):
     isbn_list = fields.List(fields.Str())
 
 book_dump_schema = BookDumpSchema()
+
+class BookLiteSchema(Schema):
+    id = fields.Int()
+    title = fields.Str()
+    cover_url = fields.Str()
+    
+book_lite_schema = BookLiteSchema()

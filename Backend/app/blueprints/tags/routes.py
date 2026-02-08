@@ -14,10 +14,33 @@ from app.blueprints.playlists.schemas import playlist_detail_schema
 from app.models import Tags, Playlists, Playlist_Tags
 
 # Auth
-from app.utility.auth import token_required
+from app.utility.auth import token_required, require_role
 
 # Blueprint
 from . import tags_bp
+
+
+#___________________CREATE TAG___________________#
+@tags_bp.post("")
+@token_required
+@require_role("admin")
+def create_tag(current_user):
+    data = request.get_json()
+    mood_name = data.get("mood_name")
+    category = data.get("category")  # Optional field
+
+    if not mood_name:
+        return {"error": "mood_name is required"}, 400
+
+    existing = Tags.query.filter_by(mood_name=mood_name).first()
+    if existing:
+        return {"message": "Tag already exists", "tag_id": existing.id}, 200
+
+    tag = Tags(mood_name=mood_name, category=category)
+    db.session.add(tag)
+    db.session.commit()
+
+    return {"message": "Tag created", "tag_id": tag.id}, 201
 
 
 #___________________GET ALL TAGS___________________#
@@ -25,6 +48,7 @@ from . import tags_bp
 def get_all_tags():
     tags = Tags.query.all()
     return jsonify(tag_dump_schema.dump(tags, many=True)), 200
+
 
 #___________________ADD TAG TO PLAYLIST___________________#
 @tags_bp.route("/playlists/<int:playlist_id>/tags", methods=["POST"])
@@ -62,6 +86,7 @@ def add_tag_to_playlist(current_user, playlist_id):
     db.session.commit()
 
     return jsonify(playlist_detail_schema.dump(playlist)), 201
+
 
 #___________________REMOVE TAG FROM PLAYLIST___________________#
 @tags_bp.route("/playlists/<int:playlist_id>/tags/<int:tag_id>", methods=["DELETE"])

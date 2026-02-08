@@ -5,8 +5,14 @@ class TagBaseSchema(Schema):
 
 tag_base_schema = TagBaseSchema()
 
+
+
 class TagDumpSchema(Schema):
     id = fields.Int()
-    name = fields.Str()
+    mood_name = fields.Str()
+    category = fields.Str(required=False, allow_none=True)
+    created_at = fields.DateTime()
+    updated_at = fields.DateTime()
 
 tag_dump_schema = TagDumpSchema()
+tags_dump_schema = TagDumpSchema(many=True)

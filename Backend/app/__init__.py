@@ -1,7 +1,7 @@
 
 from dotenv import load_dotenv
 load_dotenv()
-from flask import Flask
+from flask import Flask, app
 
 
 from .extensions import db, ma, cors
@@ -16,9 +16,16 @@ from .blueprints.users import users_bp
 
 def create_app():
     app = Flask(__name__)
+    
+
 
     # Load config
     app.config.from_object("config.DevelopmentConfig")
+    import os
+    
+
+    app.config["SPOTIFY_CLIENT_ID"] = os.getenv("SPOTIFY_CLIENT_ID")
+    app.config["SPOTIFY_CLIENT_SECRET"] = os.getenv("SPOTIFY_CLIENT_SECRET")
 
     # Initialize extensions
     db.init_app(app)
@@ -30,6 +37,7 @@ def create_app():
 
     # Create tables automatically
     with app.app_context():
+        print("USING DB FILE:", os.path.abspath(db.engine.url.database))
         # db.drop_all()
         db.create_all()
         
