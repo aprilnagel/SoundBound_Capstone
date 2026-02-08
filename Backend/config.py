@@ -1,7 +1,7 @@
 import os
 
 class DevelopmentConfig:
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or "sqlite:///SoundBound.db"
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 

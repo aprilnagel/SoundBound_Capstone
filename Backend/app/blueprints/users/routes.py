@@ -84,52 +84,11 @@ def update_current_user(current_user):
             # - Users can add/remove books to their library (list of book IDs)
             
 #✅------------------1. Add a book to library------------------#
-
-@users_bp.route('/me/library', methods=['POST'])
-@token_required
-def add_book_to_library(current_user):
-    """
-    Add a book to the authenticated user's personal library.
-
-    Request JSON:
-        {
-            "book_id": <string or int>
-        }
-
-    Behavior:
-        - Ensures the user's library list exists.
-        - Prevents duplicate entries.
-        - Appends the book ID to the user's library.
-
-    Returns:
-        200 OK: Book successfully added.
-        400 Bad Request: Missing book_id or duplicate entry.
-    """
-    try:
-        book_id = request.json.get('book_id')
-        if not book_id:
-            return jsonify({'message': 'Book ID is required'}), 400
-    except Exception as e:
-        return jsonify({'message': 'Invalid input', 'error': str(e)}), 400
-    
-    book_id = str(book_id) # Ensure book_id is stored as a string for consistency
-
-    # Ensure library exists
-    if current_user.library is None:
-        current_user.library = []
-
-    # Prevent duplicates
-    if book_id in current_user.library:
-        return jsonify({'message': 'Book already in library'}), 400
-
-    # Add book
-    current_user.library = current_user.library + [book_id]
-    db.session.commit()
-
-    return jsonify({'message': f'Book {book_id} added to library'}), 200
+#handled by books/routes.py import_book route
 
 
 #✅------------------2. Remove a book from library------------------#
+
 @users_bp.route('/me/library', methods=['DELETE'])
 @token_required
 def remove_book_from_library(current_user):
@@ -153,16 +112,22 @@ def remove_book_from_library(current_user):
 
     try:
         book_id = request.json.get('book_id')
-        if not book_id:
+        if book_id is None:
             return jsonify({'message': 'Book ID is required'}), 400
     except Exception as e:
         return jsonify({'message': 'Invalid input', 'error': str(e)}), 400
-    
-    book_id = str(book_id)
 
+    # Convert to int because your library stores integers
+    try:
+        book_id = int(book_id)
+    except ValueError:
+        return jsonify({'message': 'Book ID must be an integer'}), 400
+
+    # Ensure library exists
     if current_user.library is None:
         current_user.library = []
 
+    # Validate presence
     if book_id not in current_user.library:
         return jsonify({'message': 'Book not found in library'}), 404
 

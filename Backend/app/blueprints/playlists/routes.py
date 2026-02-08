@@ -114,7 +114,7 @@ def create_playlist(current_user):
             cover_url=None,
             description=None,
             openlib_author_keys=None,
-            openlib_work_key=None,
+            openlib_id=None,
             cover_id=None,
             isbn_list=None,
             first_publish_year=None,

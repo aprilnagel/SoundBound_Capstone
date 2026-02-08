@@ -1,10 +1,11 @@
 from flask import Blueprint, request, jsonify
+import requests
 from app.blueprints.books.schemas import book_dump_schema
 from app.utility.auth import token_required
 from . import books_bp
 from app.models import Books, Users
 from app.extensions import db
-from sqlalchemy import func, or_
+from sqlalchemy import func
 
 from app.utility.openlibrary import fetch_openlibrary_work
 from app.utility.tags import sync_book_subjects_to_tags
@@ -13,88 +14,149 @@ from app.utility.tags import sync_book_subjects_to_tags
 #_____________________BOOKS SEARCH_____________________#
 
 @books_bp.route("/search", methods=["GET"])
-def search_books():
-    query = request.args.get("query", "").strip()
+@token_required
+def search_books(current_user):
+    title = request.args.get("title")
+    author = request.args.get("author")
+    isbn = request.args.get("isbn")
 
-    if not query:
-        return jsonify([]), 200
+    # Build Open Library query
+    query_parts = []
+    if title:
+        query_parts.append(f"title:{title}")
+    if author:
+        query_parts.append(f"author:{author}")
+    if isbn:
+        query_parts.append(f"isbn:{isbn}")
 
-    base_filters = or_(
-        Books.title.ilike(f"%{query}%"),
-        Books.author_names.cast(db.String).ilike(f"%{query}%")
-    )
+    if not query_parts:
+        return jsonify({"error": "Provide at least one of: title, author, isbn"}), 400
 
-    isbn_filter = Books.isbn_list.contains([query])
-    partial_isbn_filter = Books.isbn_list.cast(db.String).ilike(f"%{query}%")
+    q = " ".join(query_parts)
 
-    results = Books.query.filter(
-        or_(base_filters, isbn_filter, partial_isbn_filter)
-    ).all()
+    url = "https://openlibrary.org/search.json"
+    params = {"q": q, "limit": 20}
 
-    return jsonify(book_dump_schema.dump(results, many=True)), 200
+    resp = requests.get(url, params=params)
+    if resp.status_code != 200:
+        return jsonify({"error": "Failed to fetch from Open Library"}), 500
+
+    data = resp.json()
+
+    results = []
+    for doc in data.get("docs", []):
+        results.append({
+            "title": doc.get("title"),
+            "authors": doc.get("author_name", []),
+            "publish_year": doc.get("first_publish_year"),
+            "cover_id": doc.get("cover_i"),
+            # Normalize: always return clean Work ID
+            "openlib_id": doc.get("key").split("/")[-1]
+        })
+
+    return jsonify(results), 200
 
 
 #_____________________BOOK DETAILS_____________________#
 
-@books_bp.route("/<int:book_id>", methods=["GET"])
-def get_book_details(book_id):
-    book = Books.query.get(book_id)
-
-    if not book:
-        return jsonify({"message": "Book not found"}), 404
-
-    return jsonify(book_dump_schema.dump(book)), 200
-
-
-#_____________________IMPORT BOOK FROM OPEN LIBRARY_____________________#
-
-@books_bp.route("/import", methods=["POST"])
+@books_bp.route("/<openlib_id>", methods=["GET"])
 @token_required
-def import_book(current_user):
-    data = request.get_json()
-    work_key = data.get("openlib_work_key")
+def get_book_details(current_user, openlib_id):
+    # Normalize ID
+    openlib_id = openlib_id.split("/")[-1]
 
-    if not work_key:
-        return jsonify({"error": "openlib_work_key is required"}), 400
+    # 1. Try to fetch from DB first
+    book = Books.query.filter_by(openlib_id=openlib_id).first()
 
-    # 1. Check if already exists
-    existing = Books.query.filter_by(openlib_work_key=work_key).first()
-    if existing:
-        return jsonify({"book_id": existing.id}), 200
+    if book:
+        return jsonify(book_dump_schema.dump(book)), 200
 
-    # 2. Fetch from Open Library
-    ol_data = fetch_openlibrary_work(work_key)
+    # 2. If not in DB, fetch full metadata from Open Library
+    ol_data = fetch_openlibrary_work(openlib_id)
     if not ol_data:
         return jsonify({"error": "Failed to fetch book from Open Library"}), 400
 
-    # 3. Create book instance (ONLY using fields your importer returns)
+    # 3. Return the preview metadata (NOT inserted into DB)
+    return jsonify(ol_data), 200
+
+#_____________________IMPORT BOOK FROM OPEN LIBRARY_____________________#
+
+@books_bp.route("/add-book", methods=["POST"])
+@token_required
+def import_book(current_user):
+    data = request.get_json()
+
+    raw_id = data.get("openlib_id")
+    if not raw_id:
+        return jsonify({"error": "openlib_id is required"}), 400
+
+    # Normalize ID (handles "works/OL123W" or "OL123W")
+    openlib_id = raw_id.split("/")[-1]
+
+    # ---------------------------------------------------------
+    # 1. CHECK IF BOOK ALREADY EXISTS IN OUR DATABASE
+    # ---------------------------------------------------------
+    existing = Books.query.filter_by(openlib_id=openlib_id).first()
+
+    if existing:
+        # Add to user's library if not already present
+        user_library = current_user.library or []
+        if existing.id not in user_library:
+            current_user.library = user_library + [existing.id]
+            db.session.commit()
+
+        return jsonify({"book_id": existing.id}), 200
+
+    # ---------------------------------------------------------
+    # 2. FETCH FULL METADATA FROM OPEN LIBRARY
+    # ---------------------------------------------------------
+    ol_data = fetch_openlibrary_work(openlib_id)
+    if not ol_data:
+        return jsonify({"error": "Failed to fetch book from Open Library"}), 400
+
+    # ---------------------------------------------------------
+    # 3. CREATE NEW BOOK INSTANCE USING FULL METADATA
+    # ---------------------------------------------------------
     book = Books(
-        title=ol_data["title"],
-        description=ol_data["description"],
-        subjects=ol_data["subjects"],
-        author_names=[],              # frontend will fill this later
-        openlib_author_keys=[],       # frontend will fill this later
-        cover_url=None,               # frontend will fill this later
-        isbn_list=[],                 # frontend will fill this later
-        first_publish_year=None,      # frontend will fill this later
-        openlib_work_key=work_key,
-        source="openlibrary"
+        title=ol_data.get("title"),
+        description=ol_data.get("description"),
+        subjects=ol_data.get("subjects"),
+        author_names=ol_data.get("author_names"),
+        author_keys=ol_data.get("author_keys"),
+        cover_url=ol_data.get("cover_url"),
+        cover_id=ol_data.get("cover_id"),
+        isbn_list=ol_data.get("isbn_list"),
+        first_publish_year=ol_data.get("first_publish_year"),
+        openlib_id=openlib_id,
+        api_source="openlibrary",
+        api_id=openlib_id,
+        source="verified"
     )
 
     db.session.add(book)
-    db.session.commit()
+    db.session.commit()  # book.id now exists
 
-    # 4. Sync subjects → tags
+    # ---------------------------------------------------------
+    # 4. SYNC SUBJECTS → TAGS
+    # ---------------------------------------------------------
     sync_book_subjects_to_tags(book)
+
+    # ---------------------------------------------------------
+    # 5. ADD INTERNAL BOOK ID TO USER'S LIBRARY
+    # ---------------------------------------------------------
+    user_library = current_user.library or []
+    current_user.library = user_library + [book.id]
+    db.session.commit()
 
     return jsonify({"book_id": book.id}), 201
 
 
 #_____________________SIMILAR BOOKS_____________________#
 
-@books_bp.route("/<int:book_id>/similar", methods=["GET"])
-def get_similar_books(book_id):
-    book = Books.query.get(book_id)
+@books_bp.route("/<openlib_id>/similar", methods=["GET"])
+@token_required
+def get_similar_books(current_user, openlib_id):
+    book = Books.query.filter_by(openlib_id=openlib_id).first()
 
     if not book:
         return jsonify({"message": "Book not found"}), 404
@@ -103,7 +165,7 @@ def get_similar_books(book_id):
         return jsonify([]), 200
 
     similar = Books.query.filter(
-        Books.id != book_id,
+        Books.id != book.id,
         Books.subjects.overlap(book.subjects)
     ).limit(20).all()
 
@@ -113,7 +175,8 @@ def get_similar_books(book_id):
 #_____________________POPULAR BOOKS_____________________#
 
 @books_bp.route("/popular", methods=["GET"])
-def get_popular_books():
+@token_required
+def get_popular_books(current_user):
     popularity = (
         db.session.query(
             func.unnest(Users.library).label("book_id"),

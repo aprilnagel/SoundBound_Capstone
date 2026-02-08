@@ -29,8 +29,7 @@ def signup():
         username=data["username"],
         email=data["email"],
         password=hashed_pw,
-        role="reader",              # force default
-        openlib_author_key=None     # prevent injection
+        role="reader"             # force default
     )
 
     db.session.add(new_user)

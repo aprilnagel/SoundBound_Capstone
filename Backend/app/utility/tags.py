@@ -1,5 +1,5 @@
 from app.extensions import db
-from app.models import Tags, Book_Tags, Song_Tags
+from app.models import Tags, Book_Tags
 from slugify import slugify
 
 
@@ -17,6 +17,7 @@ def sync_book_subjects_to_tags(book):
     for subject in book.subjects:
         normalized = normalize(subject)
 
+        # Find or create tag
         tag = Tags.query.filter_by(normalized_name=normalized).first()
         if not tag:
             tag = Tags(
@@ -29,6 +30,7 @@ def sync_book_subjects_to_tags(book):
             db.session.add(tag)
             db.session.commit()
 
+        # Link book ↔ tag
         exists = Book_Tags.query.filter_by(
             book_id=book.id,
             tag_id=tag.id
@@ -36,38 +38,5 @@ def sync_book_subjects_to_tags(book):
 
         if not exists:
             db.session.add(Book_Tags(book_id=book.id, tag_id=tag.id))
-
-    db.session.commit()
-
-
-# ---------------- SONG GENRES → TAGS ---------------- #
-
-def sync_song_genres_to_tags(song):
-    """Sync Spotify genres into Tags + Song_Tags."""
-    if not song.genres:
-        return
-
-    for genre in song.genres:
-        normalized = normalize(genre)
-
-        tag = Tags.query.filter_by(normalized_name=normalized).first()
-        if not tag:
-            tag = Tags(
-                name=genre,
-                normalized_name=normalized,
-                source="spotify",
-                category="genre",
-                is_official=True
-            )
-            db.session.add(tag)
-            db.session.commit()
-
-        exists = Song_Tags.query.filter_by(
-            song_id=song.id,
-            tag_id=tag.id
-        ).first()
-
-        if not exists:
-            db.session.add(Song_Tags(song_id=song.id, tag_id=tag.id))
 
     db.session.commit()

@@ -30,7 +30,8 @@ class SignupSchema(ma.SQLAlchemyAutoSchema):
             "updated_at",
             "playlists",
             "authored_books",
-            "verification_requests"
+            "verification_requests",
+            "author_keys"
         )
         
 signup_schema = SignupSchema()

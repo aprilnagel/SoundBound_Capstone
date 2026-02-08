@@ -45,7 +45,7 @@ class AuthorApplicationSchema(Schema):
         unknown = "EXCLUDE"
     author_bio = fields.String(required=False, validate=validate.Length(min=10))
     proof_links = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
-    openlib_author_keys = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
+    author_keys = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
     notes = fields.String(required=False)
     
 author_app_schema = AuthorApplicationSchema()

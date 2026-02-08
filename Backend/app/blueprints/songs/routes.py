@@ -16,8 +16,7 @@ from app.utility.auth import token_required
 from app.utility.spotify import (
     fetch_spotify_track,
     fetch_audio_features,
-    fetch_artist_genres,
-    sync_song_genres_to_tags
+    fetch_artist_genres
 )
 
 # Blueprint
@@ -106,8 +105,7 @@ def import_song(current_user):
     db.session.add(song)
     db.session.commit()
 
-    # 6. Sync genres → tags
-    sync_song_genres_to_tags(song)
+    
 
     return jsonify({"song_id": song.id}), 201
 
