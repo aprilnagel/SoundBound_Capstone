@@ -7,8 +7,11 @@ class DevelopmentConfig:
 
 
 class TestingConfig:
-    pass
+   pass
 
 
 class ProductionConfig:
-    pass
+    DEBUG = False
+    TESTING = False
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
