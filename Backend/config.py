@@ -1,5 +1,7 @@
 import os
 
+from flask_migrate import Config
+
 class DevelopmentConfig:
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     DEBUG = True
@@ -11,4 +13,7 @@ class TestingConfig:
 
 
 class ProductionConfig:
-    pass
+    DEBUG = False
+    TESTING = False
+
+    SQLALCHEMY_DATABASE_URI = os.environ.get('SQLALCHEMY_DATABASE_URI') or 'sqlite:///app.db'

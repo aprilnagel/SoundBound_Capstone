@@ -20,7 +20,7 @@ def create_app():
 
 
     # Load config
-    app.config.from_object("config.DevelopmentConfig") # Change to DevelopmentConfig or ProductionConfig as needed
+    app.config.from_object("config.ProductionConfig") # Change to DevelopmentConfig or ProductionConfig as needed
     import os
     
 
