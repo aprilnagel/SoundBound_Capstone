@@ -1,1 +1,21 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environment
 venv/
+
+# SQLite database + instance folder
+instance/
+*.db
+
+# Environment files
+.flaskenv
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
