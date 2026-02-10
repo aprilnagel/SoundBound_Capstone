@@ -1,0 +1,21 @@
+
+
+.auth-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.auth-title {
+ 
+  border-radius: 20px;
+  width: 90%;
+  font-size: 3rem;
+  font-family: "Monoton", system-ui;
+  font-weight: 400;
+  letter-spacing: 4px;
+  
+  text-align: center;
+  background: linear-gradient(135deg,#ff66c4, #ffc66f );
+  color: white; 
+}

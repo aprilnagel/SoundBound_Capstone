@@ -1,0 +1,67 @@
+/* LOGIN PAGE MATCHING SIGNUP PAGE */
+
+.login-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: "Manjari", system-ui;
+    width: 50%;
+    margin: 20px;
+    padding: 40px;
+    gap: 30px;
+    border-radius: 20px;
+    box-shadow: 0 8px 8px 8px rgba(52, 51, 51, 0.1);
+}
+
+.login-form input {
+    width: 80%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 20px;
+    font-family: "Manjari", system-ui;
+    background-color: #f5f3f3;
+}
+
+.login-actions {
+    display: flex;
+    gap: 20px;
+}
+
+.login-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-family: "Manjari", system-ui;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    background: radial-gradient( #b7d67d, #a0d53d);
+}
+
+.login-button:hover {
+    opacity: 0.7;
+}
+.signup-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 20px;
+    font-family: "Manjari", system-ui;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    background: #ad7ad8; /* purple from your Go to Login button */
+}
+
+.signup-button:hover {
+    background: #9b68c2; /* same hover color as your popup button */
+    cursor: pointer;
+}
