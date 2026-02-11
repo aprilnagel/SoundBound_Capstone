@@ -2,6 +2,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 from flask import Flask, app
+from flask_cors import CORS
 
 
 from .extensions import db, ma, cors
@@ -16,6 +17,7 @@ from .blueprints.users import users_bp
 
 def create_app():
     app = Flask(__name__)
+    CORS(app, supports_credentials=True)
     
 
 
@@ -30,7 +32,7 @@ def create_app():
     # Initialize extensions
     db.init_app(app)
     ma.init_app(app)
-    cors.init_app(app)
+    
 
     # Import models so SQLAlchemy knows them
     from . import models

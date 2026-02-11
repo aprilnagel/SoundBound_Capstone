@@ -137,7 +137,7 @@ const BookDetails = () => {
             </div>
 
             <div className="hidden-meta">
-              <p>openlib.id: {book.openlib_work_key}</p>
+              <p>openlib_id: {book.openlib_work_key}</p>
               <p className="author_keys">
                 Author Keys: {book.author_keys?.join(", ")}
               </p>
