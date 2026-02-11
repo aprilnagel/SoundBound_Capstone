@@ -7,6 +7,7 @@ from app.models import Books, Users
 from app.extensions import db
 from sqlalchemy import func
 from app.utility.openlibrary import fetch_openlibrary_work
+from flask_cors import cross_origin
 
 
 # _____________________ BOOKS SEARCH (RESTORED SIMPLE VERSION) _____________________ #
@@ -94,6 +95,7 @@ def get_book_details(current_user, openlib_id):
 #_____________________IMPORT BOOK FROM OPEN LIBRARY_____________________#
 
 @books_bp.route("/add-book", methods=["POST"])
+@cross_origin()  # Allow CORS for this route
 @token_required
 def import_book(current_user):
     data = request.get_json()

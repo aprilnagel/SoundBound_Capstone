@@ -10,6 +10,8 @@ import ApplyForAuthor from "./pages/ApplyForAuthor/ApplyForAuthor";
 import ApplicationHistory from "./pages/ApplicationHistory/ApplicationHistory";
 import ApplicationDetails from "./pages/ApplicationDetails/ApplicationDetails";
 import BookSearch from "./pages/BookSearch/BookSearch";
+import BookDetails from "./pages/BookDetails/BookDetails";
+import Library from "./pages/Library/Library";
 
 function App() {
  
@@ -27,6 +29,8 @@ function App() {
         <Route path="/application-history" element={<ApplicationHistory />} />
         <Route path="/application-details" element={<ApplicationDetails />} />
         <Route path="/book-search" element={<BookSearch />} />
+        <Route path="/book-details/:id" element={<BookDetails />} />
+        <Route path="/library" element={<Library />} />
       </Routes>
     </>
   )

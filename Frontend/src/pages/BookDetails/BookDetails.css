@@ -1,0 +1,162 @@
+.book-details-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-family: "Manjari", system-ui;
+}
+
+/* PAGE CONTAINER — matches .search-container */
+.details-container {
+  width: 80%;
+  margin-top: 30px;
+  padding: 25px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+/* THREE‑COLUMN GRID */
+.details-3col {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 300px 1fr 300px; /* slimmer middle */
+  gap: 32px;
+  margin-top: 10px;
+}
+
+/* left column */
+.left-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+.left-col img {
+  width: 100%;
+  height: 500px;
+  border-radius: 12px;
+}
+
+/* SHARED COLUMN STYLE */
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* LEFT COLUMN */
+.cover {
+  width: 100%;
+  border-radius: 12px;
+}
+
+.checkout-btn {
+  background: radial-gradient(#a8db56, #7dc638 );
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: 0.2s ease;
+}
+
+.checkout-btn:hover {
+  opacity: 0.85;
+}
+
+/* MIDDLE COLUMN */
+.title {
+  font-size: 50px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.author-check {
+  color: #a1d63e;
+  font-size: 1.3rem;
+}
+
+.author {
+  font-style: italic;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.meta-middle {
+  margin-bottom: 12px;
+}
+
+.meta-middle p {
+  margin: 2px 0;
+  font-size: 0.95rem;
+}
+
+/* DESCRIPTION BOX — matches your card style */
+.description-box {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  max-height: 350px;
+  overflow-y: auto;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.hidden-meta {
+  opacity: 0.4;
+  font-size: 0.75rem;
+  margin-top: 10px;
+}
+
+/* RIGHT COLUMN */
+.playlist-title {
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+}
+
+.playlist-box {
+  background: #fafafa;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.song-item {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.song-item:last-child {
+  border-bottom: none;
+}
+
+.listen-btn {
+  background: #52dbf4;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: 0.2s ease;
+}
+
+.listen-btn:hover {
+  opacity: 0.85;
+}
+
+.author-bookmark-icon {
+  color: #a1d63e;          /* soft green */
+  font-size: 22px;         /* slightly smaller than title */
+  margin-left: 8px;        /* breathing room */
+  vertical-align: middle;  /* aligns with text baseline */
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+  cursor: default;
+}
