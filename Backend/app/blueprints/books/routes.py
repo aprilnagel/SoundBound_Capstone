@@ -9,7 +9,7 @@ from sqlalchemy import func
 from app.utility.openlibrary import fetch_openlibrary_work
 
 
-#_____________________BOOKS SEARCH (TIGHTENED)_____________________#
+# _____________________ BOOKS SEARCH (RESTORED SIMPLE VERSION) _____________________ #
 
 @books_bp.route("/search", methods=["GET"])
 @token_required
@@ -17,7 +17,7 @@ def search_books(current_user):
     title = request.args.get("title", "").strip()
     author = request.args.get("author", "").strip()
     isbn = request.args.get("isbn", "").strip()
-    year = request.args.get("year", "").strip()
+    year = request.args.get("year", "").strip()  # UI sends it; we can safely ignore for now
 
     # Build Open Library query
     query_parts = []
@@ -30,13 +30,17 @@ def search_books(current_user):
     if year:
         query_parts.append(f"first_publish_year:{year}")
 
+    # If nothing provided, complain
     if not query_parts:
         return jsonify({"error": "Provide at least one of: title, author, isbn, year"}), 400
 
     q = " ".join(query_parts)
 
     url = "https://openlibrary.org/search.json"
-    params = {"q": q, "limit": 50}  # fetch more so filtering is effective
+    params = {
+        "q": q,
+        "limit": 20,  # small, clean result set like before
+    }
 
     resp = requests.get(url, params=params)
     if resp.status_code != 200:
@@ -45,78 +49,21 @@ def search_books(current_user):
     data = resp.json()
     docs = data.get("docs", [])
 
-    # -----------------------------
-    # FILTERING HELPERS
-    # -----------------------------
-
-    def title_matches(doc):
-        if not title:
-            return True
-        t = title.lower()
-        book_title = doc.get("title", "").lower()
-        return t in book_title
-
-    def author_matches(doc):
-        if not author:
-            return True
-        a = author.lower()
-        raw_authors = doc.get("author_name") or doc.get("author_names") or []
-        return any(a in auth.lower() for auth in raw_authors)
-
-    def isbn_matches(doc):
-        if not isbn:
-            return True
-        isbns = doc.get("isbn", [])
-        return isbn in isbns
-
-    def year_matches(doc):
-        if not year:
-            return True
-        return str(doc.get("first_publish_year", "")) == year
-
-    # -----------------------------
-    # NORMALIZATION
-    # -----------------------------
-
-    def normalize(doc):
-        raw_authors = (
-            doc.get("author_name")
-            or doc.get("author_names")
-            or []
-        )
-
-        # Remove garbage like "THIS IS A MARVELLOUS BOOK..."
-        authors = [
-            a for a in raw_authors
-            if a and len(a.split()) > 1
-        ]
-
-        return {
-            "title": doc.get("title", "Unknown Title"),
-            "authors": authors,
-            "publish_year": doc.get("first_publish_year"),
-            "cover_id": doc.get("cover_i"),
-            "openlib_id": doc.get("key", "").split("/")[-1],
-        }
-
-    # -----------------------------
-    # APPLY FILTERS
-    # -----------------------------
-
-    filtered = []
+    results = []
     for doc in docs:
-        if not title_matches(doc):
-            continue
-        if not author_matches(doc):
-            continue
-        if not isbn_matches(doc):
-            continue
-        if not year_matches(doc):
-            continue
-        filtered.append(doc)
+        cover_id = doc.get("cover_i")
 
-    # Normalize output
-    results = [normalize(doc) for doc in filtered]
+        # Only keep docs that actually have a real cover
+        if not cover_id:
+            continue
+
+        results.append({
+            "title": doc.get("title", "Unknown Title"),
+            "authors": doc.get("author_name", []) or [],
+            "publish_year": doc.get("first_publish_year"),
+            "cover_id": cover_id,
+            "openlib_id": doc.get("key", "").split("/")[-1],
+        })
 
     return jsonify(results), 200
 
