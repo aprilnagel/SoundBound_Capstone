@@ -113,7 +113,6 @@ def import_book(current_user):
     existing = Books.query.filter_by(openlib_id=openlib_id).first()
 
     if existing:
-        # Add to user's library if not already present
         user_library = current_user.library or []
         if existing.id not in user_library:
             current_user.library = user_library + [existing.id]
@@ -129,18 +128,40 @@ def import_book(current_user):
         return jsonify({"error": "Failed to fetch book from Open Library"}), 400
 
     # ---------------------------------------------------------
-    # 3. CREATE NEW BOOK INSTANCE USING FULL METADATA
+    # 3. EXTRACT JUST THE YEAR (4 digits)
+    # ---------------------------------------------------------
+    import re
+
+    raw_year = ol_data.get("first_publish_year")
+    year = None
+
+    if raw_year:
+        # Convert to string and search for a 4-digit year
+        match = re.search(r"\b(\d{4})\b", str(raw_year))
+        if match:
+            year = int(match.group(1))
+
+    # ---------------------------------------------------------
+    # 4. CLEAN JSON FIELDS
+    # ---------------------------------------------------------
+    subjects = ol_data.get("subjects") or []
+    author_names = ol_data.get("author_names") or []
+    author_keys = ol_data.get("author_keys") or []
+    isbn_list = ol_data.get("isbn_list") or []
+
+    # ---------------------------------------------------------
+    # 5. CREATE NEW BOOK INSTANCE
     # ---------------------------------------------------------
     book = Books(
         title=ol_data.get("title"),
         description=ol_data.get("description"),
-        subjects=ol_data.get("subjects"),
-        author_names=ol_data.get("author_names"),
-        author_keys=ol_data.get("author_keys"),
+        subjects=subjects,
+        author_names=author_names,
+        author_keys=author_keys,
         cover_url=ol_data.get("cover_url"),
         cover_id=ol_data.get("cover_id"),
-        isbn_list=ol_data.get("isbn_list"),
-        first_publish_year=ol_data.get("first_publish_year"),
+        isbn_list=isbn_list,
+        first_publish_year=year,   # ⭐ YEAR ONLY
         openlib_id=openlib_id,
         api_source="openlibrary",
         api_id=openlib_id,
@@ -148,10 +169,10 @@ def import_book(current_user):
     )
 
     db.session.add(book)
-    db.session.commit()  # book.id now exists
+    db.session.commit()
 
     # ---------------------------------------------------------
-    # 4. ADD INTERNAL BOOK ID TO USER'S LIBRARY
+    # 6. ADD BOOK TO USER LIBRARY
     # ---------------------------------------------------------
     user_library = current_user.library or []
     current_user.library = user_library + [book.id]
