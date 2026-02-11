@@ -1,19 +1,19 @@
 
-
 .auth-header {
-  width: 100%;
+  width: 95%;
   display: flex;
   justify-content: center;
 }
 
 .auth-title {
- 
+
   border-radius: 20px;
   width: 90%;
   font-size: 3rem;
   font-family: "Monoton", system-ui;
   font-weight: 400;
   letter-spacing: 4px;
+  box-shadow: 0 8px 8px rgba(52, 51, 51, 0.1);
   
   text-align: center;
   background: linear-gradient(135deg,#ff66c4, #ffc66f );

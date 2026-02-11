@@ -1,0 +1,24 @@
+.home-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.home-content {
+    margin-top: 20px;
+    width: 75%;
+    text-align: center;
+    font-family: "Manjari", system-ui;
+    
+    border-radius: 20px;
+    box-shadow: 0 8px 8px 8px rgba(52, 51, 51, 0.1);
+}
+
+h1 {
+    font-size: 50px;
+    color: #363636;
+}
+.home-content p {
+    font-size: 20px;
+    color: #363636;
+}

@@ -33,7 +33,7 @@ users_schema = UserSchema(many=True)
 class UserUpdateSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Users
-        fields = ("first_name", "last_name", "email", "password", "author_bio")
+        fields = ("first_name", "last_name", "username", "email", "password", "author_bio")
         load_only = ("password",)
         partial = True  # Allow partial updates
         
