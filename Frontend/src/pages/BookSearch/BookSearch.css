@@ -1,5 +1,5 @@
 .book-search-page {
-   display: flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
@@ -7,15 +7,12 @@
 }
 
 .search-container {
-  width: 75%;
+  width: 80%;
   margin-top: 30px;
   padding: 25px;
   border-radius: 20px;
   background: white;
   box-shadow: 0 8px 16px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 /* Page title */
 .search-title {
@@ -77,13 +74,16 @@
   color: #444;
 }
 
-/* Grid of book cards */
 .results-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 22px;
-  justify-content: center;
-  margin-bottom: 40px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+  padding: 20px 0;
+
+  /* makes each card centered in its grid cell */
+  justify-items: center;
+  align-items: start;
 }
 
 /* No book message */
