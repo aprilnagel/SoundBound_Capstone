@@ -39,7 +39,7 @@ h2{
 }
 
 .signuppage-button {
-    padding: 10px 20px;
+    padding: 10px 20px 6px 20px;
     border: none;
     border-radius: 20px;
     font-family: "Manjari", system-ui;
@@ -121,3 +121,14 @@ h2{
     font-size: 1.2rem;
     margin-top: 0.5rem;
     }
+
+.backtologin-button {
+    padding: 10px 30px 6px 30px; /* optical centering */
+    border: none;
+    border-radius: 20px;
+    font-family: "Manjari", system-ui;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    background: #ad7ad8; /* purple from your Go to Login button */
+}

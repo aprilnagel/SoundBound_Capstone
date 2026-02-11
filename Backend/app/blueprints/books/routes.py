@@ -17,6 +17,7 @@ def search_books(current_user):
     title = request.args.get("title")
     author = request.args.get("author")
     isbn = request.args.get("isbn")
+    year = request.args.get("year")
 
     # Build Open Library query
     query_parts = []
@@ -26,9 +27,11 @@ def search_books(current_user):
         query_parts.append(f"author:{author}")
     if isbn:
         query_parts.append(f"isbn:{isbn}")
+    if year:
+        query_parts.append(f"first_publish_year:{year}")
 
     if not query_parts:
-        return jsonify({"error": "Provide at least one of: title, author, isbn"}), 400
+        return jsonify({"error": "Provide at least one of: title, author, isbn, year"}), 400
 
     q = " ".join(query_parts)
 

@@ -80,8 +80,8 @@
   align-items: center;
   justify-content: center;
 
-  padding: 12px 30px;
-  border-radius: 25px;
+  padding: 12px 20px 6px 30px;
+  border-radius: 30px;
   font-family: "Manjari", system-ui;
   font-size: 20px;
   font-weight: bold;
@@ -90,6 +90,7 @@
   background: radial-gradient(#7df7a2, #2ecc71);
   text-decoration: none;
   cursor: pointer;
+  border: none; /* remove default button border */
 
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: transform 0.15s ease;
@@ -97,6 +98,7 @@
 
 .apply-author-button:hover {
   transform: translateY(-2px);
+  opacity: 0.8;
 }
 
 /* Action buttons */
@@ -147,14 +149,14 @@
   align-items: center;
   justify-content: center;
 
-  padding: 10px 20px;
+  padding: 10px 30px 6px 30px;
   border-radius: 20px;
   font-family: "Manjari", system-ui;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: bold;
 
   color: white;
-  background: radial-gradient(#b8b8ff, #7a7aff); /* soft purple/indigo */
+  background: #a1d63e; /* soft green */
   text-decoration: none;
   cursor: pointer;
 
@@ -166,4 +168,30 @@
 
 .spotify:hover {
   transform: translateY(-2px);
+}
+
+.history-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 10px 30px 6px 30px;
+  border-radius: 30px;
+  font-family: "Manjari", system-ui;
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  background: radial-gradient(#ad7ad8, #9b68c2); /* purple gradient */
+  text-decoration: none;
+  cursor: pointer;
+  border: none; /* remove default button border */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.15s ease;
+  text-align: center;
+  align-items: center;
+}
+
+.history-button:hover {
+  transform: translateY(-2px);
+  opacity: 0.8;
 }

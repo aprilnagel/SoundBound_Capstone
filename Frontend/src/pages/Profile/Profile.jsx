@@ -8,15 +8,15 @@ import { API_BASE_URL } from "../../config";
 export default function Profile() {
   const { user, token, logout } = useAuth();
   const navigate = useNavigate();
+
   const [profileData, setProfileData] = useState(null);
+  const [applications, setApplications] = useState([]);
 
   useEffect(() => {
     async function fetchProfileData() {
       try {
         const response = await fetch(`${API_BASE_URL}/users/me`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (response.ok) {
@@ -28,10 +28,30 @@ export default function Profile() {
       }
     }
 
+    async function fetchApplications() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/me/applications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setApplications(data.applications || []);
+        }
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+      }
+    }
+
     if (token) {
       fetchProfileData();
+      fetchApplications();
     }
   }, [token]);
+
+  // Derived state
+  const hasPending = applications.some(app => app.status === "pending");
+  const hasHistory = applications.length > 0;
 
   return (
     <div className="profile-page">
@@ -42,9 +62,11 @@ export default function Profile() {
 
         {profileData ? (
           <div className="profile-grid">
+
             {/* LEFT COLUMN */}
             <div className="profile-left">
               <div className="profile-info">
+
                 <div className="info-row">
                   <span className="label">Pen Name:</span>
                   <span className="value">{profileData.username}</span>
@@ -86,14 +108,55 @@ export default function Profile() {
               </div>
             </div>
 
-            {/* RIGHT COLUMN — always exists */}
+            {/* RIGHT COLUMN */}
             <div className="profile-right">
-              {profileData.role !== "author" && (
-                <Link to="/apply-author" className="apply-author-button">
-                  Apply for Author!
-                </Link>
+
+              {/* ADMIN */}
+              {profileData.role === "admin" && (
+                <button
+                  onClick={() => navigate("/admin/author-applications")}
+                  className="apply-author-button"
+                >
+                  Author Applications
+                </button>
               )}
-              <button className="spotify">Coming soon! Sync to Spotify</button>
+
+              {/* READER */}
+              {profileData.role === "reader" && (
+                <>
+                  {/* PRIMARY BUTTON */}
+                  {hasPending ? (
+                    <button style= {{ background: "#ffa18f" }} /* soft green */
+                      onClick={() => navigate("/application-status")}
+                      className="apply-author-button"
+                    >
+                      Check Application Status
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => navigate("/apply-for-author")}
+                      className="apply-author-button"
+                    >
+                      Apply for Author
+                    </button>
+                  )}
+
+                  {/* SECONDARY BUTTON */}
+                  {hasHistory && (
+                    <button
+                    style= {{ background: "#ffa18f" }} /* soft green */
+                      onClick={() => navigate("/application-history")}
+                      className="history-button"
+                    >
+                      View Application History
+                    </button>
+                  )}
+                </>
+              )}
+
+              {/* AUTHOR sees nothing */}
+
+              <button className="spotify">Sync to Spotify</button>
             </div>
           </div>
         ) : (
@@ -101,14 +164,17 @@ export default function Profile() {
         )}
 
         <div className="profile-actions">
-          <button onClick={() => navigate("/profile/edit")} className="edit-profile-button">
+          <button
+            onClick={() => navigate("/profile/edit")}
+            className="edit-profile-button"
+          >
             Edit Profile
           </button>
 
           <button
             onClick={() => {
               logout();
-              navigate("/auth/login");
+              navigate("/login");
             }}
             className="logout-button"
           >

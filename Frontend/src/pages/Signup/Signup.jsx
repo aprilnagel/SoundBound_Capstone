@@ -121,6 +121,9 @@ export default function Signup() {
                 <button className="signuppage-button" type="submit">
                     Start Listening!
                 </button>
+                <button className="backtologin-button" type="button" onClick={() => navigate("/login")}>
+                    Back to Login
+                </button>
             </form>
 
             {/* SUCCESS MESSAGE POP UP */}
@@ -131,7 +134,7 @@ export default function Signup() {
                         <h2>Signup Successful!</h2>
                         <p>You will be redirected to the login page shortly.</p>
 
-                        <button onClick={() => navigate("/auth/login")}>Go to Login</button>
+                        <button onClick={() => navigate("/login")}>Go to Login</button>
                     </div>
                 </div>
             )}

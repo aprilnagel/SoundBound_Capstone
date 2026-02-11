@@ -5,7 +5,11 @@ import './App.css'
 import Me from "./pages/Me/Me";
 import Home from "./pages/Home/Home";
 import Profile from "./pages/Profile/Profile";
-import UpdateProfile from "./pages/Update Profile/UpdateProfile";
+import UpdateProfile from "./pages/UpdateProfile/UpdateProfile";
+import ApplyForAuthor from "./pages/ApplyForAuthor/ApplyForAuthor";
+import ApplicationHistory from "./pages/ApplicationHistory/ApplicationHistory";
+import ApplicationDetails from "./pages/ApplicationDetails/ApplicationDetails";
+import BookSearch from "./pages/BookSearch/BookSearch";
 
 function App() {
  
@@ -13,12 +17,16 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/auth/signup" element={<Signup />} />
-        <Route path="/auth/login" element={<Login />} />
-        <Route path="/auth/me" element={<Me />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/me" element={<Me />} />
         <Route path="/" element={<Home />} />
-        <Route path="/users/me" element={<Profile />} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/profile/edit" element={<UpdateProfile />} />
+        <Route path="/apply-for-author" element={<ApplyForAuthor />} />
+        <Route path="/application-history" element={<ApplicationHistory />} />
+        <Route path="/application-details" element={<ApplicationDetails />} />
+        <Route path="/book-search" element={<BookSearch />} />
       </Routes>
     </>
   )

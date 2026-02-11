@@ -1,0 +1,160 @@
+/* ================================
+   BASE CARD
+================================ */
+.application-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+  padding: 20px 16px 16px 16px; /* top padding for breathing room */
+
+  font-family: "Manjari", system-ui;
+  font-size: 20px;
+  color: #111827;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0; /* IMPORTANT: no automatic spacing */
+
+  width: 260px;
+  height: 260px;
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Hover lift */
+.application-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.10);
+}
+
+/* ================================
+   HEADER (STATUS BADGE)
+================================ */
+.application-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column; /* stack badge + line */
+  margin-bottom: 8px;
+}
+
+.application-header::after {
+  content: "";
+  width: 80%;
+  height: 1px;
+  background: #e5e7eb;
+  margin-top: 10px; /* spacing between badge + line */
+}
+
+/* Status badge */
+.status-badge {
+  padding: 6px 14px 0px 15px;
+  border-radius: 20px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.status-badge.pending {
+  background: #ffc66e;
+  color: #8a6d00;
+}
+
+.status-badge.approved {
+  background: #e3f7e8;
+  color: #1b7a32;
+}
+
+.status-badge.rejected {
+  background: #fde2e2;
+  color: #b42323;
+}
+
+
+
+
+/* ================================
+   BODY
+================================ */
+.application-body {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 8px; /* horizontal padding for text */
+  margin: 40px 0; /* breathing room above and below */
+  
+}
+
+.application-body p {
+  margin: 10px;
+  color: #374151;
+  font-size: 20px;
+}
+
+/* ================================
+   FOOTER
+================================ */
+.application-footer {
+  margin-top: auto; /* pushes button to bottom for admin mode */
+}
+
+/* Buttons */
+.review-button,
+.view-details-button {
+  width: 100%;
+  padding: 10px 0 4px 0;
+  border-radius: 10px;
+  background: #ffa18f;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: "Manjari", system-ui;
+  font-size: 20px;
+  transition: opacity 0.15s ease;
+}
+
+.review-button:hover,
+.view-details-button:hover {
+  opacity: 0.7;
+}
+
+/* ================================
+   GRID LAYOUT
+================================ */
+.applications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 20px;
+
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px 0;
+
+  justify-items: start; /* left-align cards */
+}
+
+/* ================================
+   READER MODE (compact)
+================================ */
+.application-card.compact {
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+
+.application-card.compact .application-header {
+  justify-content: center; /* keep badge centered for readers too */
+  margin-bottom: 8px;
+}
+
+.application-card.compact .application-body {
+  gap: 4px;
+  font-size: 18px;
+}
+
+.application-card.compact .application-footer {
+  display: none; /* readers have no footer button */
+}

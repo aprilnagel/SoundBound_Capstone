@@ -44,7 +44,7 @@ export default function Login() {
             }
 
             login(data.token, data.user);
-            navigate("/auth/me"); // Redirect to home or dashboard after login
+            navigate("/"); // Redirect to home or dashboard after login
         } catch (err) {
             console.error("Login error:", err);
             setError("An error occurred. Please try again.");
@@ -77,7 +77,7 @@ export default function Login() {
                 />
                 <div className="login-actions">
                     <button className="login-button" type="submit">Login</button>
-                    <button className="signup-button" type="button" onClick={() => navigate("/auth/signup")}>
+                    <button className="signup-button" type="button" onClick={() => navigate("/signup")}>
                         Sign Up
                     </button>
                 </div>

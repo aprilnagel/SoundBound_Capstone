@@ -20,7 +20,8 @@ export default function UpdateProfile() {
   });
 
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [errorPopup, setErrorPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [successPopup, setSuccessPopup] = useState(false);
 
   // Fetch current profile data
@@ -61,7 +62,6 @@ export default function UpdateProfile() {
   // Submit updates
   async function handleSubmit(e) {
     e.preventDefault();
-    setError("");
 
     const payload = {
       username: formData.username,
@@ -70,12 +70,10 @@ export default function UpdateProfile() {
       email: formData.email,
     };
 
-    // Only include password if user typed one
     if (formData.password.trim() !== "") {
       payload.password = formData.password;
     }
 
-    // Only authors can update bio
     if (formData.role === "author") {
       payload.author_bio = formData.author_bio;
     }
@@ -94,11 +92,13 @@ export default function UpdateProfile() {
         setSuccessPopup(true);
       } else {
         const errData = await response.json();
-        setError(errData.error || "Failed to update profile.");
+        setErrorMessage(errData.error || "Failed to update profile.");
+        setErrorPopup(true);
       }
     } catch (err) {
       console.error("Update error:", err);
-      setError("Something went wrong.");
+      setErrorMessage("Something went wrong.");
+      setErrorPopup(true);
     }
   }
 
@@ -123,10 +123,23 @@ export default function UpdateProfile() {
         </div>
       )}
 
+      {/* ERROR POPUP */}
+      {errorPopup && (
+        <div className="error-popup">
+          <div className="error-box">
+            <div className="error-icon">✕</div>
+            <h2>Update Failed</h2>
+            <p>{errorMessage}</p>
+
+            <button onClick={() => setErrorPopup(false)}>
+              Try Again
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="update-profile-card">
         <h1>Edit Profile</h1>
-
-        {error && <p className="error-message">{error}</p>}
 
         <form onSubmit={handleSubmit} className="update-form">
 
@@ -167,7 +180,6 @@ export default function UpdateProfile() {
             onChange={handleChange}
           />
 
-          {/* AUTHOR-ONLY FIELD */}
           {formData.role === "author" && (
             <>
               <label>Author Bio</label>

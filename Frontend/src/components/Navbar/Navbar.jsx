@@ -16,9 +16,9 @@ export default function Navbar() {
 
       <div className="navbar-right">
         <NavLink to="/library">Library</NavLink>
-        <NavLink to="/books/search">Search Books</NavLink>
+        <NavLink to="/book-search">Search Books</NavLink>
         <NavLink to="/playlists">Playlists</NavLink>
-        <NavLink to="/users/me">Profile</NavLink>
+        <NavLink to="/profile">Profile</NavLink>
 
         <div className="user-role">
           User Role: {user?.role || "Unknown"}
