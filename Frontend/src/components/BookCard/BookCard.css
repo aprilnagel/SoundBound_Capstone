@@ -89,3 +89,42 @@
 .view-book-btn:hover {
   opacity: 0.85;
 }
+
+.library-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  gap: 12px;
+}
+.library-actions button {
+  width: 150px;
+}
+
+.create-playlist-btn {
+  border: none;
+  
+  border-radius: 30px;
+  background: #55dec5;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  font-family: "Manjari", system-ui;
+  padding: 6px 20px 2px 20px;
+  font-size: 16px;
+}
+
+
+.return-book-btn {
+  border: none;
+  border-radius: 30px;
+  background: #ff4d6d;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  font-family: "Manjari", system-ui;
+  padding: 6px 20px 2px 20px;
+  font-size: 16px;
+}

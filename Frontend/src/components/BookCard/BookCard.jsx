@@ -45,14 +45,14 @@ export default function BookCard({
         {showLibraryActions && (
           <div className="library-actions">
             <button
-              className="playlist-btn"
+              className="create-playlist-btn"
               onClick={() => onCreatePlaylist(book)}
             >
               create playlist
             </button>
 
             <button
-              className="remove-btn"
+              className="return-book-btn"
               onClick={() => onReturnBook(book)}
             >
               return book
