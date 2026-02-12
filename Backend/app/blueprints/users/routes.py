@@ -4,11 +4,12 @@ from app.blueprints.users.schemas import UserUpdateSchema, UserSchema, AuthorApp
 from app.blueprints.auth.schemas import signup_schema
 from app.utility.auth import token_required, require_role
 from flask import request, jsonify
-from app.models import Users, Author_verification_requests as VerificationRequest
+from app.models import Books, Users, Author_verification_requests as VerificationRequest
 from app.extensions import db
 from marshmallow import ValidationError
 from app.extensions import limiter
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.blueprints.books.schemas import book_dump_schema
 
 
 #________________USER PROFILE ROUTES________________#
@@ -83,8 +84,7 @@ def update_current_user(current_user):
         # - Library = internal
             # - Users can add/remove books to their library (list of book IDs)
             
-#✅------------------1. Add a book to library------------------#
-#handled by books/routes.py import_book route
+
 
 
 #✅------------------2. Remove a book from library------------------#
@@ -145,15 +145,21 @@ def remove_book_from_library(current_user):
 @token_required
 def get_user_library(current_user):
     """
-    Retrieve the authenticated user's library.
+    Retrieve the authenticated user's library with full book objects.
     """
 
-    # Initialize library if missing
+    # Ensure library exists
     if current_user.library is None:
         current_user.library = []
         db.session.commit()
 
-    return jsonify({'library': current_user.library}), 200
+    # Fetch full book objects
+    books = Books.query.filter(Books.id.in_(current_user.library)).all()
+
+    # Serialize using your schema (THIS is what includes cover_id)
+    serialized = book_dump_schema.dump(books, many=True)
+
+    return jsonify({'library': serialized}), 200
 
 
 

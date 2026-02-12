@@ -22,7 +22,7 @@ const Library = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
+          },
         );
 
         const data = await res.json();
@@ -49,20 +49,22 @@ const Library = () => {
   const handleReturnBook = async (book) => {
     try {
       const res = await fetch(
-        `https://soundbound-capstone.onrender.com/users/me/library/${book.id}`,
+        "https://soundbound-capstone.onrender.com/users/me/library",
         {
           method: "DELETE",
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+          body: JSON.stringify({ book_id: book.id }),
+        },
       );
 
       const data = await res.json();
       console.log("REMOVE BOOK RESPONSE:", data);
 
       if (!res.ok) {
-        alert(data.error || "Failed to remove book");
+        alert(data.message || "Failed to remove book");
         return;
       }
 
