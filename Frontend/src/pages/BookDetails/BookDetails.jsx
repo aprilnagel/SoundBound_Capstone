@@ -47,45 +47,55 @@ const BookDetails = () => {
     fetchBook();
   }, [id]);
 
+  // ⭐ AUTO-DISMISS POPUP ⭐
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null);
+        setMessageType(null);
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
   // ---------------------------------------------------------
   // ADD BOOK TO USER LIBRARY
   // ---------------------------------------------------------
   const handleCheckout = async () => {
-  try {
-    const cleanId = book.openlib_work_key.split("/").pop();
+    try {
+      const cleanId = book.openlib_work_key.split("/").pop();
 
-    const res = await fetch(
-      "https://soundbound-capstone.onrender.com/books/add-book",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+      const res = await fetch(
+        "https://soundbound-capstone.onrender.com/books/add-book",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            openlib_id: cleanId,
+          }),
         },
-        body: JSON.stringify({
-          openlib_id: cleanId
-        }),
+      );
+
+      const data = await res.json();
+      console.log("ADD BOOK RESPONSE:", data);
+
+      if (!res.ok) {
+        setMessage(data.error || "Failed to add book");
+        setMessageType("error");
+        return;
       }
-    );
 
-    const data = await res.json();
-    console.log("ADD BOOK RESPONSE:", data);
-
-    if (!res.ok) {
-      setMessage(data.error || "Failed to add book");
+      setMessage("Book added to your library!");
+      setMessageType("success");
+    } catch (err) {
+      setMessage("Network error adding book");
       setMessageType("error");
-      return;
     }
-
-    setMessage("Book added to your library!");
-    setMessageType("success");
-
-  } catch (err) {
-    setMessage("Network error adding book");
-    setMessageType("error");
-  }
-};
-
+  };
 
   // ---------------------------------------------------------
   // LOADING / ERROR STATES
@@ -100,6 +110,7 @@ const BookDetails = () => {
   return (
     <div className="book-details-page">
       <Navbar />
+      {message && <div className={`popup ${messageType}`}>{message}</div>}
 
       <div className="details-container">
         <div className="details-3col">

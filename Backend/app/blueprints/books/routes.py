@@ -114,11 +114,16 @@ def import_book(current_user):
 
     if existing:
         user_library = current_user.library or []
-        if existing.id not in user_library:
-            current_user.library = user_library + [existing.id]
-            db.session.commit()
 
-        return jsonify({"book_id": existing.id}), 200
+    if existing.id in user_library:
+        return jsonify({"error": "This book is already in your library"}), 400
+
+    # Book exists but user doesn't have it yet
+    current_user.library = user_library + [existing.id]
+    db.session.commit()
+
+    return jsonify({"message": "Book added to your library"}), 200
+
 
     # ---------------------------------------------------------
     # 2. FETCH FULL METADATA FROM OPEN LIBRARY
