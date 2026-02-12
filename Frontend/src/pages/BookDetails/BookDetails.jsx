@@ -11,6 +11,8 @@ const BookDetails = () => {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState(null);
+  const [messageType, setMessageType] = useState(null); // "success" or "error"
 
   // ---------------------------------------------------------
   // FETCH BOOK DETAILS
@@ -49,38 +51,41 @@ const BookDetails = () => {
   // ADD BOOK TO USER LIBRARY
   // ---------------------------------------------------------
   const handleCheckout = async () => {
-    try {
-      const cleanId = book.openlib_work_key.split("/").pop();
+  try {
+    const cleanId = book.openlib_work_key.split("/").pop();
 
-      const res = await fetch(
-        "https://soundbound-capstone.onrender.com/books/add-book",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify({
-            openlib_id: cleanId
-
-          }),
+    const res = await fetch(
+      "https://soundbound-capstone.onrender.com/books/add-book",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      );
-
-      const data = await res.json();
-      console.log("ADD BOOK RESPONSE:", data);
-
-      if (!res.ok) {
-        alert(data.error || "Failed to add book");
-        return;
+        body: JSON.stringify({
+          openlib_id: cleanId
+        }),
       }
+    );
 
-      alert("Book added to your library!");
-      // nav("/library"); // optional redirect
-    } catch (err) {
-      alert("Network error adding book");
+    const data = await res.json();
+    console.log("ADD BOOK RESPONSE:", data);
+
+    if (!res.ok) {
+      setMessage(data.error || "Failed to add book");
+      setMessageType("error");
+      return;
     }
-  };
+
+    setMessage("Book added to your library!");
+    setMessageType("success");
+
+  } catch (err) {
+    setMessage("Network error adding book");
+    setMessageType("error");
+  }
+};
+
 
   // ---------------------------------------------------------
   // LOADING / ERROR STATES

@@ -152,21 +152,28 @@ def import_book(current_user):
     # ---------------------------------------------------------
     # 5. CREATE NEW BOOK INSTANCE
     # ---------------------------------------------------------
+    desc = ol_data.get("description")
+    if isinstance(desc, dict):
+        desc = desc.get("value")
+    elif not isinstance(desc, str):
+        desc = None
+
     book = Books(
         title=ol_data.get("title"),
-        description=ol_data.get("description"),
+        description=desc,   # ⭐ FIXED
         subjects=subjects,
         author_names=author_names,
         author_keys=author_keys,
         cover_url=ol_data.get("cover_url"),
         cover_id=ol_data.get("cover_id"),
         isbn_list=isbn_list,
-        first_publish_year=year,   # ⭐ YEAR ONLY
+        first_publish_year=year,
         openlib_id=openlib_id,
         api_source="openlibrary",
         api_id=openlib_id,
         source="verified"
     )
+
 
     db.session.add(book)
     db.session.commit()
