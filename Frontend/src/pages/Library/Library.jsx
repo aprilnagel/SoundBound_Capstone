@@ -103,8 +103,6 @@ const Library = () => {
             />
           ))}
         </div>
-
-        <div className="access-roles">Access Roles: ALL</div>
       </div>
     </div>
   );
