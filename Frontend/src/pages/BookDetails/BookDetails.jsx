@@ -21,7 +21,7 @@ const BookDetails = () => {
     const fetchBook = async () => {
       try {
         const res = await fetch(
-          `https://soundbound-capstone.onrender.com/books/${id}`,
+          `https://soundbound-capstone.onrender.com/books/${book?.openlib_id || id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -64,7 +64,7 @@ const BookDetails = () => {
   // ---------------------------------------------------------
   const handleCheckout = async () => {
     try {
-      const cleanId = book.openlib_work_key.split("/").pop();
+      const cleanId = book.openlib_id || book.openlib_id?.split("/").pop();
 
       const res = await fetch(
         "https://soundbound-capstone.onrender.com/books/add-book",
@@ -91,6 +91,17 @@ const BookDetails = () => {
 
       setMessage("Book added to your library!");
       setMessageType("success");
+      // Re-fetch the DB version of the book
+      const refreshed = await fetch(
+        `https://soundbound-capstone.onrender.com/books/${book.openlib_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      ).then((r) => r.json());
+
+      setBook(refreshed);
     } catch (err) {
       setMessage("Network error adding book");
       setMessageType("error");
@@ -153,7 +164,7 @@ const BookDetails = () => {
             </div>
 
             <div className="hidden-meta">
-              <p>openlib_id: {book.openlib_work_key}</p>
+              <p>openlib_id: {book.openlib_id}</p>
               <p className="author_keys">
                 Author Keys: {book.author_keys?.join(", ")}
               </p>

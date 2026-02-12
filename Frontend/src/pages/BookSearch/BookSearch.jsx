@@ -84,6 +84,7 @@ const BookSearch = () => {
     );
 
     const data = await res.json();
+    console.log("SEARCH RESPONSE:", data);
     const finalResults = Array.isArray(data) ? data : [];
 
     setResults(finalResults);

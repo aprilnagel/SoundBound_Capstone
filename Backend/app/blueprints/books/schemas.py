@@ -10,7 +10,13 @@ class BookDumpSchema(Schema):
     cover_id = fields.Int()
     first_publish_year = fields.Str()
     subjects = fields.List(fields.Str())
+    description = fields.Str()  # ⭐ ADD THIS
     isbn_list = fields.List(fields.Str())
+    api_source = fields.Str()        # optional but recommended
+    api_id = fields.Str()            # optional but recommended
+    source = fields.Str()            # optional but recommended
+    author_reco_playlist = fields.Raw()  # ⭐ Needed for your right column
+
 
 book_dump_schema = BookDumpSchema()
 
