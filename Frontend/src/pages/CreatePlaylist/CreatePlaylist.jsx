@@ -38,6 +38,7 @@ export default function CreatePlaylist() {
 
   const [songs, setSongs] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
+  const isCustomMode = !bookId && !isEditMode;
 
   //------------SEARCHES-----------------//
   const [searchTitle, setSearchTitle] = useState("");
@@ -75,6 +76,13 @@ export default function CreatePlaylist() {
 
     loadBook();
   }, [bookId, isEditMode]);
+
+  // ------------------ CUSTOM MODE: STOP LOADING ------------------ //
+  useEffect(() => {
+    if (isCustomMode) {
+      setLoading(false);
+    }
+  }, [isCustomMode]);
 
   // ----------- LOAD PLAYLIST (EDIT MODE) -------------- //
   useEffect(() => {
@@ -304,8 +312,8 @@ export default function CreatePlaylist() {
   // ------------------ RENDER ------------------ //
   if (loading) return <div>Loading...</div>;
 
-  const isVerified = isEditMode ? true : book?.in_user_library;
-  const canAuthorReco = book?.is_owned_by_author;
+  const isVerified = !isCustomMode && book?.in_user_library;
+  const canAuthorReco = !isCustomMode && book?.is_owned_by_author;
 
   return (
     <div className="create-playlist-page">
@@ -330,7 +338,9 @@ export default function CreatePlaylist() {
                   ? "Editing playlist for:"
                   : "Creating playlist for:"}
               </span>
-              <span className="book-title">{book?.title}</span>
+              <span className="book-title">
+                {isCustomMode ? customTitle || "(Custom Book)" : book?.title}
+              </span>
             </h3>
 
             <p className="in-library-flag">
@@ -350,7 +360,7 @@ export default function CreatePlaylist() {
             )}
 
             {/* Custom book → custom fields */}
-            {!isVerified && (
+            {isCustomMode && (
               <div className="custom-book-fields">
                 <input
                   className="playlist-input"

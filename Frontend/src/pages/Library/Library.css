@@ -1,3 +1,6 @@
+/* ------------------------------
+   PAGE LAYOUT
+------------------------------ */
 .library-page {
   display: flex;
   flex-direction: column;
@@ -5,3 +8,67 @@
   width: 100%;
   font-family: "Manjari", system-ui;
 }
+
+/* ------------------------------
+   CONTAINER
+------------------------------ */
+.library-container {
+  width: 80%;
+  margin-top: 30px;
+  padding: 25px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+/* ------------------------------
+   TITLE
+------------------------------ */
+.library-title {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+/* ------------------------------
+   GRID (MATCHES BOOK SEARCH)
+------------------------------ */
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+  padding: 20px 0;
+
+  /* makes each card centered in its grid cell */
+  justify-items: center;
+  align-items: start;
+}
+
+/* ------------------------------
+   EMPTY STATE
+------------------------------ */
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 1.2rem;
+  color: #777;
+  padding: 40px 0;
+}
+
+/* ------------------------------
+   LOADING + ERROR
+------------------------------ */
+.loading,
+.error {
+  font-size: 1.2rem;
+  margin-top: 40px;
+  color: #555;
+}
+
+.error {
+  color: #b33a3a;
+}
+

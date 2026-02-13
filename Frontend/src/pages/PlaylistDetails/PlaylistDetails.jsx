@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import "./PlaylistDetails.css";
 import Navbar from "../../components/Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
+import fallbackCover from "../../Photos/2.png";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -124,7 +125,8 @@ export default function PlaylistDetails() {
           {/* COLUMN 1 — COVER */}
           {book && (
             <img
-              src={book.cover_url}
+              src={book.cover_url || fallbackCover}
+
               alt={book.title}
               className="playlist-cover"
             />

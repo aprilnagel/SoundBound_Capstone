@@ -220,9 +220,6 @@ def add_song_to_playlist(current_user, playlist_id):
 @token_required
 def get_my_playlists(current_user):
     playlists = Playlists.query.filter_by(user_id=current_user.id).all()
-    
-    if not playlists:
-        return jsonify({"message": "You have no playlists yet."}), 200
     return jsonify(playlist_dump_schema.dump(playlists, many=True)), 200
 
 

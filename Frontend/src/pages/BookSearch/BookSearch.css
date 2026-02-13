@@ -104,6 +104,10 @@
   font-weight: 600;
   cursor: pointer;
 }
+.click-here:hover {
+  color: #9d10e3;
+}
+
 
 .sort-radios {
   display: flex;

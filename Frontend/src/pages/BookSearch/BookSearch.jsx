@@ -2,8 +2,10 @@ import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import BookCard from "../../components/BookCard/BookCard";
 import "./BookSearch.css";
+import { useNavigate } from "react-router-dom";
 
 const BookSearch = () => {
+  const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [isbn, setIsbn] = useState("");
@@ -80,7 +82,7 @@ const BookSearch = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-      }
+      },
     );
 
     const data = await res.json();
@@ -93,7 +95,7 @@ const BookSearch = () => {
     localStorage.setItem("bookSearchResults", JSON.stringify(finalResults));
     localStorage.setItem(
       "bookSearchInputs",
-      JSON.stringify({ title, author, year, isbn })
+      JSON.stringify({ title, author, year, isbn }),
     );
     localStorage.setItem("bookSearchSort", sortBy);
   };
@@ -209,7 +211,12 @@ const BookSearch = () => {
         <div className="no-book-message">
           <p>
             Can’t find your book? You can still create a playlist!{" "}
-            <span className="click-here">click here!</span>
+            <span
+              className="click-here"
+              onClick={() => navigate("/create-playlist")}
+            >
+              click here!
+            </span>
           </p>
         </div>
       </div>
