@@ -46,6 +46,24 @@ def create_playlist(current_user):
         if not book:
             return jsonify({"error": "Book not found"}), 404
 
+        # Prevent multiple playlists for the same book by the same user
+        existing = (
+            Playlists.query
+            .join(Playlists.books)
+            .filter(
+                Playlists.user_id == current_user.id,
+                Books.id == book_id
+            )
+            .first()
+        )
+
+        if existing:
+            return jsonify({
+                "error": "You already created a playlist for this book."
+            }), 400
+
+
+
         # Author Recommendation Playlist
         if is_author_reco:
             if current_user.role != "author":
