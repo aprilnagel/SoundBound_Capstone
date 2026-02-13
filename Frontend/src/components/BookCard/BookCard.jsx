@@ -7,7 +7,7 @@ export default function BookCard({
   onView,
   showLibraryActions = false,
   onCreatePlaylist,
-  onReturnBook
+  onReturnBook,
 }) {
   const navigate = useNavigate();
 
@@ -46,7 +46,12 @@ export default function BookCard({
           <div className="library-actions">
             <button
               className="create-playlist-btn"
-              onClick={() => onCreatePlaylist(book)}
+              onClick={() => {
+                onCreatePlaylist(book);
+                navigate(`/create-playlist?book_id=${book.id}`, {
+                  state: { book },
+                });
+              }}
             >
               create playlist
             </button>

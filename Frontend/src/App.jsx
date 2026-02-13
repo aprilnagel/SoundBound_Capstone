@@ -12,6 +12,7 @@ import ApplicationDetails from "./pages/ApplicationDetails/ApplicationDetails";
 import BookSearch from "./pages/BookSearch/BookSearch";
 import BookDetails from "./pages/BookDetails/BookDetails";
 import Library from "./pages/Library/Library";
+import CreatePlaylist from "./pages/CreatePlaylist/CreatePlaylist";
 
 function App() {
  
@@ -31,6 +32,7 @@ function App() {
         <Route path="/book-search" element={<BookSearch />} />
         <Route path="/book-details/:id" element={<BookDetails />} />
         <Route path="/library" element={<Library />} />
+        <Route path="/create-playlist" element={<CreatePlaylist />} />
       </Routes>
     </>
   )

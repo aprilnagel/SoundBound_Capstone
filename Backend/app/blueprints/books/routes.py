@@ -91,6 +91,26 @@ def get_book_details(current_user, openlib_id):
     # 3. Return the preview metadata (NOT inserted into DB)
     return jsonify(ol_data), 200
 
+#_____________________GET BOOK BY ID (AFTER IMPORT AND AFTER THE BOOK EXISTS IN USER LIBRARY)_____________________#
+@books_bp.route("/id/<int:book_id>", methods=["GET"])
+@token_required
+def get_book_by_id(current_user, book_id):
+    book = Books.query.get(book_id)
+    if not book:
+        return jsonify({"error": "Book not found"}), 404
+
+    response = book_dump_schema.dump(book)
+
+    # Safe library check
+    library = current_user.library or []
+    response["in_user_library"] = int(book.id) in [int(x) for x in library]
+
+    # Safe author ownership check
+    user_keys = set(current_user.author_keys or [])
+    book_keys = set(book.author_keys or [])
+    response["is_owned_by_author"] = bool(user_keys.intersection(book_keys))
+
+    return jsonify(response), 200
 
 #_____________________IMPORT BOOK FROM OPEN LIBRARY_____________________#
 
