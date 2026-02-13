@@ -1,0 +1,251 @@
+/* ---------------- GLOBAL PAGE ---------------- */
+.playlist-details-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-family: "Manjari", system-ui;
+  margin-top: 20px;
+}
+
+/* Main container */
+.playlist-details-container {
+  width: 79%;
+  padding: 30px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* ---------------- HEADER (3 COLUMNS) ---------------- */
+.playlist-header {
+  display: grid;
+  grid-template-columns: 300px 0.7fr 300px;
+  gap: 40px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.playlist-cover {
+  width: 220px;
+  border-radius: 20px;
+  box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+
+/* Middle column: title + book + edit */
+.playlist-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.playlist-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #e91e63;
+}
+
+.playlist-book {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Right column: tags + select + add */
+.playlist-tags-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tags-header {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+/* ---------------- TAGS ---------------- */
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag-pill {
+  padding: 8px 12px 5px 12px;
+  background: #ff4d6d;
+  color: white;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+}
+
+/* ---------------- TAG CONTROLS ---------------- */
+.tag-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------------- SELECT ---------------- */
+.tag-select {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 30px;
+  border: 1px solid #e0e0e0;
+  background: #fafafa;
+  font-family: "Manjari", sans-serif;
+  font-size: 1rem;
+  color: #333;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tag-select:focus {
+  border-color: #ff4d6d;
+  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.25);
+  outline: none;
+}
+
+.tag-select optgroup {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #ff4d6d;
+  padding: 4px 0;
+}
+
+.tag-select option {
+  padding: 8px 14px;
+  border-radius: 20px;
+  background: #fff;
+  color: #333;
+}
+
+.tag-select option:hover {
+  background: #ffe6ec;
+}
+
+/* ---------------- ADD TAG BUTTON ---------------- */
+.add-tag-btn {
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: none;
+  background: linear-gradient(90deg, #b473ed, #c89cef);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: opacity 0.2s ease;
+}
+
+.add-tag-btn:hover {
+  opacity: 0.85;
+}
+
+/* ---------------- ACTION BUTTONS ---------------- */
+.playlist-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.playlist-actions button {
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: none;
+  background: radial-gradient(#52dbf4,#9fdde8);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  
+}
+
+.playlist-actions button:hover {
+  opacity: 0.85;
+}
+
+/* ---------------- TWO-COLUMN LAYOUT ---------------- */
+.playlist-columns {
+  display: flex;
+  gap: 40px;
+  width: 85%;
+  margin: 0 auto;
+  margin-top: 10px;
+}
+
+/* Songs column */
+.songs-column {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+
+
+/* ---------------- SECTION TITLES ---------------- */
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #333;
+  background-color: #ffc66e67;
+  padding: 12px 14px 8px 14px;
+  border-radius: 30px;
+  text-align: center;
+}
+
+/* ---------------- SONG LIST ---------------- */
+.songs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.song-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 30px;
+  background: #fafafa;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.song-card:hover {
+  background: #f3f3f3;
+  transform: translateY(-2px);
+}
+
+.song-info {
+  display: flex;
+  flex-direction: column;
+  max-width: 70%;
+}
+
+.song-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #222;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-artists {
+  font-size: 0.9rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

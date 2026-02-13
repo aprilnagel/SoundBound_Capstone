@@ -1,9 +1,222 @@
-import React from 'react'
+import React, { useEffect, useState, useRef } from "react";
+import { useParams } from "react-router-dom";
+import "./PlaylistDetails.css";
+import Navbar from "../../components/Navbar/Navbar";
+import { useNavigate } from "react-router-dom";
 
-const PlaylistDetails = () => {
+const API_URL = import.meta.env.VITE_API_URL;
+
+export default function PlaylistDetails() {
+  const { id } = useParams();
+  const token = localStorage.getItem("token");
+  const navigate = useNavigate();
+
+  const [playlist, setPlaylist] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  // Tag dropdown state
+  const [allTags, setAllTags] = useState([]);
+  const [selectedTag, setSelectedTag] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const fetchPlaylist = async () => {
+      try {
+        const res = await fetch(`${API_URL}/playlists/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.error || "Failed to load playlist");
+          setLoading(false);
+          return;
+        }
+
+        setPlaylist(data);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setError("Something went wrong");
+        setLoading(false);
+      }
+    };
+
+    const fetchTags = async () => {
+      try {
+        const res = await fetch(`${API_URL}/tags`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await res.json();
+        setAllTags(data);
+      } catch (err) {
+        console.error("Failed to fetch tags", err);
+      }
+    };
+
+    fetchPlaylist();
+    fetchTags();
+  }, [id, token]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Add Tag handler
+  const handleAddTag = async () => {
+    if (!selectedTag) return;
+
+    try {
+      const res = await fetch(`${API_URL}/playlists/${id}/tags`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tag_id: selectedTag }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setPlaylist(data);
+        setSelectedTag("");
+      } else {
+        console.error("Error adding tag:", data.error);
+      }
+    } catch (err) {
+      console.error("Failed to add tag", err);
+    }
+  };
+
+  if (loading) return <div className="pd-loading">Loading...</div>;
+  if (error) return <div className="pd-error">{error}</div>;
+  if (!playlist) return <div className="pd-loading">Loading...</div>;
+
+  const book = playlist.books?.[0];
+
+  // Group tags by category
+  const groupedTags = allTags.reduce((groups, tag) => {
+    const category = tag.category || "uncategorized";
+    if (!groups[category]) groups[category] = [];
+    groups[category].push(tag);
+    return groups;
+  }, {});
+
   return (
-    <div>PlaylistDetails</div>
-  )
-}
+    <div className="playlist-details-page">
+      <Navbar />
 
-export default PlaylistDetails
+      <div className="playlist-details-container">
+        {/* HEADER — 3 COLUMNS */}
+        <div className="playlist-header">
+          {/* COLUMN 1 — COVER */}
+          {book && (
+            <img
+              src={book.cover_url}
+              alt={book.title}
+              className="playlist-cover"
+            />
+          )}
+
+          {/* COLUMN 2 — TITLE + BOOK + EDIT */}
+          <div className="playlist-info">
+            <h1 className="playlist-title">{playlist.title}</h1>
+            {book && <h2 className="playlist-book">Book: {book.title}</h2>}
+
+            <div className="playlist-actions">
+              <button
+                onClick={() =>
+                  navigate(`/create-playlist?playlist_id=${playlist.id}`)
+                }
+              >
+                Edit Playlist
+              </button>
+            </div>
+          </div>
+
+          {/* COLUMN 3 — TAGS + SELECT + ADD */}
+          <div className="playlist-tags-col">
+            <h3 className="tags-header">Tags</h3>
+
+            <div className="tags-list">
+              {playlist.tags.length === 0 && (
+                <p className="empty-text">No tags yet.</p>
+              )}
+
+              {playlist.tags.map((tag) => (
+                <span key={tag.id} className="tag-pill">
+                  {tag.mood_name}
+                </span>
+              ))}
+            </div>
+
+            <div className="tag-controls">
+              <select
+                className="tag-select"
+                value={selectedTag}
+                onChange={(e) => setSelectedTag(e.target.value)}
+              >
+                <option value="">Select a tag...</option>
+
+                {Object.entries(groupedTags).map(([category, tags]) => (
+                  <optgroup key={category} label={category}>
+                    {tags.map((tag) => (
+                      <option key={tag.id} value={tag.id}>
+                        {tag.mood_name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+
+              <button className="add-tag-btn" onClick={handleAddTag}>
+                Add Tag
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* SONGS COLUMN */}
+        <div className="playlist-columns">
+          <section className="songs-column">
+            <h2 className="section-title">
+              Songs{" "}
+              <span className="song-count">
+                ({playlist.playlist_songs.length})
+              </span>
+            </h2>
+
+            <div className="songs-list">
+              {playlist.playlist_songs.length === 0 && (
+                <p className="empty-text">No songs yet.</p>
+              )}
+
+              {playlist.playlist_songs.map((ps) => (
+                <div key={ps.id} className="song-card">
+                  <div className="song-info">
+                    <span className="song-title">{ps.song.title}</span>
+                    <span className="song-artists">
+                      {ps.song.artists.join(", ")}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  );
+}

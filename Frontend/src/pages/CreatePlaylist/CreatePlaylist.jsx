@@ -1,16 +1,27 @@
 import Navbar from "../../components/Navbar/Navbar";
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import "./CreatePlaylist.css";
+
+const API_URL = "https://soundbound-capstone.onrender.com";
 
 export default function CreatePlaylist() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const token = localStorage.getItem("token");
+  // ------------------ USER ROLE ------------------ //
+  const user = JSON.parse(localStorage.getItem("user"));
+  const currentUserRole = user?.role;
 
   // ------------------ MODE ------------------ //
   const bookId = searchParams.get("book_id");
-  console.log("CREATE PLAYLIST - BOOK ID:", bookId);
-  console.log("ACTIVE CREATE PLAYLIST FILE:", import.meta.url);
+
+  // ----------------MODE CHECK----------------//
+  const location = useLocation();
+  const params = new URLSearchParams(location.search);
+  const playlistId = params.get("playlist_id");
+  const isEditMode = Boolean(playlistId);
+  const [saving, setSaving] = useState(false);
 
   // ------------------ STATE ------------------ //
   const [loading, setLoading] = useState(true);
@@ -36,22 +47,15 @@ export default function CreatePlaylist() {
   const [sortBy, setSortBy] = useState("");
   const [filter, setFilter] = useState("");
 
+  //----------------POP UP----------------//
+  const [showSaved, setShowSaved] = useState(false);
+
   // ------------------ LOAD BOOK ------------------ //
   async function loadBook() {
     try {
-      console.log(
-        "FETCHING:",
-        `https://soundbound-capstone.onrender.com/books/id/${bookId}`,
-      );
-
-      const res = await fetch(
-        `https://soundbound-capstone.onrender.com/books/id/${bookId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        },
-      );
+      const res = await fetch(`${API_URL}/books/id/${bookId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
       if (!res.ok) throw new Error("Failed to fetch book");
 
@@ -64,11 +68,55 @@ export default function CreatePlaylist() {
     }
   }
 
-  // ------------------ EFFECT ------------------ //
+  // ----------EFFECT (create/edit modes) -------------- //
   useEffect(() => {
-    if (!bookId) return; // wait for router to populate it
+    if (isEditMode) return; // do NOT load book in edit mode
+    if (!bookId) return;
+
     loadBook();
-  }, [bookId]);
+  }, [bookId, isEditMode]);
+
+  // ----------- LOAD PLAYLIST (EDIT MODE) -------------- //
+  useEffect(() => {
+    if (!isEditMode) return; // only run in edit mode
+    if (!playlistId) return; // safety check
+    if (!token) return; // wait for token
+
+    async function fetchPlaylist() {
+      try {
+        const res = await fetch(`${API_URL}/playlists/${playlistId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch playlist");
+
+        const data = await res.json();
+        console.log("PLAYLIST DATA:", data);
+
+        // Prefill fields
+        setTitle(data.title || "");
+        setDescription(data.description || "");
+        setSongs(
+          (data.playlist_songs || []).map((ps) => ({
+            id: ps.song.id, // use the real song id
+            title: ps.song.title,
+            artist: ps.song.artists,
+            album: ps.song.album,
+            spotify_id: ps.song.spotify_id,
+          })),
+        );
+
+        setBook(data.books?.[0] || null);
+
+        setLoading(false);
+      } catch (err) {
+        console.error("Failed to load playlist for editing:", err);
+        setLoading(false);
+      }
+    }
+
+    fetchPlaylist();
+  }, [isEditMode, playlistId, token]);
 
   // ------------------ SONG SEARCH ------------------ //
   async function searchSongs(query) {
@@ -79,10 +127,10 @@ export default function CreatePlaylist() {
 
     try {
       const res = await fetch(
-        `https://soundbound-capstone.onrender.com/songs/spotify/search?q=${encodeURIComponent(query)}`,
+        `${API_URL}/songs/spotify/search?q=${encodeURIComponent(query)}`,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         },
       );
@@ -110,72 +158,133 @@ export default function CreatePlaylist() {
   }, [searchTitle, searchArtist, searchAlbum]);
 
   // ---------------ADD / REMOVE SONGS -------------- //
-  function addSong(song) {
+
+  async function addSong(song) {
+    // Prevent duplicates in UI
     if (songs.some((s) => s.id === song.id)) return;
+
+    // Update UI immediately
     setSongs((prev) => [...prev, song]);
+
+    // If editing, update playlist immediately
+    if (isEditMode) {
+      await fetch(`${API_URL}/playlists/${playlistId}/songs`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ spotify_id: song.id }),
+      });
+    }
   }
 
-  function removeSong(songId) {
+  async function removeSong(songId) {
+    // Update UI immediately
     setSongs((prev) => prev.filter((s) => s.id !== songId));
+
+    // If editing, update playlist immediately
+    if (isEditMode) {
+      await fetch(`${API_URL}/playlists/${playlistId}/songs/${songId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
   }
 
   // ------------------ SAVE PLAYLIST ------------------ //
   async function savePlaylist() {
     try {
-      let payload;
+      setSaving(true); // disable UI
 
-      if (book.in_user_library) {
-        payload = {
-          title,
-          description,
-          book_id: book.id,
-          is_author_reco: isAuthorReco,
-        };
+      let payload; // ⭐ REQUIRED — declare before assigning
+
+      // ------------------ CREATE MODE ------------------ //
+      if (!isEditMode) {
+        if (book?.in_user_library) {
+          // Verified playlist
+          payload = {
+            title,
+            description,
+            book_id: book.id,
+            is_author_reco: isAuthorReco,
+          };
+        } else {
+          // Custom playlist
+          payload = {
+            title,
+            description,
+            custom_book_title: customTitle,
+            custom_author_name: customAuthor,
+            custom_publish_year: customYear || null,
+          };
+        }
+
+        // ------------------ EDIT MODE ------------------ //
       } else {
         payload = {
           title,
           description,
-          custom_book_title: customTitle,
-          custom_author_name: customAuthor,
-          custom_publish_year: customYear || null,
         };
+
+        // Only authors can toggle this field
+        if (currentUserRole === "author") {
+          payload.is_author_reco = isAuthorReco;
+        }
       }
 
-      const res = await fetch(
-        "https://soundbound-capstone.onrender.com/playlists",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-          body: JSON.stringify(payload),
-        },
-      );
+      const url = isEditMode
+        ? `${API_URL}/playlists/${playlistId}`
+        : `${API_URL}/playlists`;
 
-      if (!res.ok) throw new Error("Failed to create playlist");
+      const method = isEditMode ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error("SAVE ERROR RESPONSE:", errText);
+        throw new Error("Failed to save playlist");
+      }
 
       const playlist = await res.json();
 
-      for (const s of songs) {
-        await fetch(
-          `https://soundbound-capstone.onrender.com/playlists/${playlist.id}/songs`,
-          {
+      // ------------------ ADD SONGS (CREATE ONLY) ------------------ //
+      if (!isEditMode) {
+        for (const s of songs) {
+          await fetch(`${API_URL}/playlists/${playlist.id}/songs`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ song: s }),
-          },
-        );
+            body: JSON.stringify({ spotify_id: s.id }),
+          });
+        }
       }
 
-      navigate(`/playlist-details/${playlist.id}`);
+      setShowSaved(true);
+
+      setTimeout(() => {
+        setShowSaved(false);
+        navigate(`/playlist-details/${playlist.id}`);
+      }, 2000);
     } catch (err) {
-      console.error("Failed to create playlist:", err);
+      console.error("Failed to save playlist:", err);
+    } finally {
+      setSaving(false);
     }
   }
+
   const processedResults = [...searchResults]
     .filter((song) => {
       if (!filter) return true;
@@ -191,23 +300,37 @@ export default function CreatePlaylist() {
 
       return (a[sortBy] || "").localeCompare(b[sortBy] || "");
     });
+
   // ------------------ RENDER ------------------ //
   if (loading) return <div>Loading...</div>;
 
-  const isVerified = book.in_user_library;
-  const canAuthorReco = book.is_owned_by_author;
+  const isVerified = isEditMode ? true : book?.in_user_library;
+  const canAuthorReco = book?.is_owned_by_author;
 
   return (
     <div className="create-playlist-page">
+      {" "}
       <Navbar />
-
+      {/* ⭐ SAVED POPUP GOES RIGHT HERE ⭐ */}
+      {showSaved && (
+        <div className="success-popup">
+          <div className="success-box">
+            <div className="success-icon">✓</div>
+            <h2>Playlist Saved!</h2>
+          </div>
+        </div>
+      )}
       <div className="playlist-container">
         {/* ---------------- BOOK INFO + BOOK FIELDS ---------------- */}
         <div className="book-info-small">
           <div className="book-meta">
             <h3 className="playlist-heading">
-              <span className="label">Creating playlist for:</span>
-              <span className="book-title">{book.title}</span>
+              <span className="label">
+                {isEditMode
+                  ? "Editing playlist for:"
+                  : "Creating playlist for:"}
+              </span>
+              <span className="book-title">{book?.title}</span>
             </h3>
 
             <p className="in-library-flag">
@@ -268,8 +391,8 @@ export default function CreatePlaylist() {
             placeholder="Description (optional)"
           />
 
-          <button className="save-btn" onClick={savePlaylist}>
-            Create Playlist
+          <button className="save-btn" onClick={savePlaylist} disabled={saving}>
+            {isEditMode ? "Save Playlist" : "Create Playlist"}
           </button>
         </div>
 
@@ -348,7 +471,10 @@ export default function CreatePlaylist() {
                   <div className="col-title">{song.title}</div>
                   <div className="col-artist">{song.artist}</div>
                   <div className="col-album">{song.album}</div>
-                  <button className="col-add" onClick={() => addSong(song)}>
+                  <button
+                    className="col-add"
+                    onClick={() => !saving && addSong(song)}
+                  >
                     Add
                   </button>
                 </div>
@@ -368,7 +494,12 @@ export default function CreatePlaylist() {
                     <div className="song-artist">{song.artist}</div>
                   </div>
 
-                  <button onClick={() => removeSong(song.id)}>X</button>
+                  <button
+                    onClick={() => !saving && removeSong(song.id)}
+                    disabled={saving}
+                  >
+                    X
+                  </button>
                 </div>
               ))}
             </div>

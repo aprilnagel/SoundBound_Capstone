@@ -88,8 +88,12 @@ def get_book_details(current_user, openlib_id):
     if not ol_data:
         return jsonify({"error": "Failed to fetch book from Open Library"}), 400
 
+    # ⭐ FIX: attach the ID so the frontend always has it
+    ol_data["openlib_id"] = openlib_id
+
     # 3. Return the preview metadata (NOT inserted into DB)
     return jsonify(ol_data), 200
+
 
 #_____________________GET BOOK BY ID (AFTER IMPORT AND AFTER THE BOOK EXISTS IN USER LIBRARY)_____________________#
 @books_bp.route("/id/<int:book_id>", methods=["GET"])
