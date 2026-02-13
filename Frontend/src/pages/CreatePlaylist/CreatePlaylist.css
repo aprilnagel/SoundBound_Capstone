@@ -1,3 +1,4 @@
+/* ---------------- GLOBAL PAGE ---------------- */
 .create-playlist-page {
   display: flex;
   flex-direction: column;
@@ -9,7 +10,7 @@
 
 /* Main container */
 .playlist-container {
-  width: 80%;
+  width: 79%;
   padding: 30px;
   border-radius: 20px;
   background: white;
@@ -20,50 +21,70 @@
   gap: 30px;
 }
 
-/* ---------------- ROW 1 — Playlist Inputs ---------------- */
-.playlist-input-row {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-/* Small book preview */
+/* ---------------- BOOK INFO ---------------- */
 .book-info-small {
   display: flex;
   align-items: center;
-  gap: 12px;
+}
+.playlist-heading {
+  display: flex;
+  align-items: center;   /* vertically centers both pieces */
+  justify-content: center; /* horizontally centers the whole line */
+  gap: 8px;            /* space between label + title */
 }
 
-.book-info-small img {
-  width: 70px;
-  height: auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+.book-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #e91e63; /* or whatever your accent is */
+  padding-top: 2px;
 }
 
-.book-info-small h3 {
-  margin: 0;
+
+.book-meta h3 {
+  margin: 10px 0 4px 0;
   font-size: 1.1rem;
   font-weight: 600;
 }
 
-.book-info-small p {
+.book-meta p {
   margin: 0;
   font-size: 0.9rem;
   color: #555;
 }
 
-/* Playlist inputs */
+/* ---------------- PLAYLIST INPUTS ---------------- */
+.playlist-input-row {
+  display: flex;
+  gap: 20px;
+}
+
+.song-search-row {
+  display: flex;
+  gap: 20px;
+}
+
 .playlist-input {
   flex: 1;
   padding: 12px 14px;
-  border-radius: 12px;
+  border-radius: 30px;
   border: 1px solid #ddd;
   background: #fafafa;
   font-size: 1rem;
   outline: none;
   transition: border 0.2s ease, box-shadow 0.2s ease;
 }
+.song-search-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 30px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
 
 .playlist-input:focus {
   border-color: #ff4d6d;
@@ -87,68 +108,16 @@
   opacity: 0.85;
 }
 
-/* ---------------- ROW 2 — Song Search Inputs ---------------- */
-.song-search-row {
-  display: flex;
-  gap: 20px;
-}
+/* ---------------- SONG SEARCH ---------------- */
 
-.song-search-input {
-  flex: 1;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid #ddd;
-  background: #fafafa;
-  font-size: 1rem;
-  outline: none;
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-}
+
+
 
 .song-search-input:focus {
   border-color: #ff4d6d;
   box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.2);
 }
 
-/* ---------------- ROW 3 — Results + Current Songs ---------------- */
-.song-columns {
-  display: flex;
-  gap: 30px;
-}
-
-.results,
-.current-songs {
-  flex: 1;
-}
-
-/* Section title */
-.current-songs h3 {
-  margin-bottom: 12px;
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #333;
-}
-
-/* Song rows */
-.song-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: #fafafa;
-  border: 1px solid #eee;
-  margin-bottom: 10px;
-  transition: background 0.2s ease;
-}
-
-.song-row:hover {
-  background: #f3f3f3;
-}
-
-.song-row span {
-  font-size: 0.95rem;
-  color: #333;
-}
 .song-search-btn {
   padding: 10px 20px;
   border-radius: 30px;
@@ -161,10 +130,158 @@
   transition: opacity 0.2s ease;
 }
 
-/* Add/Remove buttons */
+/* ---------------- SONG RESULTS + PLAYLIST SONGS ---------------- */
+.song-columns {
+  display: flex;
+  align-items: flex-start;
+  gap: 30px;
+}
+
+/* LEFT SIDE: header + results stack vertically */
+.song-results-table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  
+}
+
+/* HEADER */
+.song-grid-header {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr auto;
+  padding: 10px 20px 3px 10px;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 20px;
+  color: #333;
+  background-color: #ff4d6e67;
+  border-radius: 30px;
+  border-bottom: 2px solid #ddd;
+}
+
+
+
+
+
+/* RESULT ROWS */
+.song-grid-row {
+  display: grid;
+  grid-template-columns: 2fr 1.5fr 1.5fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  background: #fff;
+  border-radius: 30px;
+  border: 1px solid #e6e6e6;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.song-grid-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+}
+
+/* TEXT COLUMNS */
+.col-title {
+  font-weight: 600;
+  color: #222;
+}
+
+.col-artist,
+.col-album {
+  color: #555;
+  font-size: 14px;
+}
+
+/* ADD BUTTON */
+.col-add {
+  background: #ff4d6d;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.col-add:hover {
+  background: #d43c56;
+}
+
+/* ---------------- CURRENT PLAYLIST SONGS ---------------- */
+.current-songs h3 {
+  margin-bottom: 12px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  background-color: #ffc66e67;
+    padding: 10px 4px 4px 4px;
+    border-radius: 30px;
+}
+
+.current-songs {
+    width: 260px;
+    flex-shrink: 0;
+    margin-top:38px;
+}
+
+.song-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 30px;
+  background: #fafafa;
+  border: 1px solid #eee;
+  margin-bottom: 10px;
+  transition: background 0.2s ease;
+  gap: 20px;
+  width: 90%;
+}
+.song-info {
+  display: flex;
+  flex-direction: column;
+  max-width: 180px; /* adjust to match your layout */
+  overflow: hidden;
+}
+.song-title,
+.song-artist {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-title {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.song-artist {
+  font-size: 0.9rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+.song-row:hover {
+  background: #f3f3f3;
+}
+
+.song-row span {
+  font-size: 0.95rem;
+  color: #333;
+}
+
 .song-row button {
   padding: 6px 12px;
-  border-radius: 12px;
+  border-radius: 30px;
   border: none;
   background: #ff4d6d;
   color: white;
@@ -175,4 +292,26 @@
 
 .song-row button:hover {
   opacity: 0.85;
+}
+
+.results-count {
+  font-weight: 600;
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.results-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.results-sort,
+.results-filter {
+    padding: 2px 6px 2px 6px;
+    border-radius: 30px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    font-size: 12px;
 }

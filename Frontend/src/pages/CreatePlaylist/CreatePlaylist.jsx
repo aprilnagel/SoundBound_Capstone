@@ -28,6 +28,14 @@ export default function CreatePlaylist() {
   const [songs, setSongs] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
 
+  //------------SEARCHES-----------------//
+  const [searchTitle, setSearchTitle] = useState("");
+  const [searchArtist, setSearchArtist] = useState("");
+  const [searchAlbum, setSearchAlbum] = useState("");
+
+  const [sortBy, setSortBy] = useState("");
+  const [filter, setFilter] = useState("");
+
   // ------------------ LOAD BOOK ------------------ //
   async function loadBook() {
     try {
@@ -71,7 +79,7 @@ export default function CreatePlaylist() {
 
     try {
       const res = await fetch(
-        `https://soundbound-capstone.onrender.com/spotify/search?q=${encodeURIComponent(query)}`,
+        `https://soundbound-capstone.onrender.com/songs/spotify/search?q=${encodeURIComponent(query)}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -88,6 +96,20 @@ export default function CreatePlaylist() {
     }
   }
 
+  // ⭐ AUTO-SEARCH EFFECT — PLACE IT RIGHT HERE ⭐
+  useEffect(() => {
+    const query = [searchTitle, searchArtist, searchAlbum]
+      .filter(Boolean)
+      .join(" ");
+
+    if (query.length > 1) {
+      searchSongs(query);
+    } else {
+      setSearchResults([]);
+    }
+  }, [searchTitle, searchArtist, searchAlbum]);
+
+  // ---------------ADD / REMOVE SONGS -------------- //
   function addSong(song) {
     if (songs.some((s) => s.id === song.id)) return;
     setSongs((prev) => [...prev, song]);
@@ -137,7 +159,7 @@ export default function CreatePlaylist() {
 
       for (const s of songs) {
         await fetch(
-          `https://soundbound-capstone.onrender.com/songs/${playlist.id}`,
+          `https://soundbound-capstone.onrender.com/playlists/${playlist.id}/songs`,
           {
             method: "POST",
             headers: {
@@ -149,12 +171,26 @@ export default function CreatePlaylist() {
         );
       }
 
-      navigate(`/playlist/${playlist.id}`);
+      navigate(`/playlist-details/${playlist.id}`);
     } catch (err) {
       console.error("Failed to create playlist:", err);
     }
   }
+  const processedResults = [...searchResults]
+    .filter((song) => {
+      if (!filter) return true;
+      const q = filter.toLowerCase();
+      return (
+        song.title.toLowerCase().includes(q) ||
+        song.artist.toLowerCase().includes(q) ||
+        song.album.toLowerCase().includes(q)
+      );
+    })
+    .sort((a, b) => {
+      if (!sortBy || sortBy === "relevance") return 0; // keep original order
 
+      return (a[sortBy] || "").localeCompare(b[sortBy] || "");
+    });
   // ------------------ RENDER ------------------ //
   if (loading) return <div>Loading...</div>;
 
@@ -166,56 +202,58 @@ export default function CreatePlaylist() {
       <Navbar />
 
       <div className="playlist-container">
+        {/* ---------------- BOOK INFO + BOOK FIELDS ---------------- */}
         <div className="book-info-small">
           <div className="book-meta">
-            <h3>Creating playlist for: {book.title}</h3>
+            <h3 className="playlist-heading">
+              <span className="label">Creating playlist for:</span>
+              <span className="book-title">{book.title}</span>
+            </h3>
+
             <p className="in-library-flag">
               Verified: <span>{isVerified ? "Yes" : "No"}</span>
             </p>
+
+            {/* Verified book → optional author reco */}
+            {isVerified && canAuthorReco && (
+              <label className="author-reco-toggle">
+                <input
+                  type="checkbox"
+                  checked={isAuthorReco}
+                  onChange={(e) => setIsAuthorReco(e.target.checked)}
+                />
+                Author Recommended
+              </label>
+            )}
+
+            {/* Custom book → custom fields */}
+            {!isVerified && (
+              <div className="custom-book-fields">
+                <input
+                  className="playlist-input"
+                  value={customTitle}
+                  onChange={(e) => setCustomTitle(e.target.value)}
+                  placeholder="Custom book title"
+                />
+                <input
+                  className="playlist-input"
+                  value={customAuthor}
+                  onChange={(e) => setCustomAuthor(e.target.value)}
+                  placeholder="Custom book author"
+                />
+                <input
+                  className="playlist-input"
+                  value={customYear}
+                  onChange={(e) => setCustomYear(e.target.value)}
+                  placeholder="Year (optional)"
+                />
+              </div>
+            )}
           </div>
         </div>
 
+        {/* ---------------- PLAYLIST TITLE ROW ---------------- */}
         <div className="playlist-input-row">
-          {isVerified && (
-            <div className="verified-book-fields">
-              {canAuthorReco && (
-                <label className="author-reco-toggle">
-                  <input
-                    type="checkbox"
-                    checked={isAuthorReco}
-                    onChange={(e) => setIsAuthorReco(e.target.checked)}
-                  />
-                  Author Recommended
-                </label>
-              )}
-            </div>
-          )}
-
-          {!isVerified && (
-            <div className="custom-book-fields">
-              <input
-                className="playlist-input"
-                value={customTitle}
-                onChange={(e) => setCustomTitle(e.target.value)}
-                placeholder="Custom book title"
-              />
-
-              <input
-                className="playlist-input"
-                value={customAuthor}
-                onChange={(e) => setCustomAuthor(e.target.value)}
-                placeholder="Custom book author"
-              />
-
-              <input
-                className="playlist-input"
-                value={customYear}
-                onChange={(e) => setCustomYear(e.target.value)}
-                placeholder="Year (optional)"
-              />
-            </div>
-          )}
-
           <input
             className="playlist-input"
             value={title}
@@ -235,44 +273,102 @@ export default function CreatePlaylist() {
           </button>
         </div>
 
+        {/* ---------------- SONG SEARCH & RESULTS ---------------- */}
         <div className="song-search-row">
           <input
             className="song-search-input"
             placeholder="Song title"
-            onChange={(e) => searchSongs(e.target.value)}
+            value={searchTitle}
+            onChange={(e) => setSearchTitle(e.target.value)}
           />
-          <input className="song-search-input" placeholder="Artist" />
-          <input className="song-search-input" placeholder="Album" />
+
+          <input
+            className="song-search-input"
+            placeholder="Artist"
+            value={searchArtist}
+            onChange={(e) => setSearchArtist(e.target.value)}
+          />
+
+          <input
+            className="song-search-input"
+            placeholder="Album"
+            value={searchAlbum}
+            onChange={(e) => setSearchAlbum(e.target.value)}
+          />
 
           <button
             className="song-search-btn"
-            onClick={() =>
-              searchSongs(document.querySelector(".song-search-input").value)
-            }
+            onClick={() => {
+              const query = [searchTitle, searchArtist, searchAlbum]
+                .filter(Boolean)
+                .join(" ");
+              searchSongs(query);
+            }}
           >
             Search Song
           </button>
         </div>
 
         <div className="song-columns">
-          <div className="results">
-            {searchResults.map((song) => (
-              <div key={song.id} className="song-row">
-                <span>{song.title}</span>
-                <span>{song.artist}</span>
-                <button onClick={() => addSong(song)}>Add</button>
-              </div>
-            ))}
+          {/* LEFT SIDE: HEADER + RESULTS */}
+          <div className="song-results-table">
+            <div className="results-controls">
+              <select
+                className="results-sort"
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="">Sort by…</option>
+                <option value="relevance">Relevance</option>
+                <option value="title">Title (A–Z)</option>
+                <option value="artist">Artist (A–Z)</option>
+                <option value="album">Album (A–Z)</option>
+              </select>
+
+              <input
+                className="results-filter"
+                placeholder="Filter by keyword"
+                onChange={(e) => setFilter(e.target.value)}
+              />
+            </div>
+
+            <div className="results-count">
+              Results: {processedResults.length}
+            </div>
+
+            <div className="song-grid-header">
+              <div>Song Title</div>
+              <div>Artists</div>
+              <div>Album</div>
+              <div></div>
+            </div>
+
+            <div className="results">
+              {processedResults.map((song) => (
+                <div key={song.id} className="song-grid-row">
+                  <div className="col-title">{song.title}</div>
+                  <div className="col-artist">{song.artist}</div>
+                  <div className="col-album">{song.album}</div>
+                  <button className="col-add" onClick={() => addSong(song)}>
+                    Add
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
 
+          {/* RIGHT SIDE: PLAYLIST SONGS */}
           {songs.length > 0 && (
             <div className="current-songs">
               <h3>Playlist Songs</h3>
+
               {songs.map((song) => (
                 <div key={song.id} className="song-row">
-                  <span>{song.title}</span>
-                  <span>{song.artist}</span>
-                  <button onClick={() => removeSong(song.id)}>Remove</button>
+                  <div className="song-info">
+                    <div className="song-title">{song.title}</div>
+                    <div className="song-artist">{song.artist}</div>
+                  </div>
+
+                  <button onClick={() => removeSong(song.id)}>X</button>
                 </div>
               ))}
             </div>
