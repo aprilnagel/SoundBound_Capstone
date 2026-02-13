@@ -14,6 +14,7 @@ import BookDetails from "./pages/BookDetails/BookDetails";
 import Library from "./pages/Library/Library";
 import CreatePlaylist from "./pages/CreatePlaylist/CreatePlaylist";
 import PlaylistDetails from "./pages/PlaylistDetails/PlaylistDetails";
+import Playlists from "./pages/Playlists/Playlists";
 
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
         <Route path="/library" element={<Library />} />
         <Route path="/create-playlist" element={<CreatePlaylist />} />
         <Route path="/playlist-details/:id" element={<PlaylistDetails />} />
+        <Route path="/playlists" element={<Playlists />} />
       </Routes>
     </>
   )

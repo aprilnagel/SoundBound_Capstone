@@ -140,6 +140,7 @@ class Playlists(db.Model):
     
     
     
+    
 #------------RELATIONSHIPS-----------------
     # Books included in this playlist
     books = relationship(
@@ -168,6 +169,11 @@ class Playlists(db.Model):
         "Users", 
         back_populates="playlists", 
         lazy=True)
+    
+    @property
+    def song_count(self):
+        return self.playlist_songs.count()
+
     
 #_____________SONGS_____________________
 class Songs(db.Model):

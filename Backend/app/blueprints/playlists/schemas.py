@@ -66,6 +66,9 @@ class PlaylistDumpSchema(Schema):
 
     # minimal nested user
     user = fields.Nested(UserPublicSchema, only=("id", "username"))
+    
+    song_count = fields.Int()
+
 
 playlist_dump_schema = PlaylistDumpSchema()
 playlists_dump_schema = PlaylistDumpSchema(many=True)
