@@ -18,14 +18,27 @@ from app.utility.auth import token_required
 from app.utility.spotify import (
     fetch_spotify_track,
     fetch_audio_features,
-    fetch_genres_for_artists
+    fetch_genres_for_artists,
+    search_spotify_tracks,
 )
 
 # Blueprint
 from . import songs_bp
 
 
-# ---------------------------------------------------------
+#------------------SEARCH SONGS (SPOTIFY)------------------#
+@songs_bp.route("/spotify/search")
+@token_required
+def spotify_search(current_user):
+    query = request.args.get("q")
+    if not query:
+        return jsonify({"error": "Missing query"}), 400
+
+    tracks = search_spotify_tracks(query)
+    return jsonify({"tracks": tracks}), 200
+
+
+#---------------------------------------------------------
 # ADD SONG TO PLAYLIST
 # ---------------------------------------------------------
 @songs_bp.route("/playlists/<int:playlist_id>/songs", methods=["POST"])

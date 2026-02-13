@@ -2,13 +2,18 @@ import base64
 import requests
 from flask import current_app
 
+# ------------------ SPOTIFY ENDPOINTS ------------------ #
+
 SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token"
 SPOTIFY_TRACK_URL = "https://api.spotify.com/v1/tracks/{id}"
 SPOTIFY_AUDIO_FEATURES_URL = "https://api.spotify.com/v1/audio-features/{id}"
 SPOTIFY_ARTIST_URL = "https://api.spotify.com/v1/artists/{id}"
+SPOTIFY_SEARCH_URL = "https://api.spotify.com/v1/search"
 
 
-# ---------------- TOKEN ---------------- #
+# --------------------------------------------------------
+# TOKEN
+# --------------------------------------------------------
 
 def get_spotify_token():
     """
@@ -36,7 +41,9 @@ def get_spotify_token():
     return resp.json().get("access_token")
 
 
-# ---------------- TRACK METADATA ---------------- #
+# --------------------------------------------------------
+# TRACK METADATA
+# --------------------------------------------------------
 
 def fetch_spotify_track(spotify_id):
     """
@@ -65,7 +72,9 @@ def fetch_spotify_track(spotify_id):
     }
 
 
-# ---------------- AUDIO FEATURES ---------------- #
+# --------------------------------------------------------
+# AUDIO FEATURES
+# --------------------------------------------------------
 
 def fetch_audio_features(spotify_id):
     """
@@ -85,7 +94,9 @@ def fetch_audio_features(spotify_id):
     return resp.json()
 
 
-# ---------------- GENRES ---------------- #
+# --------------------------------------------------------
+# GENRES
+# --------------------------------------------------------
 
 def fetch_artist_genres(artist_id):
     """
@@ -93,7 +104,6 @@ def fetch_artist_genres(artist_id):
     Returns a list of strings.
     """
     token = get_spotify_token()
-    print("TOKEN:", token)
     if not token:
         return []
 
@@ -118,3 +128,46 @@ def fetch_genres_for_artists(artist_ids):
             genres.extend(g)
 
     return list(set(genres))
+
+
+# --------------------------------------------------------
+# SEARCH TRACKS (NEW)
+# --------------------------------------------------------
+
+def search_spotify_tracks(query):
+    """
+    Search Spotify for tracks by name.
+    Returns a list of normalized track dicts.
+    """
+    token = get_spotify_token()
+    if not token:
+        return []
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "User-Agent": "SoundBound/1.0"
+    }
+
+    params = {
+        "q": query,
+        "type": "track",
+        "limit": 10
+    }
+
+    resp = requests.get(SPOTIFY_SEARCH_URL, headers=headers, params=params)
+    if resp.status_code != 200:
+        return []
+
+    items = resp.json().get("tracks", {}).get("items", [])
+
+    results = []
+    for item in items:
+        results.append({
+            "id": item["id"],
+            "title": item["name"],
+            "artist": ", ".join([a["name"] for a in item["artists"]]),
+            "album": item["album"]["name"],
+            "preview_url": item.get("preview_url")
+        })
+
+    return results

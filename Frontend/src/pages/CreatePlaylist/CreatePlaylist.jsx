@@ -9,6 +9,8 @@ export default function CreatePlaylist() {
 
   // ------------------ MODE ------------------ //
   const bookId = searchParams.get("book_id");
+  console.log("CREATE PLAYLIST - BOOK ID:", bookId);
+  console.log("ACTIVE CREATE PLAYLIST FILE:", import.meta.url);
 
   // ------------------ STATE ------------------ //
   const [loading, setLoading] = useState(true);
@@ -17,21 +19,32 @@ export default function CreatePlaylist() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
 
+  const [customTitle, setCustomTitle] = useState("");
+  const [customAuthor, setCustomAuthor] = useState("");
+  const [customYear, setCustomYear] = useState("");
+
+  const [isAuthorReco, setIsAuthorReco] = useState(false);
+
   const [songs, setSongs] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
 
   // ------------------ LOAD BOOK ------------------ //
-  useEffect(() => {
-    if (!bookId) {
-      navigate("/library");
-      return;
-    }
-    loadBook();
-  }, []);
-
   async function loadBook() {
     try {
-      const res = await fetch(`/books/${bookId}`);
+      console.log(
+        "FETCHING:",
+        `https://soundbound-capstone.onrender.com/books/id/${bookId}`,
+      );
+
+      const res = await fetch(
+        `https://soundbound-capstone.onrender.com/books/id/${bookId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
       if (!res.ok) throw new Error("Failed to fetch book");
 
       const data = await res.json();
@@ -43,6 +56,12 @@ export default function CreatePlaylist() {
     }
   }
 
+  // ------------------ EFFECT ------------------ //
+  useEffect(() => {
+    if (!bookId) return; // wait for router to populate it
+    loadBook();
+  }, [bookId]);
+
   // ------------------ SONG SEARCH ------------------ //
   async function searchSongs(query) {
     if (!query) {
@@ -51,7 +70,15 @@ export default function CreatePlaylist() {
     }
 
     try {
-      const res = await fetch(`/spotify/search?q=${encodeURIComponent(query)}`);
+      const res = await fetch(
+        `https://soundbound-capstone.onrender.com/spotify/search?q=${encodeURIComponent(query)}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        },
+      );
+
       if (!res.ok) throw new Error("Spotify search failed");
 
       const data = await res.json();
@@ -73,27 +100,53 @@ export default function CreatePlaylist() {
   // ------------------ SAVE PLAYLIST ------------------ //
   async function savePlaylist() {
     try {
-      const res = await fetch("/playlists", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      let payload;
+
+      if (book.in_user_library) {
+        payload = {
           title,
           description,
           book_id: book.id,
-        }),
-      });
+          is_author_reco: isAuthorReco,
+        };
+      } else {
+        payload = {
+          title,
+          description,
+          custom_book_title: customTitle,
+          custom_author_name: customAuthor,
+          custom_publish_year: customYear || null,
+        };
+      }
+
+      const res = await fetch(
+        "https://soundbound-capstone.onrender.com/playlists",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(payload),
+        },
+      );
 
       if (!res.ok) throw new Error("Failed to create playlist");
 
       const playlist = await res.json();
 
-      // Add songs
       for (const s of songs) {
-        await fetch(`/songs/${playlist.id}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ song: s }),
-        });
+        await fetch(
+          `https://soundbound-capstone.onrender.com/songs/${playlist.id}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            body: JSON.stringify({ song: s }),
+          },
+        );
       }
 
       navigate(`/playlist/${playlist.id}`);
@@ -105,30 +158,63 @@ export default function CreatePlaylist() {
   // ------------------ RENDER ------------------ //
   if (loading) return <div>Loading...</div>;
 
+  const isVerified = book.in_user_library;
+  const canAuthorReco = book.is_owned_by_author;
+
   return (
     <div className="create-playlist-page">
       <Navbar />
 
       <div className="playlist-container">
-
         <div className="book-info-small">
           <div className="book-meta">
-            <h3>{book.title}</h3>
+            <h3>Creating playlist for: {book.title}</h3>
             <p className="in-library-flag">
-              In Library: <span>{book.in_user_library ? "Yes" : "No"}</span>
+              Verified: <span>{isVerified ? "Yes" : "No"}</span>
             </p>
           </div>
         </div>
 
-        {/* ROW 1 — Playlist Inputs */}
         <div className="playlist-input-row">
-          <div className="book-info-small">
-            {book.cover_url && <img src={book.cover_url} alt={book.title} />}
-            <div>
-              <h3>{book.title}</h3>
-              <p>{book.author_names?.join(", ")}</p>
+          {isVerified && (
+            <div className="verified-book-fields">
+              {canAuthorReco && (
+                <label className="author-reco-toggle">
+                  <input
+                    type="checkbox"
+                    checked={isAuthorReco}
+                    onChange={(e) => setIsAuthorReco(e.target.checked)}
+                  />
+                  Author Recommended
+                </label>
+              )}
             </div>
-          </div>
+          )}
+
+          {!isVerified && (
+            <div className="custom-book-fields">
+              <input
+                className="playlist-input"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                placeholder="Custom book title"
+              />
+
+              <input
+                className="playlist-input"
+                value={customAuthor}
+                onChange={(e) => setCustomAuthor(e.target.value)}
+                placeholder="Custom book author"
+              />
+
+              <input
+                className="playlist-input"
+                value={customYear}
+                onChange={(e) => setCustomYear(e.target.value)}
+                placeholder="Year (optional)"
+              />
+            </div>
+          )}
 
           <input
             className="playlist-input"
@@ -149,7 +235,6 @@ export default function CreatePlaylist() {
           </button>
         </div>
 
-        {/* ROW 2 — Song Search */}
         <div className="song-search-row">
           <input
             className="song-search-input"
@@ -169,7 +254,6 @@ export default function CreatePlaylist() {
           </button>
         </div>
 
-        {/* ROW 3 — Results + Current Songs */}
         <div className="song-columns">
           <div className="results">
             {searchResults.map((song) => (

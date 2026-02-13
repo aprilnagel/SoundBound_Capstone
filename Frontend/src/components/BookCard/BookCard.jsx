@@ -31,7 +31,6 @@ export default function BookCard({
           </>
         )}
 
-        {/* DEFAULT BUTTON (Search results) */}
         {!showLibraryActions && (
           <button
             className="view-book-btn"
@@ -41,13 +40,11 @@ export default function BookCard({
           </button>
         )}
 
-        {/* LIBRARY ACTIONS (Library page) */}
         {showLibraryActions && (
           <div className="library-actions">
             <button
               className="create-playlist-btn"
               onClick={() => {
-                onCreatePlaylist(book);
                 navigate(`/create-playlist?book_id=${book.id}`, {
                   state: { book },
                 });

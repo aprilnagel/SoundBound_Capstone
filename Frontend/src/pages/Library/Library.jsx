@@ -98,7 +98,7 @@ const Library = () => {
               key={book.id}
               book={book}
               showLibraryActions={true}
-              onCreatePlaylist={() => nav(`/book-details/${book.openlib_id}`)}
+              onCreatePlaylist={() => navigate(`/create-playlist?book_id=${book.id}`, { state: { book } })}
               onReturnBook={() => handleReturnBook(book)}
             />
           ))}
