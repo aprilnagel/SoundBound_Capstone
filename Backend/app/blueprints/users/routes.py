@@ -231,7 +231,9 @@ def view_own_author_application_status(current_user):
         {
             "id": req.id,
             "status": req.status,
-            "submitted_at": req.submitted_at
+            "submitted_at": req.submitted_at,
+            "reviewed_at": req.reviewed_at,
+            "reviewed_by": req.reviewed_by,
         }
         for req in requests
     ]

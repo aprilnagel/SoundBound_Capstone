@@ -18,6 +18,7 @@ export default function ApplicationCard({ app, mode = "user", onReview }) {
       <div className="application-body">
         <p><strong>App ID:</strong> {app.id}</p>
         <p><strong>Submitted:</strong> {new Date(app.submitted_at).toLocaleDateString()}</p>
+        <p><strong>Reviewed by: </strong>{app.reviewed_by}</p>
 
         {mode === "admin" && (
           <>

@@ -48,16 +48,16 @@ const BookDetails = () => {
   }, [id]);
 
   // ⭐ AUTO-DISMISS POPUP ⭐
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(() => {
-        setMessage(null);
-        setMessageType(null);
-      }, 2000);
+  // useEffect(() => {
+  //   if (message) {
+  //     const timer = setTimeout(() => {
+  //       setMessage(null);
+  //       setMessageType(null);
+  //     }, 2000);
 
-      return () => clearTimeout(timer);
-    }
-  }, [message]);
+  //     return () => clearTimeout(timer);
+  //   }
+  // }, [message]);
 
   // ---------------------------------------------------------
   // ADD BOOK TO USER LIBRARY
@@ -115,16 +115,34 @@ const BookDetails = () => {
   if (error) return <p className="error">{error}</p>;
   if (!book) return <p>No book found.</p>;
 
-  // ---------------------------------------------------------
-  // PAGE RENDER
-  // ---------------------------------------------------------
+ // ---------------------------------------------------------
+// PAGE RENDER
+// ---------------------------------------------------------
   return (
     <div className="book-details-page">
       <Navbar />
-      {message && <div className={`popup ${messageType}`}>{message}</div>}
+
+      {/* NEW POPUP SYSTEM */}
+      {message && (
+        <div className="popup-overlay">
+          <div className="popup-card">
+
+            <div className={`popup-icon ${messageType}`}>
+              {messageType === "success" ? "✓" : "✕"}
+            </div>
+
+            <h2>{message}</h2>
+
+            <button className="close-btn" onClick={() => setMessage(null)}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="details-container">
         <div className="details-3col">
+
           {/* LEFT COLUMN */}
           <div className="col left-col">
             <img src={book.cover_url} alt={book.title} className="cover" />

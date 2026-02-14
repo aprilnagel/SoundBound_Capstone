@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import Navbar from "../../components/Navbar/Navbar";
-import { API_BASE_URL } from "../../config";
+import Navbar from "../../../components/Navbar/Navbar";
+import { API_BASE_URL } from "../../../config";
 import "./CheckAppStatus.css";
 
 export default function CheckAppStatus() {

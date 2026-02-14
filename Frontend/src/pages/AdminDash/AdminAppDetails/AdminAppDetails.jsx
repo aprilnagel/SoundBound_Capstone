@@ -23,7 +23,7 @@ export default function AdminAppDetails() {
           `${API_BASE_URL}/users/author-applications/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
-          }
+          },
         );
 
         const data = await res.json();
@@ -47,7 +47,7 @@ export default function AdminAppDetails() {
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (res.ok) {
@@ -68,7 +68,7 @@ export default function AdminAppDetails() {
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
 
       if (res.ok) {
@@ -118,9 +118,15 @@ export default function AdminAppDetails() {
         <h1>Application #{application.application_id}</h1>
 
         <div className="details-section">
-          <p><strong>Name:</strong> {application.full_name}</p>
-          <p><strong>Username:</strong> {application.username}</p>
-          <p><strong>Email:</strong> {application.email}</p>
+          <p>
+            <strong>Name:</strong> {application.full_name}
+          </p>
+          <p>
+            <strong>Username:</strong> {application.username}
+          </p>
+          <p>
+            <strong>Email:</strong> {application.email}
+          </p>
           <p>
             <strong>Submitted:</strong>{" "}
             {new Date(application.submitted_at).toLocaleDateString()}
@@ -144,7 +150,11 @@ export default function AdminAppDetails() {
             <ul>
               {application.proof_links.map((link, index) => (
                 <li key={index}>
-                  <a href={link.trim()} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={link.trim()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {link.trim()}
                   </a>
                 </li>
@@ -154,7 +164,11 @@ export default function AdminAppDetails() {
             <ul>
               {application.proof_links.split(",").map((link, index) => (
                 <li key={index}>
-                  <a href={link.trim()} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={link.trim()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {link.trim()}
                   </a>
                 </li>
@@ -182,8 +196,19 @@ export default function AdminAppDetails() {
       {showPopup && (
         <div className="popup-overlay">
           <div className="popup-card">
+            {/* ICON */}
+            <div
+              className={`popup-icon ${
+                popupMessage.includes("Approved") ? "approved" : "rejected"
+              }`}
+            >
+              {popupMessage.includes("Approved") ? "✓" : "✕"}
+            </div>
+
+            {/* TITLE */}
             <h2>{popupMessage}</h2>
 
+            {/* BUTTON */}
             <button onClick={() => navigate("/admin/apps/pending")}>
               Back to Pending Apps
             </button>

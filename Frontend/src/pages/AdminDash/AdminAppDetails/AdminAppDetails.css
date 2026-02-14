@@ -3,7 +3,6 @@
   flex-direction: column;
   align-items: center;
   font-family: "Manjari", system-ui;
-  
 }
 
 /* MAIN CARD */
@@ -34,7 +33,7 @@
 }
 
 .status-badge.pending {
-   background: #ffc66e;
+  background: #ffc66e;
   color: #ffffff;
   border: 2px solid #d68513;
 }
@@ -48,7 +47,7 @@
 .status-badge.rejected {
   background: #f31621;
   color: #ffffff;
-    border: 2px solid #e53935;
+  border: 2px solid #e53935;
 }
 
 /* TITLES */
@@ -61,8 +60,6 @@
 
 /* SECTIONS */
 .details-section {
-  
-  
   border-bottom: 1px solid #eee;
 }
 
@@ -130,33 +127,36 @@
   opacity: 0.85;
 }
 
-/* FLOATING CENTERED POPUP — like .saved-popup */
+/* ------------------------------------------------ */
+/* POPUP — MATCHES USER SUCCESS/ERROR MODALS EXACTLY */
+/* ------------------------------------------------ */
+
+/* FULLSCREEN DIM BACKDROP */
 .popup-overlay {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(0, 0, 0, 0.45); /* dim background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   z-index: 9999;
-
-  /* no dark overlay */
-  background: none;
-
-  /* allow popup to be clickable */
-  pointer-events: none;
 }
 
 /* POPUP CARD */
 .popup-card {
   background: white;
-  padding: 30px 28px;
+  padding: 32px 28px;
   width: 380px;
   border-radius: 20px;
-  border: 3px solid #ff66c4;
   box-shadow: 0 8px 20px rgba(0,0,0,0.25);
   text-align: center;
   font-family: "Manjari", system-ui;
 
-  pointer-events: auto;
   animation: popupFade 0.25s ease-out;
 }
 
@@ -164,11 +164,12 @@
 .popup-icon {
   font-size: 60px;
   margin-bottom: 15px;
+  font-weight: bold;
 }
 
 /* green check */
 .popup-icon.approved {
-  color: #55dec5;
+  color: #a1d63e;
 }
 
 /* red X */
@@ -185,10 +186,10 @@
 
 /* BUTTON */
 .popup-card button {
-  background: #ff66c4;
+  background: #ad7ad8;
   color: white;
   border: none;
-  padding: 10px 26px;
+  padding: 10px 28px 8px 28px;
   border-radius: 30px;
   font-weight: 700;
   font-family: "Manjari", system-ui;
@@ -212,4 +213,3 @@
     transform: scale(1);
   }
 }
-

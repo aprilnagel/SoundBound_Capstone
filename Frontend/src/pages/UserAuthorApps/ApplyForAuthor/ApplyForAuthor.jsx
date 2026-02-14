@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { useAuth } from "../../contexts/Auth";
+import { useAuth } from "../../../contexts/Auth";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../../config";
-import Navbar from "../../components/Navbar/Navbar";
+import { API_BASE_URL } from "../../../config";
+import Navbar from "../../../components/Navbar/Navbar";
 import "./ApplyForAuthor.css";
+
 
 export default function ApplyForAuthor() {
   const { token } = useAuth();

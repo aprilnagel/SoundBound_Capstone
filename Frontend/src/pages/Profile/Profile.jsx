@@ -50,7 +50,7 @@ export default function Profile() {
   }, [token]);
 
   // Derived state
-  const hasPending = applications.some(app => app.status === "pending");
+  const hasPending = applications.some((app) => app.status === "pending");
   const hasHistory = applications.length > 0;
 
   return (
@@ -62,11 +62,9 @@ export default function Profile() {
 
         {profileData ? (
           <div className="profile-grid">
-
             {/* LEFT COLUMN */}
             <div className="profile-left">
               <div className="profile-info">
-
                 <div className="info-row">
                   <span className="label">Pen Name:</span>
                   <span className="value">{profileData.username}</span>
@@ -110,14 +108,13 @@ export default function Profile() {
 
             {/* RIGHT COLUMN */}
             <div className="profile-right">
-
-              
               {/* READER */}
               {profileData.role === "reader" && (
                 <>
                   {/* PRIMARY BUTTON */}
                   {hasPending ? (
-                    <button style= {{ background: "#ffa18f" }} /* soft green */
+                    <button
+                      style={{ background: "#ffa18f" }} /* soft green */
                       onClick={() => navigate("/application-status")}
                       className="apply-author-button"
                     >
@@ -135,7 +132,7 @@ export default function Profile() {
                   {/* SECONDARY BUTTON */}
                   {hasHistory && (
                     <button
-                    style= {{ background: "#ffa18f" }} /* soft green */
+                      style={{ background: "#ffa18f" }} /* soft green */
                       onClick={() => navigate("/application-history")}
                       className="history-button"
                     >
@@ -145,7 +142,11 @@ export default function Profile() {
                 </>
               )}
 
-              {/* AUTHOR sees nothing */}
+              {profileData.role === "author" && (
+                <Link style={{ background: "#ffa18f" }} to="/application-history" className="apply-author-button">
+                  My Applications
+                </Link>
+              )}
 
               <button className="spotify">Sync to Spotify</button>
             </div>

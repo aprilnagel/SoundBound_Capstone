@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useAuth } from "../../contexts/Auth";
-import { API_BASE_URL } from "../../config";
-import Navbar from "../../components/Navbar/Navbar";
-import ApplicationCard from "../../components/Application Card/ApplicationCard";
+import { useAuth } from "../../../contexts/Auth";
+import { API_BASE_URL } from "../../../config";
+import Navbar from "../../../components/Navbar/Navbar";
+import ApplicationCard from "../../../components/ApplicationCard/ApplicationCard";
+
 import { useNavigate } from "react-router-dom";
 import "./ApplicationHistory.css";
 

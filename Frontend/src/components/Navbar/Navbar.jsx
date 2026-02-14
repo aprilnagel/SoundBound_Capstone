@@ -15,8 +15,8 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-right">
-        <NavLink to="/library">Library</NavLink>
         <NavLink to="/book-search">Search Books</NavLink>
+        <NavLink to="/library">Library</NavLink>
         <NavLink to="/playlists">Playlists</NavLink>
         <NavLink to="/profile">Profile</NavLink>
         {user?.role === "admin" && (
