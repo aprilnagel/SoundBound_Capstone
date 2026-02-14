@@ -1,4 +1,5 @@
 import requests
+import re
 
 BASE_WORK_URL = "https://openlibrary.org/works/{work_key}.json"
 BASE_EDITIONS_URL = "https://openlibrary.org/works/{work_key}/editions.json?limit=50"
@@ -72,7 +73,22 @@ def fetch_openlibrary_work(openlib_work_key: str):
             edition_data = editions[0]
 
     # -------------------------
-    # 2b. Edition cover fallback (NOW edition_data exists)
+    # Extract normalized publish year
+    # -------------------------
+    raw_year = (
+        edition_data.get("publish_date")
+        or edition_data.get("first_publish_year")
+        or work.get("first_publish_year")
+    )
+
+    year = None
+    if raw_year:
+        match = re.search(r"\b(\d{4})\b", str(raw_year))
+        if match:
+            year = int(match.group(1))
+
+    # -------------------------
+    # 2b. Edition cover fallback
     # -------------------------
     if not cover_id:
         ed_covers = edition_data.get("covers") or []
@@ -82,10 +98,10 @@ def fetch_openlibrary_work(openlib_work_key: str):
     # Extract ISBNs
     isbn_list = edition_data.get("isbn_13") or edition_data.get("isbn_10") or []
 
-    # Extract publish year
+    # Extract publish year (raw string)
     publish_year = edition_data.get("publish_date")
 
-    # Extract author names from edition (if present)
+    # Extract author names from edition
     edition_author_names = []
     if "authors" in edition_data:
         for a in edition_data["authors"]:
@@ -115,7 +131,7 @@ def fetch_openlibrary_work(openlib_work_key: str):
         "author_names": edition_author_names,
         "author_keys": author_keys,
         "isbn_list": isbn_list,
-        "first_publish_year": publish_year,
+        "first_publish_year": year,  # ⭐ FIXED
         "cover_id": cover_id,
         "cover_url": cover_url,
         "openlib_work_key": openlib_work_key,

@@ -108,8 +108,11 @@ const BookDetails = () => {
   // ---------------------------------------------------------
   // ⭐ FIXED COVER LOGIC — MATCHES BOOKCARD EXACTLY ⭐
   // ---------------------------------------------------------
-  const coverUrl = book.cover_id
+  const coverUrl =
+  book.cover_id
     ? `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`
+    : book.cover_url
+    ? book.cover_url
     : book.cover_image
     ? book.cover_image
     : fallbackCover;
@@ -143,7 +146,7 @@ const BookDetails = () => {
 
           {/* LEFT COLUMN */}
           <div className="col left-col">
-            <img src={coverUrl} alt={book.title} className="cover" />
+            <img src={coverUrl || book.cover_url || fallbackCover} alt={book.title} className="cover" />
 
             <button className="checkout-btn" onClick={handleCheckout}>
               Checkout Book

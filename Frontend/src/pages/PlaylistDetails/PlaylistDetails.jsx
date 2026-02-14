@@ -22,6 +22,7 @@ export default function PlaylistDetails() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const dropdownRef = useRef(null);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   useEffect(() => {
     const fetchPlaylist = async () => {
@@ -73,6 +74,34 @@ export default function PlaylistDetails() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Delete playlist handler
+
+  const handleDeletePlaylist = async () => {
+    try {
+      const res = await fetch(`${API_URL}/playlists/${playlist.id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.error(data.error || "Failed to delete playlist");
+        return;
+      }
+
+      // Close popup
+      setShowDeletePopup(false);
+
+      // Redirect after delete
+      navigate("/playlists");
+    } catch (err) {
+      console.error("Failed to delete playlist", err);
+    }
+  };
 
   // Add Tag handler
   const handleAddTag = async () => {
@@ -126,7 +155,6 @@ export default function PlaylistDetails() {
           {book && (
             <img
               src={book.cover_url || fallbackCover}
-
               alt={book.title}
               className="playlist-cover"
             />
@@ -139,12 +167,43 @@ export default function PlaylistDetails() {
 
             <div className="playlist-actions">
               <button
+                className="edit-playlist-btn"
                 onClick={() =>
                   navigate(`/create-playlist?playlist_id=${playlist.id}`)
                 }
               >
                 Edit Playlist
               </button>
+              <button
+                className="delete-playlist-btn"
+                onClick={() => setShowDeletePopup(true)}
+              >
+                Delete Playlist
+              </button>
+              {showDeletePopup && (
+                <div className="popup-overlay">
+                  <div className="popup">
+                    <h3>Delete Playlist?</h3>
+                    <p>This action cannot be undone.</p>
+
+                    <div className="popup-buttons">
+                      <button
+                        className="confirm-delete"
+                        onClick={handleDeletePlaylist}
+                      >
+                        Delete
+                      </button>
+
+                      <button
+                        className="cancel-delete"
+                        onClick={() => setShowDeletePopup(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 

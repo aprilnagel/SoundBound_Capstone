@@ -156,7 +156,7 @@
   margin-top: 6px;
 }
 
-.playlist-actions button {
+/* .playlist-actions button {
   padding: 10px 20px;
   border-radius: 30px;
   border: none;
@@ -171,7 +171,7 @@
 
 .playlist-actions button:hover {
   opacity: 0.85;
-}
+} */
 
 /* ---------------- TWO-COLUMN LAYOUT ---------------- */
 .playlist-columns {
@@ -248,4 +248,121 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.edit-playlist-btn {
+  background: #52dbf4;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+/* Song actions (edit/delete) */
+.delete-playlist-btn {
+  background: #ff4d4f;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.delete-playlist-btn:hover {
+  background: #e04445;
+}
+
+/* Fullscreen darkened background */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Centered popup box */
+.popup {
+  background: #fff;
+  padding: 2rem 2.5rem;
+  border-radius: 12px;
+  text-align: center;
+  width: 350px;
+  animation: popIn 0.25s ease-out;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+/* Title + text */
+.popup h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.popup p {
+  margin-bottom: 1.5rem;
+  color: #444;
+}
+
+/* Buttons container */
+.popup-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* Delete button (red) */
+.confirm-delete {
+  flex: 1;
+  padding: 0.7rem 1.2rem;
+  background: #ed3b7b;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.confirm-delete:hover {
+  background: #d7326c;
+}
+
+/* Cancel button (purple, matches your app) */
+.cancel-delete {
+  flex: 1;
+  padding: 0.7rem 1.2rem;
+  background: #ad7ad8;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cancel-delete:hover {
+  background: #9b68c2;
+}
+
+/* Smooth pop animation */
+@keyframes popIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
