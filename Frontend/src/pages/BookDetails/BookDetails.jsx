@@ -27,7 +27,7 @@ const BookDetails = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
+          },
         );
 
         const data = await res.json();
@@ -66,7 +66,7 @@ const BookDetails = () => {
           body: JSON.stringify({
             openlib_id: cleanId,
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -88,7 +88,7 @@ const BookDetails = () => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       ).then((r) => r.json());
 
       setBook(refreshed);
@@ -108,14 +108,13 @@ const BookDetails = () => {
   // ---------------------------------------------------------
   // ⭐ FIXED COVER LOGIC — MATCHES BOOKCARD EXACTLY ⭐
   // ---------------------------------------------------------
-  const coverUrl =
-  book.cover_id
+  const coverUrl = book.cover_id
     ? `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`
     : book.cover_url
-    ? book.cover_url
-    : book.cover_image
-    ? book.cover_image
-    : fallbackCover;
+      ? book.cover_url
+      : book.cover_image
+        ? book.cover_image
+        : fallbackCover;
 
   // ---------------------------------------------------------
   // PAGE RENDER
@@ -143,10 +142,13 @@ const BookDetails = () => {
 
       <div className="details-container">
         <div className="details-3col">
-
           {/* LEFT COLUMN */}
           <div className="col left-col">
-            <img src={coverUrl || book.cover_url || fallbackCover} alt={book.title} className="cover" />
+            <img
+              src={coverUrl || book.cover_url || fallbackCover}
+              alt={book.title}
+              className="cover"
+            />
 
             <button className="checkout-btn" onClick={handleCheckout}>
               Checkout Book
@@ -171,8 +173,9 @@ const BookDetails = () => {
               </p>
               <p>
                 <strong>Publish Year:</strong>{" "}
-                {book.first_publish_year?.match(/\d{4}/)?.[0]}
+                {book.first_publish_year || "Unknown"}
               </p>
+
               <p>
                 <strong>ISBN:</strong> {book.isbn_list?.join(", ")}
               </p>

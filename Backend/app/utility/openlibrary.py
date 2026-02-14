@@ -57,49 +57,44 @@ def fetch_openlibrary_work(openlib_work_key: str):
     edition_url = BASE_EDITIONS_URL.format(work_key=openlib_work_key)
     ed_resp = requests.get(edition_url, headers={"User-Agent": "YourApp/1.0"})
 
-    edition_data = {}
+    editions = []
     if ed_resp.status_code == 200:
         editions = ed_resp.json().get("entries", [])
 
-        # Prefer editions with ISBNs
-        for ed in editions:
-            isbn_list = ed.get("isbn_13") or ed.get("isbn_10")
-            if isbn_list:
-                edition_data = ed
-                break
+    # -------------------------
+    # ⭐ NEW LOGIC: earliest year + ALL ISBNs
+    # -------------------------
+    earliest_year = None
+    all_isbns = []
 
-        # Fallback to first edition
-        if not edition_data and editions:
-            edition_data = editions[0]
+    for ed in editions:
+        # Collect ALL ISBNs
+        if ed.get("isbn_13"):
+            all_isbns.extend(ed["isbn_13"])
+        if ed.get("isbn_10"):
+            all_isbns.extend(ed["isbn_10"])
+
+        # Extract ANY year from this edition
+        raw = ed.get("publish_date") or ed.get("first_publish_year")
+        if raw:
+            match = re.search(r"\b(\d{4})\b", str(raw))
+            if match:
+                yr = int(match.group(1))
+                if earliest_year is None or yr < earliest_year:
+                    earliest_year = yr
+
+    # Final normalized values
+    first_publish_year = earliest_year
+    isbn_list = all_isbns
 
     # -------------------------
-    # Extract normalized publish year
+    # 2b. Edition cover fallback (keep your original logic)
     # -------------------------
-    raw_year = (
-        edition_data.get("publish_date")
-        or edition_data.get("first_publish_year")
-        or work.get("first_publish_year")
-    )
-
-    year = None
-    if raw_year:
-        match = re.search(r"\b(\d{4})\b", str(raw_year))
-        if match:
-            year = int(match.group(1))
-
-    # -------------------------
-    # 2b. Edition cover fallback
-    # -------------------------
+    edition_data = editions[0] if editions else {}
     if not cover_id:
         ed_covers = edition_data.get("covers") or []
         if ed_covers:
             cover_id = ed_covers[0]
-
-    # Extract ISBNs
-    isbn_list = edition_data.get("isbn_13") or edition_data.get("isbn_10") or []
-
-    # Extract publish year (raw string)
-    publish_year = edition_data.get("publish_date")
 
     # Extract author names from edition
     edition_author_names = []
@@ -130,8 +125,8 @@ def fetch_openlibrary_work(openlib_work_key: str):
         "subjects": subjects,
         "author_names": edition_author_names,
         "author_keys": author_keys,
-        "isbn_list": isbn_list,
-        "first_publish_year": year,  # ⭐ FIXED
+        "isbn_list": isbn_list,              # ⭐ ALL ISBNs
+        "first_publish_year": first_publish_year,  # ⭐ EARLIEST YEAR
         "cover_id": cover_id,
         "cover_url": cover_url,
         "openlib_work_key": openlib_work_key,
