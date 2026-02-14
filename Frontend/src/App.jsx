@@ -15,6 +15,7 @@ import UpdateProfile from "./pages/UpdateProfile/UpdateProfile";
 import ApplyForAuthor from "./pages/UserAuthorApps/ApplyForAuthor/ApplyForAuthor";
 import ApplicationHistory from "./pages/UserAuthorApps/ApplicationHistory/ApplicationHistory";
 import CheckAppStatus from "./pages/UserAuthorApps/CheckAppStatus/CheckAppStatus";
+import MyAppDetails from "./pages/UserAuthorApps/MyAppDetails/MyAppDetails";
 
 // Book pages
 import BookSearch from "./pages/BookSearch/BookSearch";
@@ -63,6 +64,7 @@ function App() {
         <Route path="/admin/apps/all" element={<AdminAppList />} />
         <Route path="/admin/apps/:id" element={<AdminAppDetails />} />
         <Route path="/admin/apps/pending" element={<AdminPending />} />
+          <Route path="/my-applications/:id" element={<MyAppDetails />} />
 
       </Routes>
     </>

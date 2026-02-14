@@ -18,7 +18,6 @@ export default function ApplicationCard({ app, mode = "user", onReview }) {
           });
           if (res.ok) {
             const data = await res.json();
-            console.log("Reviewer data:", data);
             setReviewerName(data.username);
           }
         } catch (err) {
@@ -30,8 +29,21 @@ export default function ApplicationCard({ app, mode = "user", onReview }) {
     fetchReviewer();
   }, [app.reviewed_by]);
 
+  // -------------------------------
+  // CLICK HANDLER FOR USERS
+  // -------------------------------
+  const handleUserClick = () => {
+    if (mode === "user") {
+      navigate(`/my-applications/${app.id}`);
+    }
+  };
+
   return (
-    <div className={`application-card ${mode === "user" ? "compact" : ""}`}>
+    <div
+      className={`application-card ${mode === "user" ? "compact" : ""}`}
+      onClick={mode === "user" ? handleUserClick : undefined}
+      // style={mode === "user" ? { cursor: "pointer" } : {}}
+    >
       {/* STATUS BADGE */}
       <div className="application-header">
         <span className={`status-badge ${app.status}`}>
@@ -51,7 +63,8 @@ export default function ApplicationCard({ app, mode = "user", onReview }) {
         <p>
           <strong>Reviewed by:</strong> {app.reviewed_by_username || "—"}
         </p>
-          <p><strong>Closed:</strong>{" "}
+        <p>
+          <strong>Closed:</strong>{" "}
           {app.reviewed_at
             ? new Date(app.reviewed_at).toLocaleDateString()
             : "—"}

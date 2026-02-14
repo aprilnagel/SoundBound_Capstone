@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import "./BookDetails.css";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
+import fallbackCover from "../../Photos/2.png";
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -26,7 +27,7 @@ const BookDetails = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          },
+          }
         );
 
         const data = await res.json();
@@ -47,18 +48,6 @@ const BookDetails = () => {
     fetchBook();
   }, [id]);
 
-  // ⭐ AUTO-DISMISS POPUP ⭐
-  // useEffect(() => {
-  //   if (message) {
-  //     const timer = setTimeout(() => {
-  //       setMessage(null);
-  //       setMessageType(null);
-  //     }, 2000);
-
-  //     return () => clearTimeout(timer);
-  //   }
-  // }, [message]);
-
   // ---------------------------------------------------------
   // ADD BOOK TO USER LIBRARY
   // ---------------------------------------------------------
@@ -77,7 +66,7 @@ const BookDetails = () => {
           body: JSON.stringify({
             openlib_id: cleanId,
           }),
-        },
+        }
       );
 
       const data = await res.json();
@@ -91,6 +80,7 @@ const BookDetails = () => {
 
       setMessage("Book added to your library!");
       setMessageType("success");
+
       // Re-fetch the DB version of the book
       const refreshed = await fetch(
         `https://soundbound-capstone.onrender.com/books/${book.openlib_id}`,
@@ -98,7 +88,7 @@ const BookDetails = () => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        },
+        }
       ).then((r) => r.json());
 
       setBook(refreshed);
@@ -115,9 +105,18 @@ const BookDetails = () => {
   if (error) return <p className="error">{error}</p>;
   if (!book) return <p>No book found.</p>;
 
- // ---------------------------------------------------------
-// PAGE RENDER
-// ---------------------------------------------------------
+  // ---------------------------------------------------------
+  // ⭐ FIXED COVER LOGIC — MATCHES BOOKCARD EXACTLY ⭐
+  // ---------------------------------------------------------
+  const coverUrl = book.cover_id
+    ? `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`
+    : book.cover_image
+    ? book.cover_image
+    : fallbackCover;
+
+  // ---------------------------------------------------------
+  // PAGE RENDER
+  // ---------------------------------------------------------
   return (
     <div className="book-details-page">
       <Navbar />
@@ -126,7 +125,6 @@ const BookDetails = () => {
       {message && (
         <div className="popup-overlay">
           <div className="popup-card">
-
             <div className={`popup-icon ${messageType}`}>
               {messageType === "success" ? "✓" : "✕"}
             </div>
@@ -145,7 +143,7 @@ const BookDetails = () => {
 
           {/* LEFT COLUMN */}
           <div className="col left-col">
-            <img src={book.cover_url} alt={book.title} className="cover" />
+            <img src={coverUrl} alt={book.title} className="cover" />
 
             <button className="checkout-btn" onClick={handleCheckout}>
               Checkout Book
@@ -186,7 +184,7 @@ const BookDetails = () => {
               <p className="author_keys">
                 Author Keys: {book.author_keys?.join(", ")}
               </p>
-              <p>coverURL: {book.cover_url}</p>
+              <p>coverURL: {coverUrl}</p>
             </div>
           </div>
 

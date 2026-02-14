@@ -93,8 +93,8 @@ export default function Profile() {
                 {profileData.role === "author" && (
                   <>
                     <div className="info-row">
-                      <span className="label">Author Key:</span>
-                      <span className="value">{profileData.author_key}</span>
+                      <span className="label">Author Keys:</span>
+                      <span className="value">{profileData.author_keys}</span>
                     </div>
 
                     <div className="info-row">

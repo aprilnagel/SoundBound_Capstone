@@ -39,7 +39,7 @@ def fetch_openlibrary_work(openlib_work_key: str):
     # Extract subjects
     subjects = work.get("subjects", [])
 
-    # Extract cover ID
+    # Extract cover ID (WORK covers)
     covers = work.get("covers") or []
     cover_id = covers[0] if covers else None
 
@@ -70,6 +70,14 @@ def fetch_openlibrary_work(openlib_work_key: str):
         # Fallback to first edition
         if not edition_data and editions:
             edition_data = editions[0]
+
+    # -------------------------
+    # 2b. Edition cover fallback (NOW edition_data exists)
+    # -------------------------
+    if not cover_id:
+        ed_covers = edition_data.get("covers") or []
+        if ed_covers:
+            cover_id = ed_covers[0]
 
     # Extract ISBNs
     isbn_list = edition_data.get("isbn_13") or edition_data.get("isbn_10") or []
@@ -110,7 +118,8 @@ def fetch_openlibrary_work(openlib_work_key: str):
         "first_publish_year": publish_year,
         "cover_id": cover_id,
         "cover_url": cover_url,
-        "openlib_work_key": openlib_work_key
+        "openlib_work_key": openlib_work_key,
+        "openlib_id": openlib_work_key,
     }
 
 

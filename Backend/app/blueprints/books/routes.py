@@ -87,6 +87,15 @@ def get_book_details(current_user, openlib_id):
     ol_data = fetch_openlibrary_work(openlib_id)
     if not ol_data:
         return jsonify({"error": "Failed to fetch book from Open Library"}), 400
+    #3. book cover
+    cover_id = None
+    if "covers" in ol_data and isinstance(ol_data["covers"], list) and ol_data["covers"]:
+        cover_id = ol_data["covers"][0]
+
+    ol_data["cover_id"] = cover_id
+    ol_data["openlib_id"] = openlib_id
+
+    
 
     # ⭐ FIX: attach the ID so the frontend always has it
     ol_data["openlib_id"] = openlib_id
