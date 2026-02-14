@@ -19,6 +19,7 @@
   border-radius: 20px;
   box-shadow: 0 8px 8px 8px rgba(52, 51, 51, 0.1);
   background: white;
+  border: 3px solid #ff66c4;
 }
 
 /* Title */

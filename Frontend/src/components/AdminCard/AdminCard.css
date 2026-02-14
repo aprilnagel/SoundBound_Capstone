@@ -1,0 +1,106 @@
+.admin-card {
+  width: 300px;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  background: white;
+  border-radius: 20px;
+  padding: 20px;
+  font-family: "Manjari", system-ui;
+
+  border: 2px solid transparent;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.admin-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  border: 2px solid #ff66c4;
+}
+
+/* STATUS BADGE */
+.status-badge {
+  padding: 5px 12px 1px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: white;
+  ;
+}
+
+.status-badge.pending {
+  background: #ffc66e;
+  color: #8a6d00;
+}
+
+.status-badge.approved {
+  background: #a1d63e;
+  color: #4a7c1e;
+}
+
+.status-badge.rejected {
+  background: #ff4d6d;
+  color: #7a1e2e;
+}
+
+.admin-card-status {
+  display: flex;
+  justify-content: flex-end;
+}
+/* BODY */
+.admin-card-body {
+  text-align: left;
+  margin: 10px;
+}
+
+.admin-card-body p {
+  margin: 6px 0;
+  font-size: 1rem;
+  color: #444;
+}
+
+.admin-card-bio {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.3;
+}
+
+/* BUTTON */
+.admin-card-button {
+  border: none;
+  height: 34px;
+  width: 90px;
+  border-radius: 30px;
+
+  background: #52dbf4;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  font-family: "Manjari", system-ui;
+  padding: 6px 20px 2px 20px;
+  font-size: 16px;
+
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.admin-card-button:hover {
+  opacity: 0.85;
+}
+
+.admin-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}

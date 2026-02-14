@@ -1,0 +1,33 @@
+.admin-app-list-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  font-family: "Manjari", system-ui;
+}
+
+.admin-all-apps-container {
+  width: 80%;
+  margin-top: 30px;
+  padding: 25px;
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Page title */
+.admin-app-list-title {
+  text-align: center;
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 25px;
+  color: #333;
+}
+
+.applications-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+  padding: 20px 0;
+}

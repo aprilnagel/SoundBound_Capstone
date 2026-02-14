@@ -1,0 +1,215 @@
+.admin-app-details-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Manjari", system-ui;
+  
+}
+
+/* MAIN CARD */
+.admin-app-details-card {
+  width: 750px;
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  margin-top: 40px;
+  border: 3px solid #ff66c4;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+}
+
+/* STATUS BADGE */
+.details-header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.status-badge {
+  padding: 6px 14px 0px 15px;
+  border-radius: 20px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.status-badge.pending {
+   background: #ffc66e;
+  color: #ffffff;
+  border: 2px solid #d68513;
+}
+
+.status-badge.approved {
+  background: #a1d63e;
+  color: #ffffff;
+  border: 2px solid #8bc34a;
+}
+
+.status-badge.rejected {
+  background: #f31621;
+  color: #ffffff;
+    border: 2px solid #e53935;
+}
+
+/* TITLES */
+.admin-app-details-card h1 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+/* SECTIONS */
+.details-section {
+  
+  
+  border-bottom: 1px solid #eee;
+}
+
+.details-section:last-of-type {
+  border-bottom: none;
+}
+
+.details-section h3 {
+  margin-bottom: 8px;
+  font-size: 1.2rem;
+  color: #444;
+}
+
+.details-section p,
+.details-section li {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* LINKS */
+.details-section a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.details-section a:hover {
+  text-decoration: underline;
+}
+
+/* ACTION BUTTONS */
+.details-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.approve-btn,
+.reject-btn {
+  width: 48%;
+  height: 40px;
+  border-radius: 30px;
+  border: none;
+  font-weight: 700;
+  font-family: "Manjari", system-ui;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  color: white;
+  font-size: 16px;
+}
+
+/* Approve = mint green */
+.approve-btn {
+  background: #55dec5;
+}
+
+/* Reject = pink/red */
+.reject-btn {
+  background: #ff4d6d;
+}
+
+.approve-btn:hover,
+.reject-btn:hover {
+  opacity: 0.85;
+}
+
+/* FLOATING CENTERED POPUP — like .saved-popup */
+.popup-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+
+  /* no dark overlay */
+  background: none;
+
+  /* allow popup to be clickable */
+  pointer-events: none;
+}
+
+/* POPUP CARD */
+.popup-card {
+  background: white;
+  padding: 30px 28px;
+  width: 380px;
+  border-radius: 20px;
+  border: 3px solid #ff66c4;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  text-align: center;
+  font-family: "Manjari", system-ui;
+
+  pointer-events: auto;
+  animation: popupFade 0.25s ease-out;
+}
+
+/* ICON */
+.popup-icon {
+  font-size: 60px;
+  margin-bottom: 15px;
+}
+
+/* green check */
+.popup-icon.approved {
+  color: #55dec5;
+}
+
+/* red X */
+.popup-icon.rejected {
+  color: #ff4d6d;
+}
+
+/* TITLE */
+.popup-card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 18px;
+  color: #333;
+}
+
+/* BUTTON */
+.popup-card button {
+  background: #ff66c4;
+  color: white;
+  border: none;
+  padding: 10px 26px;
+  border-radius: 30px;
+  font-weight: 700;
+  font-family: "Manjari", system-ui;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: opacity 0.2s ease;
+}
+
+.popup-card button:hover {
+  opacity: 0.85;
+}
+
+/* ANIMATION */
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+

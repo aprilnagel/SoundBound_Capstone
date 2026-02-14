@@ -28,7 +28,12 @@ export function AuthProvider({ children }) {
         });
 
         const data = await res.json();
-        setUser(data);
+        setUser({
+          id: data.id,
+          username: data.username,
+          name: data.first_name || data.username, // fallback if no first name
+          role: data.role,
+        });
       } catch (err) {
         localStorage.removeItem("token");
         setToken(null);
@@ -45,7 +50,12 @@ export function AuthProvider({ children }) {
     try {
       localStorage.setItem("token", tokenValue);
       setToken(tokenValue);
-      setUser(userData);
+      setUser({
+        id: userData.id,
+        username: userData.username,
+        name: userData.first_name || userData.username,
+        role: userData.role,
+      });
     } catch (err) {
       console.error("Login error:", err);
     }

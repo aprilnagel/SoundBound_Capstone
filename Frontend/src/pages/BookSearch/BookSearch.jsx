@@ -3,9 +3,11 @@ import Navbar from "../../components/Navbar/Navbar";
 import BookCard from "../../components/BookCard/BookCard";
 import "./BookSearch.css";
 import { useNavigate } from "react-router-dom";
+import { useNavigationType } from "react-router-dom";
 
 const BookSearch = () => {
   const navigate = useNavigate();
+  const navType = useNavigationType();
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [isbn, setIsbn] = useState("");
@@ -15,17 +17,13 @@ const BookSearch = () => {
 
   // Restore saved search on mount
   useEffect(() => {
-    const navType = performance.getEntriesByType("navigation")[0]?.type;
-
-    // Only restore search if user navigated back
-    if (navType === "back_forward") {
+    if (navType === "POP") {
+      // User pressed Back → restore search
       const savedResults = localStorage.getItem("bookSearchResults");
       const savedInputs = localStorage.getItem("bookSearchInputs");
       const savedSort = localStorage.getItem("bookSearchSort");
 
-      if (savedResults) {
-        setResults(JSON.parse(savedResults));
-      }
+      if (savedResults) setResults(JSON.parse(savedResults));
 
       if (savedInputs) {
         const parsed = JSON.parse(savedInputs);
@@ -35,16 +33,14 @@ const BookSearch = () => {
         setIsbn(parsed.isbn || "");
       }
 
-      if (savedSort) {
-        setSortBy(savedSort);
-      }
+      if (savedSort) setSortBy(savedSort);
     } else {
-      // Any other navigation → clear saved search
+      // Any other navigation → clear search
       localStorage.removeItem("bookSearchResults");
       localStorage.removeItem("bookSearchInputs");
       localStorage.removeItem("bookSearchSort");
     }
-  }, []);
+  }, [navType]);
 
   // Extract last name from "First Last"
   const getLastName = (name) => {

@@ -1,0 +1,108 @@
+.author-status-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: "Manjari", system-ui;
+}
+
+/* MAIN CARD — matches AdminAppDetails */
+.author-status-card {
+  width: 500px;
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  margin-top: 40px;
+
+  border: 3px solid #ff66c4; /* same pink border */
+  box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+  display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+/* TITLE — centered like AdminAppDetails */
+.author-status-card h1 {
+  font-size: 1.8rem;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+/* APPLICATION ID */
+.app-id {
+  font-size: 1rem;
+  color: #444;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* STATUS ROW — same spacing style */
+.status-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  
+}
+
+/* STATUS BADGES — identical style */
+.status-badge {
+  padding: 6px 14px 0px 15px;
+  border-radius: 20px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  font-size: 18px;
+  text-align: center;
+}
+
+.status-badge.pending {
+  background: #ffc66e;
+  color: #ffffff;
+  border: 2px solid #d68513;
+}
+
+.status-badge.approved {
+  background: #a1d63e;
+  color: #ffffff;
+  border: 2px solid #8bc34a;
+}
+
+.status-badge.rejected {
+  background: #f31621;
+  color: #ffffff;
+  border: 2px solid #e53935;
+}
+
+/* TEXT */
+.author-status-card p {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.4;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* REAPPLY NOTE */
+.reapply-note {
+  margin-top: 15px;
+  color: #f31621;
+  font-weight: 600;
+  text-align: center;
+}
+
+.app-details {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 250px;
+    margin-top: 20px;
+    padding: 15px 30px 15px 30px;
+    background: #f9f9f9;
+    border-radius: 12px;
+    text-align: center;
+    
+    
+    
+}

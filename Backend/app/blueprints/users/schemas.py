@@ -46,7 +46,7 @@ class AuthorApplicationSchema(Schema):
     author_bio = fields.String(required=False, validate=validate.Length(min=10))
     proof_links = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
     author_keys = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
-    notes = fields.String(required=False)
+    notes = fields.String(required=False, allow_none=True)
     
 author_app_schema = AuthorApplicationSchema()
 

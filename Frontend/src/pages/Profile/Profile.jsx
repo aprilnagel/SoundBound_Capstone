@@ -111,16 +111,7 @@ export default function Profile() {
             {/* RIGHT COLUMN */}
             <div className="profile-right">
 
-              {/* ADMIN */}
-              {profileData.role === "admin" && (
-                <button
-                  onClick={() => navigate("/admin/author-applications")}
-                  className="apply-author-button"
-                >
-                  Author Applications
-                </button>
-              )}
-
+              
               {/* READER */}
               {profileData.role === "reader" && (
                 <>

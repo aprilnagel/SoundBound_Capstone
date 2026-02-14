@@ -15,6 +15,11 @@ import Library from "./pages/Library/Library";
 import CreatePlaylist from "./pages/CreatePlaylist/CreatePlaylist";
 import PlaylistDetails from "./pages/PlaylistDetails/PlaylistDetails";
 import Playlists from "./pages/Playlists/Playlists";
+import AdminDash from "./pages/AdminDash/AdminDash";
+import AdminAppList from "./pages/AdminDash/AdminAppList/AdminAppList";
+import AdminAppDetails from "./pages/AdminDash/AdminAppDetails/AdminAppDetails";
+import CheckAppStatus from "./pages/CheckAppStatus/CheckAppStatus";
+import AdminPending from "./pages/AdminDash/AdminPending/AdminPending";
 
 
 function App() {
@@ -38,6 +43,12 @@ function App() {
         <Route path="/create-playlist" element={<CreatePlaylist />} />
         <Route path="/playlist-details/:id" element={<PlaylistDetails />} />
         <Route path="/playlists" element={<Playlists />} />
+        <Route path="/admin/apps/*" element={<AdminDash />} />
+        <Route path="/admin/apps/all" element={<AdminAppList />} />
+        <Route path="/admin/apps/:id" element={<AdminAppDetails />} />
+        <Route path="/application-status" element={<CheckAppStatus />} />
+        <Route path="/admin/apps/pending" element={<AdminPending />} />
+
       </Routes>
     </>
   )

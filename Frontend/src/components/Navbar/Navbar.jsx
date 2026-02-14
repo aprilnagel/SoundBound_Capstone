@@ -19,6 +19,10 @@ export default function Navbar() {
         <NavLink to="/book-search">Search Books</NavLink>
         <NavLink to="/playlists">Playlists</NavLink>
         <NavLink to="/profile">Profile</NavLink>
+        {user?.role === "admin" && (
+          <NavLink to="/admin/apps">Admin</NavLink>
+        )}
+
 
         <div className="user-role">
           User Role: {user?.role || "Unknown"}

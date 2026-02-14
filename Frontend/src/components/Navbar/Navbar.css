@@ -54,7 +54,7 @@
 
 .navbar-right a.active {
     background: rgba(255,255,255,0.25);
-    padding: 8px 14px 1px 14px; /* optical centering */
+    padding: 7px 14px 4px 14px; /* optical centering */
     border-radius: 20px;
     opacity: 0.9;
     
