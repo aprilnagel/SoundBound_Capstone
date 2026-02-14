@@ -234,6 +234,8 @@ def view_own_author_application_status(current_user):
             "submitted_at": req.submitted_at,
             "reviewed_at": req.reviewed_at,
             "reviewed_by": req.reviewed_by,
+             "reviewed_by_username": req.reviewer.username if req.reviewer else None,
+
         }
         for req in requests
     ]
