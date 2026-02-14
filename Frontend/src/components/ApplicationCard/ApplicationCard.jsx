@@ -51,6 +51,11 @@ export default function ApplicationCard({ app, mode = "user", onReview }) {
         <p>
           <strong>Reviewed by:</strong> {app.reviewed_by_username || "—"}
         </p>
+          <p><strong>Closed:</strong>{" "}
+          {app.reviewed_at
+            ? new Date(app.reviewed_at).toLocaleDateString()
+            : "—"}
+        </p>
 
         {mode === "admin" && (
           <>
