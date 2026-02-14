@@ -9,7 +9,7 @@
   border-radius: 20px;
   padding: 20px;
   font-family: "Manjari", system-ui;
-
+  border: 2px solid transparent;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
   transition: all 0.2s ease;
   box-sizing: border-box;
@@ -18,6 +18,8 @@
 .book-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  border: 2px solid #ff66c4;
 }
 
 /* COVER */
@@ -42,6 +44,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   
 }
 
@@ -58,6 +61,7 @@
   font-size: 1.1rem;
   font-weight: 700;
   color: #333;
+  text-align: center;
 }
 
 .book-author {

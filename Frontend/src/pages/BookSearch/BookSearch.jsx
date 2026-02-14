@@ -15,24 +15,34 @@ const BookSearch = () => {
 
   // Restore saved search on mount
   useEffect(() => {
-    const savedResults = localStorage.getItem("bookSearchResults");
-    const savedInputs = localStorage.getItem("bookSearchInputs");
-    const savedSort = localStorage.getItem("bookSearchSort");
+    const navType = performance.getEntriesByType("navigation")[0]?.type;
 
-    if (savedResults) {
-      setResults(JSON.parse(savedResults));
-    }
+    // Only restore search if user navigated back
+    if (navType === "back_forward") {
+      const savedResults = localStorage.getItem("bookSearchResults");
+      const savedInputs = localStorage.getItem("bookSearchInputs");
+      const savedSort = localStorage.getItem("bookSearchSort");
 
-    if (savedInputs) {
-      const parsed = JSON.parse(savedInputs);
-      setTitle(parsed.title || "");
-      setAuthor(parsed.author || "");
-      setYear(parsed.year || "");
-      setIsbn(parsed.isbn || "");
-    }
+      if (savedResults) {
+        setResults(JSON.parse(savedResults));
+      }
 
-    if (savedSort) {
-      setSortBy(savedSort);
+      if (savedInputs) {
+        const parsed = JSON.parse(savedInputs);
+        setTitle(parsed.title || "");
+        setAuthor(parsed.author || "");
+        setYear(parsed.year || "");
+        setIsbn(parsed.isbn || "");
+      }
+
+      if (savedSort) {
+        setSortBy(savedSort);
+      }
+    } else {
+      // Any other navigation → clear saved search
+      localStorage.removeItem("bookSearchResults");
+      localStorage.removeItem("bookSearchInputs");
+      localStorage.removeItem("bookSearchSort");
     }
   }, []);
 

@@ -16,7 +16,10 @@ export default function BookCard({
     : fallbackCover;
 
   return (
-    <div className="book-card">
+    <div
+      className="book-card"
+      onClick={() => navigate(`/book-details/${book.openlib_id}`)}
+    >
       <div className="book-cover">
         <img src={coverUrl} alt={book.title} />
       </div>
@@ -34,7 +37,10 @@ export default function BookCard({
         {!showLibraryActions && (
           <button
             className="view-book-btn"
-            onClick={() => navigate(`/book-details/${book.openlib_id}`)}
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/book-details/${book.openlib_id}`);
+            }}
           >
             View Book
           </button>
@@ -44,7 +50,8 @@ export default function BookCard({
           <div className="library-actions">
             <button
               className="create-playlist-btn"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 navigate(`/create-playlist?book_id=${book.id}`, {
                   state: { book },
                 });
@@ -55,7 +62,10 @@ export default function BookCard({
 
             <button
               className="return-book-btn"
-              onClick={() => onReturnBook(book)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onReturnBook(book);
+              }}
             >
               return book
             </button>
@@ -65,3 +75,4 @@ export default function BookCard({
     </div>
   );
 }
+
