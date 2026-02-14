@@ -334,23 +334,22 @@ def get_pending_author_applications(current_user):
 #--------------------Get one author application by ID (admin)------------------#
 @users_bp.route('/author-applications/<int:application_id>', methods=['GET'])
 @token_required
-@require_role('admin')
 def get_author_application_by_id(current_user, application_id):
     """
-    Retrieve a specific author verification request by its ID (admin only).
+    Retrieve a specific author verification request by its ID.
 
     Behavior:
+        - Users can only view their own applications.
+        - Admins can view any application.
         - Returns 404 if the application does not exist.
-        - Includes full moderation context and user info for the application.
-
-    Returns:
-        200 OK: Application details with user info.
-        404 Not Found: Application not found.
     """
 
     app = VerificationRequest.query.get_or_404(application_id)
     user = app.user
 
+    # 🔒 SECURITY CHECK
+    if app.user_id != current_user.id and current_user.role != "admin":
+        return jsonify({"error": "Unauthorized"}), 403
 
     result = {
         "application_id": app.id,
@@ -371,6 +370,7 @@ def get_author_application_by_id(current_user, application_id):
     }
 
     return jsonify(result), 200
+
 
 #✅------------------5. Approve author application (admin)------------------#
 @users_bp.route('/<int:user_id>/approve-author', methods=['PUT'])

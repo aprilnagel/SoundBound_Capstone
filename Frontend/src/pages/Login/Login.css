@@ -23,7 +23,7 @@
 
 .login-form input {
     width: 80%;
-    padding: 10px;
+    padding: 13px 20px 10px 20px; /* optical centering */
     border: 1px solid #ccc;
     border-radius: 20px;
     font-size: 20px;
