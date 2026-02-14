@@ -39,7 +39,7 @@ export default function BookCard({
             className="view-book-btn"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/book-details/${book.openlib_id}`);
+              navigate(`/book-details/${book.openlib_id}`, { state: { publish_year: book.publish_year } });
             }}
           >
             View Book

@@ -62,9 +62,11 @@ def fetch_openlibrary_work(openlib_work_key: str):
         editions = ed_resp.json().get("entries", [])
 
     # -------------------------
-    # ⭐ NEW LOGIC: earliest year + ALL ISBNs
+    # ⭐ NEW LOGIC: earliest year + ALL ISBNs + latest ISBN
     # -------------------------
     earliest_year = None
+    latest_year = None
+    latest_isbn = None
     all_isbns = []
 
     for ed in editions:
@@ -80,8 +82,18 @@ def fetch_openlibrary_work(openlib_work_key: str):
             match = re.search(r"\b(\d{4})\b", str(raw))
             if match:
                 yr = int(match.group(1))
+
+                # Track earliest year
                 if earliest_year is None or yr < earliest_year:
                     earliest_year = yr
+
+                # Track latest year + ISBN
+                if latest_year is None or yr > latest_year:
+                    latest_year = yr
+                    latest_isbn = (
+                        (ed.get("isbn_13") or [None])[0]
+                        or (ed.get("isbn_10") or [None])[0]
+                    )
 
     # Final normalized values
     first_publish_year = earliest_year
@@ -126,6 +138,7 @@ def fetch_openlibrary_work(openlib_work_key: str):
         "author_names": edition_author_names,
         "author_keys": author_keys,
         "isbn_list": isbn_list,              # ⭐ ALL ISBNs
+        "latest_isbn": latest_isbn,          # ⭐ NEW: LATEST EDITION ISBN
         "first_publish_year": first_publish_year,  # ⭐ EARLIEST YEAR
         "cover_id": cover_id,
         "cover_url": cover_url,

@@ -4,6 +4,7 @@ import Navbar from "../../components/Navbar/Navbar";
 import "./BookDetails.css";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 import fallbackCover from "../../Photos/2.png";
+import { useLocation } from "react-router-dom";
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -14,6 +15,8 @@ const BookDetails = () => {
   const [error, setError] = useState("");
   const [message, setMessage] = useState(null);
   const [messageType, setMessageType] = useState(null); // "success" or "error"
+  const location = useLocation();
+  const passedYear = location.state?.publish_year;
 
   // ---------------------------------------------------------
   // FETCH BOOK DETAILS
@@ -173,11 +176,12 @@ const BookDetails = () => {
               </p>
               <p>
                 <strong>Publish Year:</strong>{" "}
-                {book.first_publish_year || "Unknown"}
+                {passedYear || book.first_publish_year || "Unknown"}
               </p>
 
               <p>
-                <strong>ISBN:</strong> {book.isbn_list?.join(", ")}
+                <strong>ISBNs:</strong> {book.isbn_list?.slice(0, 5).join(", ")}
+                {book.isbn_list?.length > 5 && " …"}
               </p>
             </div>
 
