@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import BookCard from "../../components/BookCard/BookCard";
 import "./BookSearch.css";
-import { useNavigate } from "react-router-dom";
-import { useNavigationType } from "react-router-dom";
+import { useNavigate, useNavigationType } from "react-router-dom";
 
 const BookSearch = () => {
   const navigate = useNavigate();
   const navType = useNavigationType();
+
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [isbn, setIsbn] = useState("");
@@ -15,15 +15,20 @@ const BookSearch = () => {
   const [results, setResults] = useState([]);
   const [sortBy, setSortBy] = useState("relevance");
 
+  // ⭐ NEW: track whether user is doing normal search or author-reco search
+  const [searchMode, setSearchMode] = useState("normal"); // "normal" | "author-reco"
+
   // Restore saved search on mount
   useEffect(() => {
     if (navType === "POP") {
-      // User pressed Back → restore search
       const savedResults = localStorage.getItem("bookSearchResults");
       const savedInputs = localStorage.getItem("bookSearchInputs");
       const savedSort = localStorage.getItem("bookSearchSort");
+      const savedMode = localStorage.getItem("bookSearchMode");
 
       if (savedResults) setResults(JSON.parse(savedResults));
+      if (savedSort) setSortBy(savedSort);
+      if (savedMode) setSearchMode(savedMode);
 
       if (savedInputs) {
         const parsed = JSON.parse(savedInputs);
@@ -32,13 +37,11 @@ const BookSearch = () => {
         setYear(parsed.year || "");
         setIsbn(parsed.isbn || "");
       }
-
-      if (savedSort) setSortBy(savedSort);
     } else {
-      // Any other navigation → clear search
       localStorage.removeItem("bookSearchResults");
       localStorage.removeItem("bookSearchInputs");
       localStorage.removeItem("bookSearchSort");
+      localStorage.removeItem("bookSearchMode");
     }
   }, [navType]);
 
@@ -75,6 +78,7 @@ const BookSearch = () => {
   // SEARCH HANDLER
   const handleSearch = async (e) => {
     e.preventDefault();
+    setSearchMode("normal");
 
     const params = new URLSearchParams();
     if (title) params.append("title", title);
@@ -92,18 +96,18 @@ const BookSearch = () => {
     );
 
     const data = await res.json();
-    console.log("SEARCH RESPONSE:", data);
     const finalResults = Array.isArray(data) ? data : [];
 
     setResults(finalResults);
 
-    // Save results + inputs + sort
+    // Save results + inputs + sort + mode
     localStorage.setItem("bookSearchResults", JSON.stringify(finalResults));
     localStorage.setItem(
       "bookSearchInputs",
       JSON.stringify({ title, author, year, isbn }),
     );
     localStorage.setItem("bookSearchSort", sortBy);
+    localStorage.setItem("bookSearchMode", "normal");
   };
 
   // CLEAR SEARCH
@@ -113,10 +117,48 @@ const BookSearch = () => {
     setYear("");
     setIsbn("");
     setResults([]);
+    setSearchMode("normal");
 
     localStorage.removeItem("bookSearchResults");
     localStorage.removeItem("bookSearchInputs");
     localStorage.removeItem("bookSearchSort");
+    localStorage.removeItem("bookSearchMode");
+  };
+
+  // ⭐ NEW: AUTHOR RECO SEARCH
+  const handleAuthorRecoSearch = async () => {
+    setSearchMode("author-reco");
+
+    setTitle("");
+    setAuthor("");
+    setYear("");
+    setIsbn("");
+
+    const res = await fetch(
+      "https://soundbound-capstone.onrender.com/books/author-reco",
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      },
+    );
+
+    const data = await res.json();
+
+    // ⭐ Normalize DB books to match OpenLibrary-shaped results
+    const normalized = (Array.isArray(data) ? data : []).map((book) => ({
+      ...book,
+      // BookCard + sorting expect these:
+      authors: book.authors || book.author_names || [],
+      publish_year: book.publish_year || book.first_publish_year || null,
+    }));
+
+    setResults(normalized);
+
+    localStorage.setItem("bookSearchResults", JSON.stringify(normalized));
+    localStorage.setItem("bookSearchInputs", JSON.stringify({}));
+    localStorage.setItem("bookSearchSort", sortBy);
+    localStorage.setItem("bookSearchMode", "author-reco");
   };
 
   return (
@@ -162,6 +204,14 @@ const BookSearch = () => {
           </button>
         </form>
 
+        {/* ⭐ AUTHOR RECO BUTTON */}
+        <button
+          className="author-reco-btn inline-with-form"
+          onClick={handleAuthorRecoSearch}
+        >
+          Show Author Reco Books
+        </button>
+
         {/* RESULTS + RADIO SORTING */}
         {results.length > 0 && (
           <>
@@ -198,11 +248,17 @@ const BookSearch = () => {
         {/* RESULTS LABEL */}
         {results.length > 0 && (
           <p className="results-label">
-            Results for:
-            {title && ` title="${title}"`}
-            {author && ` author="${author}"`}
-            {isbn && ` isbn="${isbn}"`}
-            {year && ` year="${year}"`}
+            {searchMode === "author-reco" ? (
+              <>Showing all books with Author Recommended Playlists</>
+            ) : (
+              <>
+                Results for:
+                {title && ` title="${title}"`}
+                {author && ` author="${author}"`}
+                {isbn && ` isbn="${isbn}"`}
+                {year && ` year="${year}"`}
+              </>
+            )}
           </p>
         )}
 

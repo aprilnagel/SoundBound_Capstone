@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 import requests
-from app.blueprints.books.schemas import book_dump_schema
+from app.blueprints.books.schemas import BookDumpSchema, book_dump_schema
 from app.utility.auth import token_required
 from . import books_bp
 from app.models import Books, Playlist_Books, Playlists, Users
@@ -67,6 +67,13 @@ def search_books(current_user):
         })
 
     return jsonify(results), 200
+
+#_____________________Search athor reco books (internal)_____________________#
+@books_bp.route('/author-reco', methods=['GET'])
+@token_required
+def get_author_reco_books(current_user):
+    books = Books.query.filter(Books.author_reco_playlist_id.isnot(None)).all()
+    return jsonify(BookDumpSchema(many=True).dump(books)), 200
 
 
 #_____________________BOOK DETAILS_____________________#

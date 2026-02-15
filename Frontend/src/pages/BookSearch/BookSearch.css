@@ -185,3 +185,11 @@
   color: #ff4d6d;
   font-weight: 600;
 }
+
+.inline-with-form {
+  margin-left: 10px;
+  height: 40px; /* match your form button height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
