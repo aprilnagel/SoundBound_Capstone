@@ -360,7 +360,7 @@ def remove_tag_from_playlist(current_user, playlist_id, tag_id):
 #---------------------LISTEN ACTION (ADD TO LIBRARY + CREATE PERSONAL PLAYLIST)_____________________#
 @playlists_bp.route("/listen", methods=["POST"])
 @token_required
-def listen_action():
+def listen_action(current_user):
     data = request.get_json()
     book_id = data.get("book_id")
     playlist_id = data.get("playlist_id")  # author playlist id

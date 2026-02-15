@@ -31,8 +31,10 @@ export function AuthProvider({ children }) {
         setUser({
           id: data.id,
           username: data.username,
-          name: data.first_name || data.username, // fallback if no first name
+          name: data.first_name || data.username,
           role: data.role,
+          library: data.library || [], // ⭐ ADD THIS
+          author_keys: data.author_keys || [], // optional but useful
         });
       } catch (err) {
         localStorage.removeItem("token");
@@ -55,6 +57,8 @@ export function AuthProvider({ children }) {
         username: userData.username,
         name: userData.first_name || userData.username,
         role: userData.role,
+        library: userData.library || [], // ⭐ ADD THIS
+        author_keys: userData.author_keys || [], // optional
       });
     } catch (err) {
       console.error("Login error:", err);
