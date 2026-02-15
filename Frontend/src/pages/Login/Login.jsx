@@ -43,7 +43,7 @@ export default function Login() {
                 return;
             }
 
-            login(data.token, data.user);
+            login(data.token);
             navigate("/"); // Redirect to home or dashboard after login
         } catch (err) {
             console.error("Login error:", err);

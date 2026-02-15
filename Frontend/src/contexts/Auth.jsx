@@ -48,17 +48,29 @@ export function AuthProvider({ children }) {
     restoreUser();
   }, [token]);
 
-  const login = (tokenValue, userData) => {
+  const login = async (tokenValue) => {
     try {
+      // Save token
       localStorage.setItem("token", tokenValue);
       setToken(tokenValue);
+
+      // Fetch user info from /auth/me
+      const res = await fetch(`${API_BASE_URL}/auth/me`, {
+        headers: {
+          Authorization: `Bearer ${tokenValue}`,
+        },
+      });
+
+      const data = await res.json();
+
+      // Normalize and store user
       setUser({
-        id: userData.id,
-        username: userData.username,
-        name: userData.first_name || userData.username,
-        role: userData.role,
-        library: userData.library || [], // ⭐ ADD THIS
-        author_keys: userData.author_keys || [], // optional
+        id: data.id,
+        username: data.username,
+        name: data.first_name || data.username,
+        role: data.role,
+        library: data.library || [],
+        author_keys: data.author_keys || [],
       });
     } catch (err) {
       console.error("Login error:", err);
