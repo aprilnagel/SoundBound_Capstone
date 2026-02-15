@@ -169,7 +169,11 @@ const BookSearch = () => {
         <h1 className="search-title">Books</h1>
 
         {/* SEARCH BAR */}
-        <form className="search-bar" onSubmit={handleSearch}>
+        <form className="search-bar" onSubmit={(e) => {e.preventDefault();
+            handleSearch(e);
+          }}
+        >
+
           <input
             type="text"
             placeholder="Title..."
@@ -205,12 +209,20 @@ const BookSearch = () => {
         </form>
 
         {/* ⭐ AUTHOR RECO BUTTON */}
-        <button
-          className="author-reco-btn inline-with-form"
-          onClick={handleAuthorRecoSearch}
-        >
+        <label className="author-reco-checkbox inline-with-form">
+          <input
+            type="checkbox"
+            onChange={(e) => {
+              e.stopPropagation();
+              if (e.target.checked) {
+                handleAuthorRecoSearch();
+              } else {
+                clearSearch();
+              }
+            }}
+          />
           Show Author Reco Books
-        </button>
+        </label>
 
         {/* RESULTS + RADIO SORTING */}
         {results.length > 0 && (

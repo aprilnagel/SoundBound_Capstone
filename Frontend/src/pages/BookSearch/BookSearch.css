@@ -193,3 +193,32 @@
   align-items: center;
   justify-content: center;
 }
+
+.author-reco-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  margin-left: 10px; /* same spacing as your button */
+}
+.author-reco-checkbox label {
+  font-size: 0.9rem;
+  color: #444;
+}
+.author-reco-checkbox:hover {
+  color: #ff4d6d;
+  cursor: pointer;
+}
+
+.author-reco-checkbox input {
+  transform: scale(1.2);
+}
+.author-reco-checkbox input[type="checkbox"]:hover {
+  accent-color: #ff4d6d;
+  cursor: pointer;
+}
+.author-reco-checkbox input[type="checkbox"]:checked {
+  accent-color: #ff4d6d;
+  
+}
+

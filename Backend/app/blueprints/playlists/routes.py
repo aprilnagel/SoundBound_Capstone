@@ -104,6 +104,8 @@ def create_playlist(current_user):
 
         db.session.add(new_playlist)
         db.session.flush()
+        if is_author_reco:
+            book.author_reco_playlist_id = new_playlist.id
 
         db.session.add(Playlist_Books(
             playlist_id=new_playlist.id,
