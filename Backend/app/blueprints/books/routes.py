@@ -135,6 +135,21 @@ def get_book_by_id(current_user, book_id):
     user_keys = set(current_user.author_keys or [])
     book_keys = set(book.author_keys or [])
     response["is_owned_by_author"] = bool(user_keys.intersection(book_keys))
+    
+    # ⭐ ADD THIS — this is what CreatePlaylist needs ⭐
+    author_reco = (
+        Playlists.query
+        .filter(
+            Playlists.user_id == current_user.id,
+            Playlists.is_author_reco == True
+        )
+        .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
+        .filter(Playlist_Books.book_id == book.id)
+        .first()
+    )
+
+    response["author_reco_playlist"] = author_reco.to_dict() if author_reco else None
+    # ⭐ END ADDITION ⭐
 
     return jsonify(response), 200
 

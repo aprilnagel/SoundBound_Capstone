@@ -65,6 +65,7 @@ export default function CreatePlaylist() {
       if (!res.ok) throw new Error("Failed to fetch book");
 
       const data = await res.json();
+      console.log("BOOK IN CREATE PLAYLIST:", book);
       setBook(data);
       setSavedInLibrary(data.in_user_library);
       setSavedOwnedByAuthor(data.is_owned_by_author);
@@ -374,7 +375,7 @@ export default function CreatePlaylist() {
             </p>
 
             {/* Verified book → optional author reco */}
-            {isVerified && canAuthorReco && (
+            {isVerified && canAuthorReco && !book?.author_reco_playlist && (
               <label className="author-reco-toggle">
                 <input
                   type="checkbox"
