@@ -3,7 +3,7 @@ import requests
 from app.blueprints.books.schemas import book_dump_schema
 from app.utility.auth import token_required
 from . import books_bp
-from app.models import Books, Playlists, Users
+from app.models import Books, Playlist_Books, Playlists, Users
 from app.extensions import db
 from sqlalchemy import func
 from app.utility.openlibrary import fetch_openlibrary_work
@@ -134,6 +134,17 @@ def get_book_by_id(current_user, book_id):
     user_keys = set(current_user.author_keys or [])
     book_keys = set(book.author_keys or [])
     response["is_owned_by_author"] = bool(user_keys.intersection(book_keys))
+
+    # ⭐ Add user's personal playlist for this book
+    user_playlist = (
+        Playlists.query
+        .filter_by(user_id=current_user.id, is_author_reco=False)
+        .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
+        .filter(Playlist_Books.book_id == book.id)
+        .first()
+    )
+
+    response["user_playlist_id"] = user_playlist.id if user_playlist else None
 
     return jsonify(response), 200
 

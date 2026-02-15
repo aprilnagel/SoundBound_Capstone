@@ -109,26 +109,21 @@ const BookDetails = () => {
   };
 
   const handleListen = async () => {
-    // 1. If the book is already in the user's library
-    if (alreadyInLibrary) {
-      setMessageType("success");
-      setMessage("This book is already in your library!");
-      return;
-    }
-
-    // 2. Otherwise, call backend to add + create playlist
     try {
-      const res = await fetch("https://soundbound-capstone.onrender.com/playlists/listen", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      const res = await fetch(
+        "https://soundbound-capstone.onrender.com/playlists/listen",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            book_id: book.id,
+            playlist_id: book.author_reco_playlist.id,
+          }),
         },
-        body: JSON.stringify({
-          book_id: book.id,
-          playlist_id: book.author_reco_playlist.id,
-        }),
-      });
+      );
 
       const data = await res.json();
       console.log("LISTEN RESPONSE:", data);
@@ -139,13 +134,11 @@ const BookDetails = () => {
         return;
       }
 
-      // SUCCESS POPUP
       setMessageType("success");
       setMessage("Playlist added to your library!");
 
-      // Redirect after popup
       setTimeout(() => {
-        nav(`/playlists/${data.user_playlist_id}`);
+        nav(`/playlist-details/${data.user_playlist_id}`);
       }, 1500);
     } catch (err) {
       setMessageType("error");

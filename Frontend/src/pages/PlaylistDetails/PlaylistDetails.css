@@ -40,9 +40,17 @@
 .playlist-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 10px;
 }
 
+.pd-author-badge-label {
+  
+  padding: 0 6px 0 0;
+  margin-left: 0;
+ 
+}
 .playlist-title {
   font-size: 2rem;
   font-weight: 700;
@@ -251,10 +259,12 @@
 }
 
 .edit-playlist-btn {
+
+  font-family: "Manjari", system-ui;
   background: #52dbf4;
   color: white;
   padding: 8px 14px;
-  border-radius: 6px;
+  border-radius: 30px;
   border: none;
   cursor: pointer;
   font-weight: 600;
@@ -263,10 +273,11 @@
 
 /* Song actions (edit/delete) */
 .delete-playlist-btn {
+  font-family: "Manjari", system-ui;
   background: #ff4d4f;
   color: white;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 8px 14px 6px 14px;
+  border-radius: 30px;
   border: none;
   cursor: pointer;
   font-weight: 600;

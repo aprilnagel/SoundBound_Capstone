@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./PlaylistDetails.css";
 import Navbar from "../../components/Navbar/Navbar";
-import { useNavigate } from "react-router-dom";
 import fallbackCover from "../../Photos/2.png";
+import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -20,8 +20,8 @@ export default function PlaylistDetails() {
   const [allTags, setAllTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
   const dropdownRef = useRef(null);
+
   const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   useEffect(() => {
@@ -75,8 +75,16 @@ export default function PlaylistDetails() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Delete playlist handler
+  if (loading) return <div className="pd-loading">Loading...</div>;
+  if (error) return <div className="pd-error">{error}</div>;
+  if (!playlist) return <div className="pd-loading">Loading...</div>;
 
+  // ⭐ SAFE: compute after playlist loads
+  const isAuthorClone = playlist.is_author_reco === true;
+
+  const book = playlist.books?.[0];
+
+  // Delete playlist handler
   const handleDeletePlaylist = async () => {
     try {
       const res = await fetch(`${API_URL}/playlists/${playlist.id}`, {
@@ -93,18 +101,16 @@ export default function PlaylistDetails() {
         return;
       }
 
-      // Close popup
       setShowDeletePopup(false);
-
-      // Redirect after delete
       navigate("/playlists");
     } catch (err) {
       console.error("Failed to delete playlist", err);
     }
   };
 
-  // Add Tag handler
+  // Add Tag handler (DISABLED for author clone)
   const handleAddTag = async () => {
+    if (isAuthorClone) return; // safety
     if (!selectedTag) return;
 
     try {
@@ -130,12 +136,6 @@ export default function PlaylistDetails() {
     }
   };
 
-  if (loading) return <div className="pd-loading">Loading...</div>;
-  if (error) return <div className="pd-error">{error}</div>;
-  if (!playlist) return <div className="pd-loading">Loading...</div>;
-
-  const book = playlist.books?.[0];
-
   // Group tags by category
   const groupedTags = allTags.reduce((groups, tag) => {
     const category = tag.category || "uncategorized";
@@ -160,26 +160,48 @@ export default function PlaylistDetails() {
             />
           )}
 
-          {/* COLUMN 2 — TITLE + BOOK + EDIT */}
+          {/* COLUMN 2 — TITLE + BOOK + ACTIONS */}
           <div className="playlist-info">
-            <h1 className="playlist-title">{playlist.title}</h1>
+            <h1 className="playlist-title">
+              
+              {isAuthorClone && (
+                <span className="pd-author-badge-label">
+                  <BookmarkAddedIcon
+                    sx={{
+                      fontSize: 40,
+                      color: "#a1d63e",
+                      marginLeft: "-8px",
+                      verticalAlign: "middle",
+                    }}
+                  />
+                </span>
+              )}
+              {playlist.title}
+            </h1>
+
             {book && <h2 className="playlist-book">Book: {book.title}</h2>}
 
             <div className="playlist-actions">
-              <button
-                className="edit-playlist-btn"
-                onClick={() =>
-                  navigate(`/create-playlist?playlist_id=${playlist.id}`)
-                }
-              >
-                Edit Playlist
-              </button>
+              {/* ⭐ HIDE EDIT BUTTON FOR AUTHOR CLONE */}
+              {!isAuthorClone && (
+                <button
+                  className="edit-playlist-btn"
+                  onClick={() =>
+                    navigate(`/create-playlist?playlist_id=${playlist.id}`)
+                  }
+                >
+                  Edit Playlist
+                </button>
+              )}
+
+              {/* ⭐ DELETE ALWAYS ALLOWED */}
               <button
                 className="delete-playlist-btn"
                 onClick={() => setShowDeletePopup(true)}
               >
-                Delete Playlist
+                {isAuthorClone ? "Remove from Library" : "Delete Playlist"}
               </button>
+
               {showDeletePopup && (
                 <div className="popup-overlay">
                   <div className="popup">
@@ -207,7 +229,7 @@ export default function PlaylistDetails() {
             </div>
           </div>
 
-          {/* COLUMN 3 — TAGS + SELECT + ADD */}
+          {/* COLUMN 3 — TAGS */}
           <div className="playlist-tags-col">
             <h3 className="tags-header">Tags</h3>
 
@@ -223,29 +245,32 @@ export default function PlaylistDetails() {
               ))}
             </div>
 
-            <div className="tag-controls">
-              <select
-                className="tag-select"
-                value={selectedTag}
-                onChange={(e) => setSelectedTag(e.target.value)}
-              >
-                <option value="">Select a tag...</option>
+            {/* ⭐ HIDE TAG CONTROLS FOR AUTHOR CLONE */}
+            {!isAuthorClone && (
+              <div className="tag-controls">
+                <select
+                  className="tag-select"
+                  value={selectedTag}
+                  onChange={(e) => setSelectedTag(e.target.value)}
+                >
+                  <option value="">Select a tag...</option>
 
-                {Object.entries(groupedTags).map(([category, tags]) => (
-                  <optgroup key={category} label={category}>
-                    {tags.map((tag) => (
-                      <option key={tag.id} value={tag.id}>
-                        {tag.mood_name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+                  {Object.entries(groupedTags).map(([category, tags]) => (
+                    <optgroup key={category} label={category}>
+                      {tags.map((tag) => (
+                        <option key={tag.id} value={tag.id}>
+                          {tag.mood_name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
 
-              <button className="add-tag-btn" onClick={handleAddTag}>
-                Add Tag
-              </button>
-            </div>
+                <button className="add-tag-btn" onClick={handleAddTag}>
+                  Add Tag
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -272,6 +297,8 @@ export default function PlaylistDetails() {
                       {ps.song.artists.join(", ")}
                     </span>
                   </div>
+
+                  {/* ⭐ NO REMOVE BUTTON FOR AUTHOR CLONE */}
                 </div>
               ))}
             </div>
