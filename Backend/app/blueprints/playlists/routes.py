@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import current_user
 from app.blueprints.playlists import playlists_bp
-from app.models import Books, Playlist_Books, Playlist_Songs, Playlists, Songs, Tags
+from app.models import Books, Playlist_Books, Playlist_Songs, Playlist_Tags, Playlists, Songs, Tags
 from app.extensions import db
 
 from app.blueprints.playlists.schemas import (
@@ -363,49 +363,85 @@ def remove_tag_from_playlist(current_user, playlist_id, tag_id):
 def listen_action(current_user):
     data = request.get_json()
     book_id = data.get("book_id")
-    playlist_id = data.get("playlist_id")  # author playlist id
+    author_playlist_id = data.get("playlist_id")
 
-    if not book_id or not playlist_id:
+    if not book_id or not author_playlist_id:
         return {"error": "Missing book_id or playlist_id"}, 400
 
     user = current_user
 
+    # ------------------------------------------------------------
     # 1. Add book to user's JSON library
+    # ------------------------------------------------------------
     if user.library is None:
         user.library = []
 
     if book_id not in user.library:
         user.library.append(book_id)
 
-    # 2. Check if user already has a personal playlist for this book
+    # ------------------------------------------------------------
+    # 2. Check if user already has a cloned author playlist for this book
+    # ------------------------------------------------------------
     user_playlist = (
         Playlists.query
-        .filter_by(user_id=user.id, is_author_reco=False)
+        .filter_by(user_id=user.id, is_author_reco=True)  # cloned author playlists
         .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
         .filter(Playlist_Books.book_id == book_id)
         .first()
     )
 
-    # 3. If not, create one
+    # ------------------------------------------------------------
+    # 3. If not, create a new cloned playlist
+    # ------------------------------------------------------------
     if not user_playlist:
+        author_playlist = Playlists.query.get(author_playlist_id)
+
+        if not author_playlist:
+            return {"error": "Author playlist not found"}, 404
+
+        # Create the cloned playlist
         user_playlist = Playlists(
             user_id=user.id,
-            title="My Playlist",
-            is_author_reco=False
+            title=author_playlist.title,              # COPY TITLE
+            description=author_playlist.description,  # COPY DESCRIPTION
+            is_public=False,                          # user version is private
+            is_author_reco=True                       # ⭐ SHOW BADGE
         )
         db.session.add(user_playlist)
-        db.session.flush()  # get playlist.id before inserting into junction table
+        db.session.flush()  # get playlist.id
 
-        # Add the book to the playlist via junction table
-        link = Playlist_Books(
+        # Link the book to the playlist
+        db.session.add(Playlist_Books(
             playlist_id=user_playlist.id,
             book_id=book_id
-        )
-        db.session.add(link)
+        ))
 
+        # ------------------------------------------------------------
+        # 4. Copy all songs from the author playlist
+        # ------------------------------------------------------------
+        for ps in author_playlist.playlist_songs:
+            new_ps = Playlist_Songs(
+                playlist_id=user_playlist.id,
+                song_id=ps.song_id,
+                order_index=ps.order_index
+            )
+            db.session.add(new_ps)
+
+        # ------------------------------------------------------------
+        # 5. Copy tags
+        # ------------------------------------------------------------
+        for tag in author_playlist.tags:
+            db.session.add(Playlist_Tags(
+                playlist_id=user_playlist.id,
+                tag_id=tag.id
+            ))
+
+    # ------------------------------------------------------------
+    # 6. Commit all changes
+    # ------------------------------------------------------------
     db.session.commit()
 
     return {
         "user_playlist_id": user_playlist.id,
-        "author_playlist_id": playlist_id
+        "author_playlist_id": author_playlist_id
     }, 200
