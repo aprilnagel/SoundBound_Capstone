@@ -18,6 +18,8 @@ const BookDetails = () => {
   const location = useLocation();
   const passedYear = location.state?.publish_year;
   const [showAllIsbns, setShowAllIsbns] = useState(false);
+  const passedIsbn = location.state?.latest_isbn;
+  const [savedIsbn, setSavedIsbn] = useState(null);
 
   // ---------------------------------------------------------
   // FETCH BOOK DETAILS
@@ -41,7 +43,9 @@ const BookDetails = () => {
           setError(data.error || "Failed to load book");
         } else {
           setBook(data);
+          setSavedIsbn(data.latest_isbn || passedIsbn || null);
         }
+        
       } catch (err) {
         setError("Network error fetching book");
       } finally {
@@ -180,10 +184,11 @@ const BookDetails = () => {
               <p>
                 <strong>Publish Year:</strong>{" "}
                 {passedYear || book.first_publish_year || "Unknown"}
+                
               </p>
 
               <p>
-                <strong>ISBN:</strong> {book.latest_isbn || "N/A"}
+                <strong>ISBN:</strong> {savedIsbn || (book.isbn_list ? book.isbn_list[0] : "N/A")}
               </p>
 
               {book.isbn_list?.length > 1 && (
