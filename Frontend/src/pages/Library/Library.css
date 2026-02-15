@@ -30,7 +30,37 @@
   font-weight: 700;
   margin-bottom: 10px;
   color: #333;
+  
+  
 }
+/* The underline */
+.library-title-underline {
+  width: 80%;          /* ⭐ control the line length here */
+  height: 3px;
+  background: #ddd;
+  border-radius: 2px;
+  margin: 0 auto 25px auto;   /* ⭐ keeps it centered */
+}
+
+.library-count {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+/* Container for sort + filter */
+.library-controls {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 25px;              /* space between sort + toggle */
+  margin-bottom: 25px;
+  margin-left: 50px; /* align with book cards */
+}
+
+
+
 
 /* ------------------------------
    GRID (MATCHES BOOK SEARCH)
@@ -70,4 +100,52 @@
 
 .error {
   color: #b33a3a;
+}
+
+/* Sort dropdown styling */
+.library-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.library-sort label {
+  font-size: 16px;
+  color: #444;
+}
+
+.library-sort select {
+  padding: 3px 8px 5px 10px;
+  border-radius: 30px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.library-sort select:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
+}
+
+/* Author filter toggle */
+.library-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  color: #444;
+  
+}
+
+.library-filter input {
+  transform: scale(1.2);
+  margin-right: 10px; 
+  
+  cursor: pointer;
+}
+.library-filter input[type="checkbox"]:checked {
+  accent-color: #ed3b7b;
 }

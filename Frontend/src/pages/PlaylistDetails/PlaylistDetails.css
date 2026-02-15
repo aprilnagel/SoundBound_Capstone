@@ -24,7 +24,7 @@
 /* ---------------- HEADER (3 COLUMNS) ---------------- */
 .playlist-header {
   display: grid;
-  grid-template-columns: 220px 0.5fr 300px;
+  grid-template-columns: 250px 0.6fr 450px;
   gap: 32px;
   align-items: start;
   justify-content: center;
@@ -40,7 +40,8 @@
 
 .playlist-cover {
   display: block;
-  margin: 0 auto;
+  margin-top: 16px;
+  margin-left: 16px;
 
   width: 220px;
   border-radius: 20px;
@@ -74,19 +75,26 @@
   color: #444;
 }
 
-/* Right column: tags + select + add */
 .playlist-tags-col {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: flex-start;
   gap: 12px;
   box-shadow: 0 6px 10px rgba(0,0,0,0.08);
   background: #fafafa;
   border-radius: 30px;
   padding: 20px;
   margin-top: 20px;
+
+  width: 100%;        /* ⭐ force container to stay inside grid */
+  max-width: 100%;    /* ⭐ prevent stretching */
+  min-width: 0;       /* ⭐ REQUIRED for wrapping */
+  overflow: visible;  /* ⭐ allow wrapped rows to show */
 }
+
+
+
 
 .tags-header {
   font-size: 20px;
@@ -98,11 +106,15 @@
 /* ---------------- TAGS ---------------- */
 .tags-list {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: wrap;     /* ⭐ wrap tags */
   gap: 10px;
+  align-items: center;
+
+  width: 100%;         /* ⭐ ensures wrapping happens inside container */
+  max-width: 100%;     /* ⭐ prevents overflow */
 }
+
+
 
 .tag-pill {
   display: flex;
@@ -258,7 +270,7 @@
   box-shadow: 0 6px 10px rgba(0,0,0,0.08);
   background: #fafafa;
   border-radius: 30px;
-  border: 3px solid #c0e4eb; 
+  
 }
 
 /* Songs column */
@@ -268,6 +280,9 @@
   flex-direction: column;
   gap: 16px;
   padding: 20px;
+  border: 3px solid #c0e4eb; 
+  border-radius: 30px;
+  background: linear-gradient(#ff66c47e, #ffc56f8a);
 }
 .song-album {
   font-size: 0.85rem;

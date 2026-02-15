@@ -49,19 +49,21 @@
 }
 
 .playlist-card-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 600;
   display: flex;
   justify-content: center;
-  
+  line-height: 1.5;
   margin-top: 5px;
-  margin-bottom: 0px;       
+  margin-bottom: 0px;   
+  color:  #ed3b7b;   
 }
 
 .playlist-card-book {
   font-size: 0.9rem;
   color: #666;
   margin: 0;
+  line-height: 1.4;
 }
 
 .playlist-card-count {

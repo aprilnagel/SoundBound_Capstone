@@ -19,7 +19,7 @@
   transform: translateY(-4px);
   box-shadow: 0 12px 20px rgba(0, 0, 0, 0.18);
   cursor: pointer;
-  border: 2px solid #ff4d6d
+  border: 2px solid #ff4d6d;
 }
 
 /* COVER */
@@ -55,11 +55,14 @@
   margin: 5px; /* removes default spacing */
   
 }
+h3.book-title {
+  font-size: 1.3rem;
+}
 
 
 
 .book-title {
-  font-size: 1.1rem;
+ 
   font-weight: 700;
   color: #333;
   text-align: center;
@@ -79,7 +82,7 @@
 .view-book-btn {
   border: none;
   height: 30px;
-  width: 100%;
+  width: 40%;
   border-radius: 30px;
   background: #ff4d6d;
   color: white;
@@ -129,14 +132,19 @@
   padding: 6px 20px 2px 20px;
   font-size: 16px;
 }
+.view-playlist-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-4px);
+}
 .library-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 70%;
-  gap: 12px;
+  width: 80%;
+  gap: 5px;
 }
+
 .library-actions button {
   width: 100%;
 }
@@ -160,9 +168,28 @@
   transform: translateY(-4px);
 }
 
+.create-author-playlist-btn {
+  border: none;
+  height: 30px;
+  width: 100%;
+  border-radius: 30px;
+  background: #a1d63e;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  font-family: "Manjari", system-ui;
+  padding: 6px 20px 2px 20px;
+  font-size: 16px;
+}
+.create-author-playlist-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-4px);
+}
 
 .return-book-btn {
   border: none;
+  height: 30px;
   border-radius: 30px;
   background: #ff4d6d;
   color: white;
@@ -177,3 +204,13 @@
   opacity: 0.85;
   transform: translateY(-4px);
 }
+
+.book-card.in-library button {
+  width: 80%;
+  font-size: 14px;
+  height: 25px;
+}
+.book-card.in-library .book-cover {
+  margin-bottom: 0;
+}
+

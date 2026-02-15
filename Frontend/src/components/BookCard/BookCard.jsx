@@ -4,12 +4,14 @@ import { useNavigate } from "react-router-dom";
 
 export default function BookCard({
   book,
-  canAuthorReco,          // ⭐ now passed in from Library.jsx
   showLibraryActions = false,
   onCreatePlaylist,
   onReturnBook,
 }) {
   const navigate = useNavigate();
+
+  // ⭐ Use backend field directly
+  const canAuthorReco = book.can_author_reco;
 
   const coverUrl = book.cover_id
     ? `https://covers.openlibrary.org/b/id/${book.cover_id}-M.jpg`
@@ -17,7 +19,8 @@ export default function BookCard({
 
   return (
     <div
-      className="book-card"
+      className={`book-card ${showLibraryActions ? "in-library" : ""}`}
+
       onClick={() => navigate(`/book-details/${book.openlib_id}`)}
     >
       <div className="book-cover">
@@ -34,6 +37,7 @@ export default function BookCard({
           </>
         )}
 
+        {/* VIEW BOOK (non-library mode) */}
         {!showLibraryActions && (
           <button
             className="view-book-btn"
@@ -48,6 +52,7 @@ export default function BookCard({
           </button>
         )}
 
+        {/* LIBRARY ACTIONS */}
         {showLibraryActions && (
           <div className="library-actions">
 
@@ -96,7 +101,7 @@ export default function BookCard({
                   </button>
                 ) : (
                   <button
-                    className="create-playlist-btn"
+                    className="create-author-playlist-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(`/create-playlist?book_id=${book.id}`, {
@@ -104,7 +109,7 @@ export default function BookCard({
                       });
                     }}
                   >
-                    create author reco playlist
+                    create author  playlist
                   </button>
                 )}
               </>

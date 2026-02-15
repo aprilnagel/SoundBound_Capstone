@@ -523,22 +523,23 @@ export default function CreatePlaylist() {
           {songs.length > 0 && (
             <div className="current-songs">
               <h3>Playlist Songs</h3>
+              <div className="song-rows-box">
+                {songs.map((song) => (
+                  <div key={song.id} className="song-row">
+                    <div className="song-info">
+                      <div className="song-title">{song.title}</div>
+                      <div className="song-artist">{song.artist}</div>
+                    </div>
 
-              {songs.map((song) => (
-                <div key={song.id} className="song-row">
-                  <div className="song-info">
-                    <div className="song-title">{song.title}</div>
-                    <div className="song-artist">{song.artist}</div>
+                    <button
+                      onClick={() => !saving && removeSong(song.id)}
+                      disabled={saving}
+                    >
+                      X
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() => !saving && removeSong(song.id)}
-                    disabled={saving}
-                  >
-                    X
-                  </button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>

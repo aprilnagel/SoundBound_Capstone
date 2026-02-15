@@ -254,19 +254,18 @@ export default function PlaylistDetails() {
               {playlist.tags.length === 0 && (
                 <p className="empty-text">No tags yet.</p>
               )}
-              <div className="tag-pill-name">
-                {playlist.tags.map((tag) => (
-                  <div key={tag.id} className="tag-pill">
-                    {tag.mood_name}
-                    <button
-                      className="remove-tag-btn"
-                      onClick={() => handleRemoveTag(tag.id)}
-                    >
-                      x
-                    </button>
-                  </div>
-                ))}
-              </div>
+
+              {playlist.tags.map((tag) => (
+                <div key={tag.id} className="tag-pill">
+                  {tag.mood_name}
+                  <button
+                    className="remove-tag-btn"
+                    onClick={() => handleRemoveTag(tag.id)}
+                  >
+                    x
+                  </button>
+                </div>
+              ))}
             </div>
 
             <div className="tag-controls">
