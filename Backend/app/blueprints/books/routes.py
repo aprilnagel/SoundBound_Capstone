@@ -86,10 +86,16 @@ def get_book_details(current_user, openlib_id):
         # ⭐ NEW: attach the author-recommended playlist
         from app.models import Playlists  # adjust import if needed
 
-        playlist = Playlists.query.filter_by(
-            book_id=book.id,
-            is_author_reco=True
-        ).first()
+        playlist = (
+            Playlists.query
+            .join(Playlists.books)
+            .filter(
+                Books.id == book.id,
+                Playlists.is_author_reco == True
+            )
+            .first()
+)
+
 
         response["author_reco_playlist"] = playlist.to_dict() if playlist else None
 
