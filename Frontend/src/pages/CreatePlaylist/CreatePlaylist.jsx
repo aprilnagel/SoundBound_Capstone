@@ -5,7 +5,6 @@ import "./CreatePlaylist.css";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/Auth";
 
-
 const API_URL = "https://soundbound-capstone.onrender.com";
 
 export default function CreatePlaylist() {
@@ -13,8 +12,6 @@ export default function CreatePlaylist() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = localStorage.getItem("token");
-
-  
 
   const currentUserRole = user?.role;
 
@@ -61,7 +58,7 @@ export default function CreatePlaylist() {
   // ------------------ LOAD BOOK ------------------ //
   async function loadBook() {
     try {
-      const res = await fetch(`${API_URL}/books/id/${bookId}`, {
+      const res = await fetch(`${API_URL}/books/${bookId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -109,7 +106,6 @@ export default function CreatePlaylist() {
 
         const data = await res.json();
         console.log("PLAYLIST DATA:", data);
-        
 
         // Prefill fields
         setTitle(data.title || "");
@@ -238,16 +234,14 @@ export default function CreatePlaylist() {
 
       // ------------------ CREATE MODE ------------------ //
       if (!isEditMode) {
-        if (book?.in_user_library) {
-          // Verified playlist
+        if (bookId) {
           payload = {
             title,
             description,
-            book_id: book.id,
+            book_id: Number(bookId),
             is_author_reco: isAuthorReco,
           };
         } else {
-          // Custom playlist
           payload = {
             title,
             description,
@@ -338,9 +332,7 @@ export default function CreatePlaylist() {
 
   // ------------------ RENDER ------------------ //
   if (loading) return <div>Loading...</div>; // from AuthContext
-if (pageLoading) return <div>Loading book...</div>; // your component
-
-
+  if (pageLoading) return <div>Loading book...</div>; // your component
 
   const isVerified = !isCustomMode && book?.source === "verified";
 

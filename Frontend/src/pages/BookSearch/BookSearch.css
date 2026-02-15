@@ -117,6 +117,7 @@
   margin: 12px 0 20px 0;
   overflow-x: auto;    /* allows scrolling if needed */
   padding-bottom: 4px; /* avoids scroll bar overlap */
+  padding-left: 30px;  /* small left padding for better aesthetics */
   
 }
 

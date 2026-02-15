@@ -4,6 +4,7 @@ import "./PlaylistDetails.css";
 import Navbar from "../../components/Navbar/Navbar";
 import { useNavigate } from "react-router-dom";
 import fallbackCover from "../../Photos/2.png";
+import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -107,6 +108,11 @@ export default function PlaylistDetails() {
   const handleAddTag = async () => {
     if (!selectedTag) return;
 
+    // ⭐ Prevent duplicates
+    if (playlist.tags.some((t) => t.id === Number(selectedTag))) {
+      return; // or show a message
+    }
+
     try {
       const res = await fetch(`${API_URL}/playlists/${id}/tags`, {
         method: "POST",
@@ -127,6 +133,27 @@ export default function PlaylistDetails() {
       }
     } catch (err) {
       console.error("Failed to add tag", err);
+    }
+  };
+
+  const handleRemoveTag = async (tagId) => {
+    try {
+      const res = await fetch(`${API_URL}/playlists/${id}/tags/${tagId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setPlaylist(data); // backend returns updated playlist
+      } else {
+        console.error("Error removing tag:", data.error);
+      }
+    } catch (err) {
+      console.error("Failed to remove tag", err);
     }
   };
 
@@ -162,7 +189,19 @@ export default function PlaylistDetails() {
 
           {/* COLUMN 2 — TITLE + BOOK + EDIT */}
           <div className="playlist-info">
+            {playlist.is_author_reco && (
+              <BookmarkAddedIcon
+                className="playlist-icon"
+                style={{
+                  color: "#a1d63e",
+                  fontSize: "40px",
+                  marginLeft: "-5px",
+                }}
+              />
+            )}
+
             <h1 className="playlist-title">{playlist.title}</h1>
+
             {book && <h2 className="playlist-book">Book: {book.title}</h2>}
 
             <div className="playlist-actions">
@@ -215,12 +254,19 @@ export default function PlaylistDetails() {
               {playlist.tags.length === 0 && (
                 <p className="empty-text">No tags yet.</p>
               )}
-
-              {playlist.tags.map((tag) => (
-                <span key={tag.id} className="tag-pill">
-                  {tag.mood_name}
-                </span>
-              ))}
+              <div className="tag-pill-name">
+                {playlist.tags.map((tag) => (
+                  <div key={tag.id} className="tag-pill">
+                    {tag.mood_name}
+                    <button
+                      className="remove-tag-btn"
+                      onClick={() => handleRemoveTag(tag.id)}
+                    >
+                      x
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="tag-controls">
@@ -253,11 +299,18 @@ export default function PlaylistDetails() {
         <div className="playlist-columns">
           <section className="songs-column">
             <h2 className="section-title">
-              Songs{" "}
+              Song Count :{" "}
               <span className="song-count">
-                ({playlist.playlist_songs.length})
+                {playlist.playlist_songs.length}
               </span>
             </h2>
+
+            {/* ⭐ COLUMN HEADERS */}
+            <div className="song-header-row">
+              <span className="header-col">Song Title</span>
+              <span className="header-col">Artists</span>
+              <span className="header-col">Album</span>
+            </div>
 
             <div className="songs-list">
               {playlist.playlist_songs.length === 0 && (
@@ -266,12 +319,11 @@ export default function PlaylistDetails() {
 
               {playlist.playlist_songs.map((ps) => (
                 <div key={ps.id} className="song-card">
-                  <div className="song-info">
-                    <span className="song-title">{ps.song.title}</span>
-                    <span className="song-artists">
-                      {ps.song.artists.join(", ")}
-                    </span>
-                  </div>
+                  <span className="song-col title-col">{ps.song.title}</span>
+                  <span className="song-col artists-col">
+                    {ps.song.artists.join(", ")}
+                  </span>
+                  <span className="song-col album-col">{ps.song.album}</span>
                 </div>
               ))}
             </div>
