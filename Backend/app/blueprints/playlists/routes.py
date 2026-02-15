@@ -36,40 +36,40 @@ def create_playlist(current_user):
     custom_year = data.get("custom_publish_year")
     is_author_reco = data.get("is_author_reco", False)
 
-    # Determine playlist type
     playlist_type = "verified" if book_id else "custom"
 
-    #---------------------------------------------------------
-    # 2. VERIFIED PLAYLIST LOGIC
-    #---------------------------------------------------------
+    # ---------------------------------------------------------
+    # VERIFIED PLAYLIST LOGIC
+    # ---------------------------------------------------------
     if playlist_type == "verified":
         book = Books.query.get(book_id)
         if not book:
             return jsonify({"error": "Book not found"}), 404
 
-        # Prevent multiple playlists for the same book by the same user
+        # Prevent duplicates ONLY within the same playlist type
         existing = (
             Playlists.query
-            .join(Playlists.books)
-            .filter(
-                Playlists.user_id == current_user.id,
-                Books.id == book_id
+            .filter_by(
+                user_id=current_user.id,
+                is_author_reco=is_author_reco
             )
+            .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
+            .filter(Playlist_Books.book_id == book_id)
             .first()
         )
 
         if existing:
             return jsonify({
-                "error": "You already created a playlist for this book."
+                "error": "You already created this type of playlist for this book."
             }), 400
 
-
-
-        # Author Recommendation Playlist
+        # ---------------------------------------------------------
+        # AUTHOR RECOMMENDATION PLAYLIST
+        # ---------------------------------------------------------
         if is_author_reco:
             if current_user.role != "author":
                 return jsonify({"error": "Only authors can create author recommendation playlists."}), 403
-            
+
             user_keys = set(current_user.author_keys or [])
             book_keys = set(book.author_keys or [])
             if not user_keys.intersection(book_keys):
@@ -85,7 +85,9 @@ def create_playlist(current_user):
                 user_id=current_user.id
             )
 
-        # Normal Verified Playlist
+        # ---------------------------------------------------------
+        # USER'S PERSONAL PLAYLIST
+        # ---------------------------------------------------------
         else:
             if not current_user.library or book_id not in current_user.library:
                 return jsonify({
@@ -103,15 +105,18 @@ def create_playlist(current_user):
         db.session.add(new_playlist)
         db.session.flush()
 
-        new_playlist.books.append(book)
+        db.session.add(Playlist_Books(
+            playlist_id=new_playlist.id,
+            book_id=book_id
+        ))
+
         db.session.commit()
         return jsonify(playlist_dump_schema.dump(new_playlist)), 201
 
-    #---------------------------------------------------------
-    # 3. CUSTOM PLAYLIST LOGIC
-    #---------------------------------------------------------
+    # ---------------------------------------------------------
+    # CUSTOM PLAYLIST LOGIC
+    # ---------------------------------------------------------
     if playlist_type == "custom":
-        # Create the custom book
         custom_book = Books(
             title=custom_title,
             author_names=[custom_author],
@@ -131,10 +136,8 @@ def create_playlist(current_user):
         db.session.add(custom_book)
         db.session.flush()
 
-        # Add custom book to user's library
         current_user.library = (current_user.library or []) + [custom_book.id]
 
-        # Create the playlist
         new_playlist = Playlists(
             title=data["title"],
             description=data.get("description"),
@@ -146,7 +149,11 @@ def create_playlist(current_user):
         db.session.add(new_playlist)
         db.session.flush()
 
-        new_playlist.books.append(custom_book)
+        db.session.add(Playlist_Books(
+            playlist_id=new_playlist.id,
+            book_id=custom_book.id
+        ))
+
         db.session.commit()
 
         return jsonify(playlist_dump_schema.dump(new_playlist)), 201
@@ -371,7 +378,7 @@ def listen_action(current_user):
     user = current_user
 
     # ------------------------------------------------------------
-    # 1. Add book to user's JSON library
+    # 1. Add book to user's library ONLY if not already there
     # ------------------------------------------------------------
     if user.library is None:
         user.library = []
@@ -380,68 +387,69 @@ def listen_action(current_user):
         user.library.append(book_id)
 
     # ------------------------------------------------------------
-    # 2. Check if user already has a cloned author playlist for this book
+    # 2. Check if user already has the AUTHOR-RECO clone for this book
+    #    (Do NOT touch the user's personal playlist)
     # ------------------------------------------------------------
-    user_playlist = (
+    user_author_clone = (
         Playlists.query
-        .filter_by(user_id=user.id, is_author_reco=True)  # cloned author playlists
+        .filter_by(user_id=user.id, is_author_reco=True)
         .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
         .filter(Playlist_Books.book_id == book_id)
         .first()
     )
 
+    if user_author_clone:
+        # Already cloned — return it
+        return {
+            "user_playlist_id": user_author_clone.id,
+            "author_playlist_id": author_playlist_id
+        }, 200
+
     # ------------------------------------------------------------
-    # 3. If not, create a new cloned playlist
+    # 3. Clone the author playlist (FULL COPY)
     # ------------------------------------------------------------
-    if not user_playlist:
-        author_playlist = Playlists.query.get(author_playlist_id)
+    author_playlist = Playlists.query.get(author_playlist_id)
+    if not author_playlist:
+        return {"error": "Author playlist not found"}, 404
 
-        if not author_playlist:
-            return {"error": "Author playlist not found"}, 404
+    cloned = Playlists(
+        user_id=user.id,
+        title=author_playlist.title,
+        description=author_playlist.description,
+        is_public=False,
+        is_author_reco=True  # ⭐ SHOW BADGE
+    )
+    db.session.add(cloned)
+    db.session.flush()
 
-        # Create the cloned playlist
-        user_playlist = Playlists(
-            user_id=user.id,
-            title=author_playlist.title,              # COPY TITLE
-            description=author_playlist.description,  # COPY DESCRIPTION
-            is_public=False,                          # user version is private
-            is_author_reco=True                       # ⭐ SHOW BADGE
-        )
-        db.session.add(user_playlist)
-        db.session.flush()  # get playlist.id
+    # Link the book to the cloned playlist
+    db.session.add(Playlist_Books(
+        playlist_id=cloned.id,
+        book_id=book_id
+    ))
 
-        # Link the book to the playlist
-        db.session.add(Playlist_Books(
-            playlist_id=user_playlist.id,
-            book_id=book_id
+    # ------------------------------------------------------------
+    # 4. Copy all songs
+    # ------------------------------------------------------------
+    for ps in author_playlist.playlist_songs:
+        db.session.add(Playlist_Songs(
+            playlist_id=cloned.id,
+            song_id=ps.song_id,
+            order_index=ps.order_index
         ))
 
-        # ------------------------------------------------------------
-        # 4. Copy all songs from the author playlist
-        # ------------------------------------------------------------
-        for ps in author_playlist.playlist_songs:
-            new_ps = Playlist_Songs(
-                playlist_id=user_playlist.id,
-                song_id=ps.song_id,
-                order_index=ps.order_index
-            )
-            db.session.add(new_ps)
-
-        # ------------------------------------------------------------
-        # 5. Copy tags
-        # ------------------------------------------------------------
-        for tag in author_playlist.tags:
-            db.session.add(Playlist_Tags(
-                playlist_id=user_playlist.id,
-                tag_id=tag.id
-            ))
-
     # ------------------------------------------------------------
-    # 6. Commit all changes
+    # 5. Copy tags
     # ------------------------------------------------------------
+    for tag in author_playlist.tags:
+        db.session.add(Playlist_Tags(
+            playlist_id=cloned.id,
+            tag_id=tag.id
+        ))
+
     db.session.commit()
 
     return {
-        "user_playlist_id": user_playlist.id,
+        "user_playlist_id": cloned.id,
         "author_playlist_id": author_playlist_id
     }, 200
