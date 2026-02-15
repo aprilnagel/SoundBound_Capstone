@@ -163,7 +163,10 @@ def get_user_library(current_user):
         # ⭐ Add user's personal playlist for this book
         user_playlist = (
             Playlists.query
-            .filter_by(user_id=current_user.id, is_author_reco=False)
+            .filter(
+                Playlists.user_id == current_user.id,
+                (Playlists.is_author_reco == False) | (Playlists.is_author_reco.is_(None))
+            )
             .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
             .filter(Playlist_Books.book_id == book.id)
             .first()
