@@ -245,7 +245,13 @@ def get_playlist_detail(current_user, playlist_id):
     if not playlist.is_public and playlist.user_id != current_user.id:
         return jsonify({"error": "You do not have permission to view this playlist."}), 403
 
-    return jsonify(playlist_detail_schema.dump(playlist)), 200
+    playlist_dict = playlist_detail_schema.dump(playlist)
+
+    # ⭐ Only show the toggle if THIS playlist is an author-reco playlist
+    playlist_dict["show_author_reco_toggle"] = playlist.is_author_reco is True
+
+    return jsonify(playlist_dict), 200
+
 
 
 #_____________________GET AUTHOR RECOMMENDATION PLAYLISTS_____________________#
