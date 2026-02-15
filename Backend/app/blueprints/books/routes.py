@@ -83,7 +83,6 @@ def get_book_details(current_user, openlib_id):
     if book:
         response = book_dump_schema.dump(book)
 
-        
 
         playlist = (
             Playlists.query
@@ -134,17 +133,6 @@ def get_book_by_id(current_user, book_id):
     user_keys = set(current_user.author_keys or [])
     book_keys = set(book.author_keys or [])
     response["is_owned_by_author"] = bool(user_keys.intersection(book_keys))
-
-    # ⭐ Add user's personal playlist for this book
-    user_playlist = (
-        Playlists.query
-        .filter_by(user_id=current_user.id, is_author_reco=False)
-        .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
-        .filter(Playlist_Books.book_id == book.id)
-        .first()
-    )
-
-    response["user_playlist_id"] = user_playlist.id if user_playlist else None
 
     return jsonify(response), 200
 
@@ -210,6 +198,7 @@ def import_book(current_user):
     author_names = ol_data.get("author_names") or []
     author_keys = ol_data.get("author_keys") or []
     isbn_list = ol_data.get("isbn_list") or []
+    latest_isbn = ol_data.get("latest_isbn")   # ⭐ ADD THIS
 
     # ---------------------------------------------------------
     # 5. CREATE NEW BOOK INSTANCE
@@ -229,6 +218,7 @@ def import_book(current_user):
         cover_url=ol_data.get("cover_url"),
         cover_id=ol_data.get("cover_id"),
         isbn_list=isbn_list,
+        latest_isbn=latest_isbn,  # ⭐ ADD THIS
         first_publish_year=year,
         openlib_id=openlib_id,
         api_source="openlibrary",

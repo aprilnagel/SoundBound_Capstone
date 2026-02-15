@@ -4,7 +4,7 @@ from app.blueprints.users.schemas import UserUpdateSchema, UserSchema, AuthorApp
 from app.blueprints.auth.schemas import signup_schema
 from app.utility.auth import token_required, require_role
 from flask import request, jsonify
-from app.models import Books, Users, Author_verification_requests as VerificationRequest
+from app.models import Books, Playlist_Books, Playlists, Users, Author_verification_requests as VerificationRequest
 from app.extensions import db
 from marshmallow import ValidationError
 from app.extensions import limiter
@@ -156,8 +156,22 @@ def get_user_library(current_user):
     # Fetch full book objects
     books = Books.query.filter(Books.id.in_(current_user.library)).all()
 
-    # Serialize using your schema (THIS is what includes cover_id)
-    serialized = book_dump_schema.dump(books, many=True)
+    serialized = []
+    for book in books:
+        book_dict = book_dump_schema.dump(book)
+
+        # ⭐ Add user's personal playlist for this book
+        user_playlist = (
+            Playlists.query
+            .filter_by(user_id=current_user.id, is_author_reco=False)
+            .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
+            .filter(Playlist_Books.book_id == book.id)
+            .first()
+        )
+
+        book_dict["user_playlist_id"] = user_playlist.id if user_playlist else None
+
+        serialized.append(book_dict)
 
     return jsonify({'library': serialized}), 200
 

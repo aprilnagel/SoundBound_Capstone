@@ -12,6 +12,7 @@ class BookDumpSchema(Schema):
     subjects = fields.List(fields.Str())
     description = fields.Str()  # ⭐ ADD THIS
     isbn_list = fields.List(fields.Str())
+    latest_isbn = fields.Str()  
     api_source = fields.Str()        # optional but recommended
     api_id = fields.Str()            # optional but recommended
     source = fields.Str()            # optional but recommended

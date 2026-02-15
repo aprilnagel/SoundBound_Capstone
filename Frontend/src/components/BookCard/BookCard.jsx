@@ -11,8 +11,6 @@ export default function BookCard({
 }) {
   const navigate = useNavigate();
 
-  const userPlaylistForBook = book.user_playlist_id;
-
   const coverUrl = book.cover_id
     ? `https://covers.openlibrary.org/b/id/${book.cover_id}-M.jpg`
     : fallbackCover;
@@ -57,12 +55,8 @@ export default function BookCard({
               onClick={(e) => {
                 e.stopPropagation();
 
-                const userPlaylistForBook = book.playlists?.find(
-                  (p) => p.is_author_reco === false,
-                )?.id;
-
-                if (userPlaylistForBook) {
-                  navigate(`/playlists/${userPlaylistForBook}`);
+                if (book.user_playlist_id) {
+                  navigate(`/playlists/${book.user_playlist_id}`);
                 } else {
                   navigate(`/create-playlist?book_id=${book.id}`, {
                     state: { book },
@@ -70,9 +64,7 @@ export default function BookCard({
                 }
               }}
             >
-              {book.playlists?.some((p) => p.is_author_reco === false)
-                ? "view playlist"
-                : "create playlist"}
+              {book.user_playlist_id ? "view playlist" : "create playlist"}
             </button>
 
             <button

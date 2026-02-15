@@ -100,6 +100,7 @@ class Books(db.Model):
     openlib_id = db.Column(db.String(250), nullable=True)
     cover_id = db.Column(db.Integer, nullable=True)
     isbn_list = db.Column(db.JSON, nullable=True)
+    latest_isbn = db.Column(db.String(250), nullable=True)
     first_publish_year = db.Column(db.Integer, nullable=True)
     subjects = db.Column(db.JSON, nullable=True)
     source = db.Column(db.String, default="verified")
