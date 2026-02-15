@@ -90,7 +90,7 @@ def get_book_details(current_user, openlib_id):
             .filter(
                 Books.id == book.id,
                 Playlists.is_author_reco == True,
-                Playlists.owner_id == book.author_id   # ⭐ required
+                Playlists.user_id == current_user.id   # ⭐ correct
             )
             .first()
         )
