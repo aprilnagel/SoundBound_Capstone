@@ -17,6 +17,7 @@ const BookDetails = () => {
   const [messageType, setMessageType] = useState(null); // "success" or "error"
   const location = useLocation();
   const passedYear = location.state?.publish_year;
+  const [showAllIsbns, setShowAllIsbns] = useState(false);
 
   // ---------------------------------------------------------
   // FETCH BOOK DETAILS
@@ -164,7 +165,13 @@ const BookDetails = () => {
               {book.title}
 
               {book.author_reco_playlist && (
-                <BookmarkAddedIcon className="author-bookmark-icon" />
+                <BookmarkAddedIcon
+                  csx={{
+                    fontSize: 34,
+                    color: "#4caf50",
+                    marginLeft: "10px",
+                  }}
+                />
               )}
             </h1>
 
@@ -180,9 +187,25 @@ const BookDetails = () => {
               </p>
 
               <p>
-                <strong>ISBNs:</strong> {book.isbn_list?.slice(0, 5).join(", ")}
-                {book.isbn_list?.length > 5 && " …"}
+                <strong>ISBN:</strong> {book.latest_isbn || "N/A"}
               </p>
+              {book.isbn_list?.length > 1 && (
+                <p className="other-isbns">
+                  <strong>Other ISBNs:</strong>{" "}
+                  {showAllIsbns
+                    ? book.isbn_list
+                        ?.filter((isbn) => isbn !== book.latest_isbn)
+                        .join(", ")
+                    : null}
+                  {/* Toggle button */}
+                  <button
+                    className="toggle-isbns"
+                    onClick={() => setShowAllIsbns(!showAllIsbns)}
+                  >
+                    {showAllIsbns ? "Show less" : "Show all"}
+                  </button>
+                </p>
+              )}
             </div>
 
             <div className="description-box">

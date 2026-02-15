@@ -89,11 +89,14 @@
 
 .meta-middle {
   margin-bottom: 12px;
+  gap: 10px;
+  line-height: 20px;
 }
 
 .meta-middle p {
   margin: 2px 0;
   font-size: 0.95rem;
+  gap: 10px;
 }
 
 /* DESCRIPTION BOX — matches your card style */
@@ -242,3 +245,12 @@
   }
 }
 
+.toggle-isbns {
+  margin-left: 8px;
+  background: none;
+  border: none;
+  color: #0077cc;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+}

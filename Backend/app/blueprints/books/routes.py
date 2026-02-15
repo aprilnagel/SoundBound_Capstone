@@ -81,13 +81,26 @@ def get_book_details(current_user, openlib_id):
     book = Books.query.filter_by(openlib_id=openlib_id).first()
 
     if book:
-        return jsonify(book_dump_schema.dump(book)), 200
+        response = book_dump_schema.dump(book)
+
+        # ⭐ NEW: attach the author-recommended playlist
+        from app.models import Playlists  # adjust import if needed
+
+        playlist = Playlists.query.filter_by(
+            book_id=book.id,
+            is_author_reco=True
+        ).first()
+
+        response["author_reco_playlist"] = playlist.to_dict() if playlist else None
+
+        return jsonify(response), 200
 
     # 2. If not in DB, fetch full metadata from Open Library
     ol_data = fetch_openlibrary_work(openlib_id)
     if not ol_data:
         return jsonify({"error": "Failed to fetch book from Open Library"}), 400
-    #3. book cover
+
+    # 3. book cover
     cover_id = None
     if "covers" in ol_data and isinstance(ol_data["covers"], list) and ol_data["covers"]:
         cover_id = ol_data["covers"][0]
@@ -95,12 +108,7 @@ def get_book_details(current_user, openlib_id):
     ol_data["cover_id"] = cover_id
     ol_data["openlib_id"] = openlib_id
 
-    
-
-    # ⭐ FIX: attach the ID so the frontend always has it
-    ol_data["openlib_id"] = openlib_id
-
-    # 3. Return the preview metadata (NOT inserted into DB)
+    # 4. Return preview metadata
     return jsonify(ol_data), 200
 
 

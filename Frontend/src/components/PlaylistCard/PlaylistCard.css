@@ -53,6 +53,7 @@
   font-weight: 600;
   display: flex;
   justify-content: center;
+  
   margin-top: 5px;
   margin-bottom: 0px;       
 }
@@ -69,3 +70,4 @@
   color: #444;
   margin: 0;
 }
+

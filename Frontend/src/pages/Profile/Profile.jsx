@@ -59,7 +59,9 @@ export default function Profile() {
 
       <div className="profile-card">
         <h1 className="profile-title">Account</h1>
-
+        
+        <hr className="soft-divider" /> 
+        
         {profileData ? (
           <div className="profile-grid">
             {/* LEFT COLUMN */}
@@ -94,7 +96,11 @@ export default function Profile() {
                   <>
                     <div className="info-row">
                       <span className="label">Author Keys:</span>
-                      <span className="value">{profileData.author_keys}</span>
+                      <span className="value">
+                        {Array.isArray(profileData.author_keys)
+                          ? profileData.author_keys.join(", ")
+                          : profileData.author_keys}
+                      </span>
                     </div>
 
                     <div className="info-row">
@@ -143,7 +149,11 @@ export default function Profile() {
               )}
 
               {profileData.role === "author" && (
-                <Link style={{ background: "#ffa18f" }} to="/application-history" className="apply-author-button">
+                <Link
+                  style={{ background: "#ffa18f" }}
+                  to="/application-history"
+                  className="apply-author-button"
+                >
                   My Applications
                 </Link>
               )}
