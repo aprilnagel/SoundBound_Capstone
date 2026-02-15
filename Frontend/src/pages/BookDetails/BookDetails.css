@@ -23,6 +23,15 @@
   grid-template-columns: 300px 1fr 300px; /* slimmer middle */
   gap: 32px;
   margin-top: 10px;
+  line-height: 1.4;
+  
+}
+.middle-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+  gap: 8px;
 }
 
 /* left column */
@@ -39,12 +48,7 @@
   border-radius: 12px;
 }
 
-/* SHARED COLUMN STYLE */
-.col {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
+
 
 /* LEFT COLUMN */
 .cover {
@@ -117,38 +121,81 @@
   margin-top: 10px;
 }
 
+
 /* RIGHT COLUMN */
-.playlist-title {
-  font-size: 1.3rem;
+.bd-playlist-title {
+  font-size: 30px;
   margin-bottom: 6px;
+  color: black;
+  text-align: center;
+}
+
+.right-col {
+  padding: 10px;
+  border-radius: 20px;
+  box-shadow: 0 6px 10px rgba(0,0,0,0.08);
+  background: #fafafa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
+  gap: 20px;
 }
 
 .playlist-box {
-  background: #fafafa;
-  border-radius: 14px;
-  padding: 16px;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  justify-content: center;
+  padding: 12px;
+  border-radius: 30px;
+  border: 3px solid #c0e4eb; 
+  background: linear-gradient(#ff66c47e, #ffc56f8a);
+  
+  color: #333;
+  width: 85%;
 }
 
-.song-item {
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-  font-size: 0.9rem;
+.bd-playlist-song {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 5px 0;
+  background-color: #fbfbfb95;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+  padding: 10px 20px 10px 20px;
+  border-radius: 30px;
+  color: #333;
 }
 
-.song-item:last-child {
-  border-bottom: none;
+
+.bd-song-artist {
+  font-size: 0.8rem;
+  color: #333;
+  margin-top: 2px;
+
+  white-space: nowrap;        /* keep everything on one line */
+  overflow: hidden;           /* hide overflow */
+  text-overflow: ellipsis;    /* add ... when too long */
+  display: block;             /* required for ellipsis */
+  max-width: 100%;            /* ensures truncation works */
 }
+
 
 .listen-btn {
   background: #52dbf4;
   color: white;
   border: none;
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 10px 14px 6px 14px;
+  border-radius: 30px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 25px;
   transition: 0.2s ease;
+  font-family: "Manjari", system-ui;
+  width: 80%;
+  align-items: center;
+  text-align: center;
+  justify-content: center;
 }
 
 .listen-btn:hover {

@@ -31,7 +31,7 @@ const BookDetails = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          }
+          },
         );
 
         const data = await res.json();
@@ -70,7 +70,7 @@ const BookDetails = () => {
           body: JSON.stringify({
             openlib_id: cleanId,
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -92,7 +92,7 @@ const BookDetails = () => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        }
+        },
       ).then((r) => r.json());
 
       setBook(refreshed);
@@ -115,10 +115,10 @@ const BookDetails = () => {
   const coverUrl = book.cover_id
     ? `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`
     : book.cover_url
-    ? book.cover_url
-    : book.cover_image
-    ? book.cover_image
-    : fallbackCover;
+      ? book.cover_url
+      : book.cover_image
+        ? book.cover_image
+        : fallbackCover;
 
   // ---------------------------------------------------------
   // PAGE RENDER
@@ -148,11 +148,7 @@ const BookDetails = () => {
         <div className="details-3col">
           {/* LEFT COLUMN */}
           <div className="col left-col">
-            <img
-              src={coverUrl}
-              alt={book.title}
-              className="cover"
-            />
+            <img src={coverUrl} alt={book.title} className="cover" />
 
             <button className="checkout-btn" onClick={handleCheckout}>
               Checkout Book
@@ -162,25 +158,24 @@ const BookDetails = () => {
           {/* MIDDLE COLUMN */}
           <div className="col middle-col">
             <h1 className="title">
-              {book.title}
-
               {book.author_reco_playlist && (
                 <BookmarkAddedIcon
                   sx={{
-                    fontSize: 34,
-                    color: "#4caf50",
-                    marginLeft: "10px",
+                    fontSize: 50,
+                    color: "#a1d63e",
+                    marginRight: "5px",
+                    marginBottom: "15px",
                   }}
                 />
               )}
+              {book.title}
             </h1>
 
             <p className="author">{book.author_names?.join(", ")}</p>
 
             <div className="meta-middle">
               <p>
-                <strong>Genre:</strong>{" "}
-                {book.subjects?.slice(0, 3).join(", ")}
+                <strong>Genre:</strong> {book.subjects?.slice(0, 3).join(", ")}
               </p>
               <p>
                 <strong>Publish Year:</strong>{" "}
@@ -199,7 +194,6 @@ const BookDetails = () => {
                         ?.filter((isbn) => isbn !== book.latest_isbn)
                         .join(", ")
                     : null}
-
                   <button
                     className="toggle-isbns"
                     onClick={() => setShowAllIsbns(!showAllIsbns)}
@@ -226,13 +220,24 @@ const BookDetails = () => {
           {/* RIGHT COLUMN — ONLY IF PLAYLIST EXISTS */}
           {book.author_reco_playlist && (
             <div className="col right-col">
-              <h2 className="playlist-title">Author Recommended Playlist</h2>
+              {/* ⭐ Playlist Title */}
+              <h2 className="bd-playlist-title">
+                {book.author_reco_playlist.title}
+              </h2>
 
               <div className="playlist-box">
-                {book.author_reco_playlist.songs.map((song, i) => (
-                  <p key={i} className="song-item">
-                    {song.title}
-                  </p>
+                {book.author_reco_playlist.songs.map((item, i) => (
+                  <div key={i} className="bd-playlist-song">
+                    {/* SONG TITLE */}
+                    <div className="song-title">{item.song.title}</div>
+
+                    {/* ARTISTS — ONE LINE, JOINED, ELLIPSIS APPLIED */}
+                    <div className="bd-song-artist">
+                      {(item.song.artist_names || item.song.artists || []).join(
+                        ", ",
+                      )}
+                    </div>
+                  </div>
                 ))}
               </div>
 

@@ -43,7 +43,7 @@ export default function Playlists() {
       <Navbar />
 
       <div className="playlists-container">
-        <h1 className="page-title">Your Playlists</h1>
+        <h1 className="page-title">My Playlists</h1>
 
         <div className="playlists-grid">
             {playlists.length === 0 && (

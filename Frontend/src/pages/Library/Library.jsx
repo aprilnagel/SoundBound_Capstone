@@ -86,7 +86,7 @@ const Library = () => {
       <Navbar />
 
       <div className="library-container">
-        <h1 className="library-title">Library</h1>
+        <h1 className="library-title">My Library</h1>
         
 
         <div className="library-grid">
