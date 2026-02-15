@@ -38,6 +38,7 @@ export default function Me() {
 
                 //save user data to context
                 login(token, data);
+                
 
                 //keep loading screen visible for .8 seconds to prevent flash of content
                 setTimeout(() => {

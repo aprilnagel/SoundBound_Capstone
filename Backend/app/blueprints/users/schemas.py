@@ -22,6 +22,7 @@ class UserSchema(ma.SQLAlchemyAutoSchema):
             "verification_requests",
             "authored_books",
         ) # Exclude relationships and sensitive fields in order to prevent circular references and data leaks.
+    author_keys = fields.List(fields.String())
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)

@@ -90,9 +90,9 @@ export default function CreatePlaylist() {
 
   // ----------- LOAD PLAYLIST (EDIT MODE) -------------- //
   useEffect(() => {
-    if (!isEditMode) return; // only run in edit mode
-    if (!playlistId) return; // safety check
-    if (!token) return; // wait for token
+    if (!isEditMode) return;
+    if (!playlistId) return;
+    if (!token) return;
 
     async function fetchPlaylist() {
       try {
@@ -110,7 +110,7 @@ export default function CreatePlaylist() {
         setDescription(data.description || "");
         setSongs(
           (data.playlist_songs || []).map((ps) => ({
-            id: ps.song.id, // use the real song id
+            id: ps.song.id,
             title: ps.song.title,
             artist: ps.song.artists,
             album: ps.song.album,
@@ -118,8 +118,24 @@ export default function CreatePlaylist() {
           })),
         );
 
-        setBook(data.books?.[0] || null);
+        // TEMPORARY book (lite version)
+        const liteBook = data.books?.[0] || null;
+        setBook(liteBook);
         setIsAuthorReco(data.is_author_reco);
+
+        // ⭐ FETCH FULL BOOK METADATA
+        if (liteBook?.openlib_id) {
+          const bookRes = await fetch(`${API_URL}/books/id/${liteBook.id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (bookRes.ok) {
+            const fullBook = await bookRes.json();
+            setBook(fullBook); // overwrite with full metadata
+            setSavedInLibrary(fullBook.in_user_library);
+            setSavedOwnedByAuthor(fullBook.is_owned_by_author);
+          }
+        }
 
         setLoading(false);
       } catch (err) {
@@ -317,11 +333,12 @@ export default function CreatePlaylist() {
   // ------------------ RENDER ------------------ //
   if (loading) return <div>Loading...</div>;
 
-  const isVerified =
-    !isCustomMode && (book?.in_user_library ?? savedInLibrary);
+  const isVerified = !isCustomMode && book?.source === "verified";
 
   const canAuthorReco =
-    !isCustomMode && (book?.is_owned_by_author ?? savedOwnedByAuthor);
+    !isCustomMode &&
+    book?.source === "verified" &&
+    book?.author_keys?.some((key) => user?.author_keys?.includes(key));
 
   return (
     <div className="create-playlist-page">
