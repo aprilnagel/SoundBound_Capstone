@@ -5,13 +5,10 @@ import "./BookDetails.css";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 import fallbackCover from "../../Photos/2.png";
 import { useLocation } from "react-router-dom";
-import { useContext } from "react";
-import { AuthContext } from "../../contexts/Auth";
 
 const BookDetails = () => {
   const { id } = useParams();
   const nav = useNavigate();
-  const { user, token } = useContext(AuthContext);
 
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,9 +18,6 @@ const BookDetails = () => {
   const location = useLocation();
   const passedYear = location.state?.publish_year;
   const [showAllIsbns, setShowAllIsbns] = useState(false);
-  const [popup, setPopup] = useState(null);
-  const alreadyInLibrary =
-    user?.library && book?.id && user.library.includes(book.id);
 
   // ---------------------------------------------------------
   // FETCH BOOK DETAILS
@@ -105,45 +99,6 @@ const BookDetails = () => {
     } catch (err) {
       setMessage("Network error adding book");
       setMessageType("error");
-    }
-  };
-
-  const handleListen = async () => {
-    try {
-      const res = await fetch(
-        "https://soundbound-capstone.onrender.com/playlists/listen",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            book_id: book.id,
-            playlist_id: book.author_reco_playlist.id,
-          }),
-        },
-      );
-
-      const data = await res.json();
-      console.log("LISTEN RESPONSE:", data);
-
-      if (!res.ok) {
-        setMessageType("error");
-        setMessage(data.error || "Unable to start playlist.");
-        return;
-      }
-
-      setMessageType("success");
-      setMessage("Playlist added to your library!");
-
-      setTimeout(() => {
-        nav(`/playlist-details/${data.user_playlist_id}`);
-      }, 1500);
-    } catch (err) {
-      setMessageType("error");
-      setMessage("Network error. Please try again.");
-      console.log("LISTEN ERROR:", err);
     }
   };
 
@@ -286,9 +241,7 @@ const BookDetails = () => {
                 ))}
               </div>
 
-              <button className="listen-btn" onClick={handleListen}>
-                Listen
-              </button>
+              <button className="listen-btn">Listen</button>
             </div>
           )}
         </div>

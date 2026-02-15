@@ -39,9 +39,7 @@ export default function BookCard({
             className="view-book-btn"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/book-details/${book.openlib_id}`, {
-                state: { publish_year: book.publish_year },
-              });
+              navigate(`/book-details/${book.openlib_id}`, { state: { publish_year: book.publish_year } });
             }}
           >
             View Book
@@ -54,17 +52,12 @@ export default function BookCard({
               className="create-playlist-btn"
               onClick={(e) => {
                 e.stopPropagation();
-
-                if (book.user_playlist_id) {
-                  navigate(`/playlists/${book.user_playlist_id}`);
-                } else {
-                  navigate(`/create-playlist?book_id=${book.id}`, {
-                    state: { book },
-                  });
-                }
+                navigate(`/create-playlist?book_id=${book.id}`, {
+                  state: { book },
+                });
               }}
             >
-              {book.user_playlist_id ? "view playlist" : "create playlist"}
+              create playlist
             </button>
 
             <button

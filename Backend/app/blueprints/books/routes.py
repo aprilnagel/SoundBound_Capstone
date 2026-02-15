@@ -198,7 +198,7 @@ def import_book(current_user):
     author_names = ol_data.get("author_names") or []
     author_keys = ol_data.get("author_keys") or []
     isbn_list = ol_data.get("isbn_list") or []
-    latest_isbn = ol_data.get("latest_isbn")   # ⭐ ADD THIS
+    
 
     # ---------------------------------------------------------
     # 5. CREATE NEW BOOK INSTANCE
@@ -218,7 +218,6 @@ def import_book(current_user):
         cover_url=ol_data.get("cover_url"),
         cover_id=ol_data.get("cover_id"),
         isbn_list=isbn_list,
-        latest_isbn=latest_isbn,  # ⭐ ADD THIS
         first_publish_year=year,
         openlib_id=openlib_id,
         api_source="openlibrary",
