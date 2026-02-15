@@ -5,7 +5,7 @@ from flask import Flask, app
 from flask_cors import CORS
 
 
-from .extensions import db, ma, cors
+from .extensions import db, ma
 from .blueprints.auth import auth_bp
 from .blueprints.books import books_bp
 from .blueprints.playlists import playlists_bp
@@ -17,10 +17,14 @@ from .blueprints.users import users_bp
 
 def create_app():
     app = Flask(__name__)
-    CORS(app, supports_credentials=True)
+    CORS(
+    app,
+        resources={r"/*": {"origins": "*"}},
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    )
     
-
-
     # Load config
     app.config.from_object("config.ProductionConfig") # Change to DevelopmentConfig or ProductionConfig as needed
     import os
