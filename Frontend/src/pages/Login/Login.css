@@ -31,6 +31,12 @@
     background-color: #f5f3f3;
 }
 
+.login-form input:focus {
+    outline: none;
+    border-color: #ed3b7b; /* purple from your Go to Login button */
+    box-shadow: 0 0 5px rgba(237, 59, 123, 0.5); /* subtle purple glow */
+}
+
 .login-actions {
     display: flex;
     gap: 20px;
