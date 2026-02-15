@@ -64,7 +64,8 @@ class PlaylistDumpSchema(Schema):
     book_ids = fields.Method("get_book_ids")
 
     def get_book_ids(self, obj):
-        return [pb.book_id for pb in obj.books]
+        return [book.id for book in obj.books]
+
 
     # minimal nested user
     user = fields.Nested(UserPublicSchema, only=("id", "username"))
