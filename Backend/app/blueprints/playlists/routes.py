@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import current_user
 from app.blueprints.playlists import playlists_bp
-from app.models import Books, Playlist_Songs, Playlists, Songs, Tags
+from app.models import Books, Playlist_Books, Playlist_Songs, Playlists, Songs, Tags
 from app.extensions import db
 
 from app.blueprints.playlists.schemas import (
@@ -370,32 +370,38 @@ def listen_action(current_user):
 
     user = current_user
 
-    # ------------------------------------------------------------
-    # 1. Add book to user's JSON library (if missing)
-    # ------------------------------------------------------------
+    # 1. Add book to user's JSON library
     if user.library is None:
         user.library = []
 
     if book_id not in user.library:
         user.library.append(book_id)
 
-    # ------------------------------------------------------------
-    # 2. Ensure user has ONE personal playlist for this book
-    # ------------------------------------------------------------
-    user_playlist = Playlists.query.filter_by(
-        user_id=user.id,
-        book_id=book_id,
-        is_author_reco=False
-    ).first()
+    # 2. Check if user already has a personal playlist for this book
+    user_playlist = (
+        Playlists.query
+        .filter_by(user_id=user.id, is_author_reco=False)
+        .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
+        .filter(Playlist_Books.book_id == book_id)
+        .first()
+    )
 
+    # 3. If not, create one
     if not user_playlist:
         user_playlist = Playlists(
             user_id=user.id,
-            book_id=book_id,
             title="My Playlist",
             is_author_reco=False
         )
         db.session.add(user_playlist)
+        db.session.flush()  # get playlist.id before inserting into junction table
+
+        # Add the book to the playlist via junction table
+        link = Playlist_Books(
+            playlist_id=user_playlist.id,
+            book_id=book_id
+        )
+        db.session.add(link)
 
     db.session.commit()
 
