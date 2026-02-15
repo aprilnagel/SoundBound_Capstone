@@ -14,7 +14,7 @@ const BookDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState(null);
-  const [messageType, setMessageType] = useState(null); // "success" or "error"
+  const [messageType, setMessageType] = useState(null);
   const location = useLocation();
   const passedYear = location.state?.publish_year;
   const [showAllIsbns, setShowAllIsbns] = useState(false);
@@ -26,12 +26,12 @@ const BookDetails = () => {
     const fetchBook = async () => {
       try {
         const res = await fetch(
-          `https://soundbound-capstone.onrender.com/books/${book?.openlib_id || id}`,
+          `https://soundbound-capstone.onrender.com/books/${id}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          },
+          }
         );
 
         const data = await res.json();
@@ -70,7 +70,7 @@ const BookDetails = () => {
           body: JSON.stringify({
             openlib_id: cleanId,
           }),
-        },
+        }
       );
 
       const data = await res.json();
@@ -92,7 +92,7 @@ const BookDetails = () => {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        },
+        }
       ).then((r) => r.json());
 
       setBook(refreshed);
@@ -110,15 +110,15 @@ const BookDetails = () => {
   if (!book) return <p>No book found.</p>;
 
   // ---------------------------------------------------------
-  // ⭐ FIXED COVER LOGIC — MATCHES BOOKCARD EXACTLY ⭐
+  // FIXED COVER LOGIC
   // ---------------------------------------------------------
   const coverUrl = book.cover_id
     ? `https://covers.openlibrary.org/b/id/${book.cover_id}-L.jpg`
     : book.cover_url
-      ? book.cover_url
-      : book.cover_image
-        ? book.cover_image
-        : fallbackCover;
+    ? book.cover_url
+    : book.cover_image
+    ? book.cover_image
+    : fallbackCover;
 
   // ---------------------------------------------------------
   // PAGE RENDER
@@ -127,7 +127,7 @@ const BookDetails = () => {
     <div className="book-details-page">
       <Navbar />
 
-      {/* NEW POPUP SYSTEM */}
+      {/* POPUP */}
       {message && (
         <div className="popup-overlay">
           <div className="popup-card">
@@ -149,7 +149,7 @@ const BookDetails = () => {
           {/* LEFT COLUMN */}
           <div className="col left-col">
             <img
-              src={coverUrl || book.cover_url || fallbackCover}
+              src={coverUrl}
               alt={book.title}
               className="cover"
             />
@@ -166,7 +166,7 @@ const BookDetails = () => {
 
               {book.author_reco_playlist && (
                 <BookmarkAddedIcon
-                  csx={{
+                  sx={{
                     fontSize: 34,
                     color: "#4caf50",
                     marginLeft: "10px",
@@ -179,7 +179,8 @@ const BookDetails = () => {
 
             <div className="meta-middle">
               <p>
-                <strong>Genre:</strong> {book.subjects?.slice(0, 3).join(", ")}
+                <strong>Genre:</strong>{" "}
+                {book.subjects?.slice(0, 3).join(", ")}
               </p>
               <p>
                 <strong>Publish Year:</strong>{" "}
@@ -189,6 +190,7 @@ const BookDetails = () => {
               <p>
                 <strong>ISBN:</strong> {book.latest_isbn || "N/A"}
               </p>
+
               {book.isbn_list?.length > 1 && (
                 <p className="other-isbns">
                   <strong>Other ISBNs:</strong>{" "}
@@ -197,7 +199,7 @@ const BookDetails = () => {
                         ?.filter((isbn) => isbn !== book.latest_isbn)
                         .join(", ")
                     : null}
-                  {/* Toggle button */}
+
                   <button
                     className="toggle-isbns"
                     onClick={() => setShowAllIsbns(!showAllIsbns)}

@@ -139,8 +139,6 @@ class Playlists(db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
     
     
-    
-    
 #------------RELATIONSHIPS-----------------
     # Books included in this playlist
     books = relationship(
@@ -163,6 +161,7 @@ class Playlists(db.Model):
         back_populates="playlist",
         cascade="all, delete-orphan",
         lazy="dynamic"
+        
     )
 
     user = relationship(
@@ -173,6 +172,18 @@ class Playlists(db.Model):
     @property
     def song_count(self):
         return self.playlist_songs.count()
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "is_public": self.is_public,
+            "is_author_reco": self.is_author_reco,
+            "song_count": self.song_count,
+            "songs": [ps.to_dict() for ps in self.playlist_songs.all()],
+        }
+
 
     
 #_____________SONGS_____________________
@@ -189,6 +200,19 @@ class Songs(db.Model):
     audio_features = db.Column(db.JSON, nullable=True)
     genres = db.Column(db.JSON, nullable=True)
     source = db.Column(db.String(250), nullable=False, default="Spotify")
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "artists": self.artists,
+            "album": self.album,
+            "genres": self.genres,
+            "spotify_id": self.spotify_id,
+            "preview_url": self.preview_url,
+            "source": self.source,
+        }
+
 
     playlist_songs = relationship(
             "Playlist_Songs",
@@ -222,15 +246,23 @@ class Tags(db.Model):
 #_____________ASSOCIATION TABLES_____________________
     
 class Playlist_Songs(db.Model):
-    __tablename__ = 'playlist_songs'
+    __tablename__ = "playlist_songs"
 
     id = db.Column(db.Integer, primary_key=True)
-    playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id'), nullable=False)
-    song_id = db.Column(db.Integer, db.ForeignKey('songs.id'), nullable=False)
+    playlist_id = db.Column(db.Integer, db.ForeignKey('playlists.id'))
+    song_id = db.Column(db.Integer, db.ForeignKey('songs.id'))
     order_index = db.Column(db.Integer, nullable=True)
 
     playlist = relationship("Playlists", back_populates="playlist_songs")
     song = relationship("Songs", back_populates="playlist_songs")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "order_index": self.order_index,
+            "song": self.song.to_dict(),
+        }
+
 
     
 #_____________JUNCTION TABLES_____________________
