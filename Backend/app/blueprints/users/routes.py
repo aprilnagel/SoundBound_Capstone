@@ -11,6 +11,7 @@ from app.extensions import limiter
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.blueprints.books.schemas import book_dump_schema
 from app.blueprints.playlists.schemas import playlist_dump_schema
+from flask_cors import cross_origin
 
 
 #________________USER PROFILE ROUTES________________#
@@ -144,6 +145,7 @@ def remove_book_from_library(current_user):
 # ✅------------------3. Get user's library------------------#
 @users_bp.route('/me/library', methods=['GET'])
 @token_required
+@cross_origin(supports_credentials=True)
 def get_user_library(current_user):
     """Retrieve the authenticated user's library with full book objects."""
 
