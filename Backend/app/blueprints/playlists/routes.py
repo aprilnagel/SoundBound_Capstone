@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt_extended import current_user
 from app.blueprints.playlists import playlists_bp
 from app.models import Books, Playlist_Songs, Playlists, Songs, Tags
 from app.extensions import db
@@ -355,3 +356,50 @@ def remove_tag_from_playlist(current_user, playlist_id, tag_id):
     db.session.commit()
 
     return jsonify(playlist_detail_schema.dump(playlist)), 200
+
+#---------------------LISTEN ACTION (ADD TO LIBRARY + CREATE PERSONAL PLAYLIST)_____________________#
+@playlists_bp.route("/listen", methods=["POST"])
+@token_required
+def listen_action():
+    data = request.get_json()
+    book_id = data.get("book_id")
+    playlist_id = data.get("playlist_id")  # author playlist id
+
+    if not book_id or not playlist_id:
+        return {"error": "Missing book_id or playlist_id"}, 400
+
+    user = current_user
+
+    # ------------------------------------------------------------
+    # 1. Add book to user's JSON library (if missing)
+    # ------------------------------------------------------------
+    if user.library is None:
+        user.library = []
+
+    if book_id not in user.library:
+        user.library.append(book_id)
+
+    # ------------------------------------------------------------
+    # 2. Ensure user has ONE personal playlist for this book
+    # ------------------------------------------------------------
+    user_playlist = Playlists.query.filter_by(
+        user_id=user.id,
+        book_id=book_id,
+        is_author_reco=False
+    ).first()
+
+    if not user_playlist:
+        user_playlist = Playlists(
+            user_id=user.id,
+            book_id=book_id,
+            title="My Playlist",
+            is_author_reco=False
+        )
+        db.session.add(user_playlist)
+
+    db.session.commit()
+
+    return {
+        "user_playlist_id": user_playlist.id,
+        "author_playlist_id": playlist_id
+    }, 200
