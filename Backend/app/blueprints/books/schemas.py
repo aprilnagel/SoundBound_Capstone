@@ -24,5 +24,7 @@ class BookLiteSchema(Schema):
     id = fields.Int()
     title = fields.Str()
     cover_url = fields.Str()
+    source = fields.Str()  # "verified" or "custom"
+    author_keys = fields.List(fields.Str())  # Needed to determine if author-reco is possible
     
 book_lite_schema = BookLiteSchema()
