@@ -83,19 +83,18 @@ def get_book_details(current_user, openlib_id):
     if book:
         response = book_dump_schema.dump(book)
 
-        # ⭐ NEW: attach the author-recommended playlist
-        from app.models import Playlists  # adjust import if needed
+        # ⭐ Attach the author-recommended playlist
+        from app.models import Playlists, Books
 
         playlist = (
             Playlists.query
-            .join(Playlists.books)
+            .join(Playlists.books)              # join through the junction table
             .filter(
-                Books.id == book.id,
+                Books.id == book.id,            # match this book
                 Playlists.is_author_reco == True
             )
             .first()
-)
-
+        )
 
         response["author_reco_playlist"] = playlist.to_dict() if playlist else None
 
