@@ -73,7 +73,6 @@ class PlaylistDumpSchema(Schema):
     song_count = fields.Int()
 
 
-
 playlist_dump_schema = PlaylistDumpSchema()
 playlists_dump_schema = PlaylistDumpSchema(many=True)
 

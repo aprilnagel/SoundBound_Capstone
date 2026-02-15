@@ -10,6 +10,7 @@ from marshmallow import ValidationError
 from app.extensions import limiter
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.blueprints.books.schemas import book_dump_schema
+from app.blueprints.playlists.schemas import playlist_dump_schema
 
 
 #________________USER PROFILE ROUTES________________#
@@ -203,8 +204,9 @@ def get_user_library(current_user):
         )
 
         book_dict["author_reco_playlist"] = (
-            author_reco.to_dict() if author_reco else None
-        )
+            playlist_dump_schema.dump(author_reco) if author_reco else None
+)
+
 
         serialized.append(book_dict)
 
