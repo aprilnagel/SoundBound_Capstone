@@ -2,15 +2,20 @@ import Navbar from "../../components/Navbar/Navbar";
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import "./CreatePlaylist.css";
+import { useContext } from "react";
+import { AuthContext } from "../../contexts/Auth";
+
 
 const API_URL = "https://soundbound-capstone.onrender.com";
 
 export default function CreatePlaylist() {
+  const { user, loading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = localStorage.getItem("token");
-  // ------------------ USER ROLE ------------------ //
-  const user = JSON.parse(localStorage.getItem("user"));
+
+  
+
   const currentUserRole = user?.role;
 
   // ------------------ MODE ------------------ //
@@ -24,7 +29,7 @@ export default function CreatePlaylist() {
   const [saving, setSaving] = useState(false);
 
   // ------------------ STATE ------------------ //
-  const [loading, setLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
   const [book, setBook] = useState(null);
 
   const [title, setTitle] = useState("");
@@ -66,7 +71,7 @@ export default function CreatePlaylist() {
       setBook(data);
       setSavedInLibrary(data.in_user_library);
       setSavedOwnedByAuthor(data.is_owned_by_author);
-      setLoading(false);
+      setPageLoading(false);
     } catch (err) {
       console.error("Failed to load book:", err);
       navigate("/library");
@@ -84,7 +89,7 @@ export default function CreatePlaylist() {
   // ------------------ CUSTOM MODE: STOP LOADING ------------------ //
   useEffect(() => {
     if (isCustomMode) {
-      setLoading(false);
+      setPageLoading(false);
     }
   }, [isCustomMode]);
 
@@ -104,6 +109,7 @@ export default function CreatePlaylist() {
 
         const data = await res.json();
         console.log("PLAYLIST DATA:", data);
+        
 
         // Prefill fields
         setTitle(data.title || "");
@@ -137,10 +143,10 @@ export default function CreatePlaylist() {
           }
         }
 
-        setLoading(false);
+        setPageLoading(false);
       } catch (err) {
         console.error("Failed to load playlist for editing:", err);
-        setLoading(false);
+        setPageLoading(false);
       }
     }
 
@@ -331,7 +337,10 @@ export default function CreatePlaylist() {
     });
 
   // ------------------ RENDER ------------------ //
-  if (loading) return <div>Loading...</div>;
+  if (loading) return <div>Loading...</div>; // from AuthContext
+if (pageLoading) return <div>Loading book...</div>; // your component
+
+
 
   const isVerified = !isCustomMode && book?.source === "verified";
 
