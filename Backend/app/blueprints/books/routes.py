@@ -86,13 +86,15 @@ def get_book_details(current_user, openlib_id):
 
         playlist = (
             Playlists.query
-            .join(Playlists.books)              # join through the junction table
+            .join(Playlists.books)
             .filter(
-                Books.id == book.id,            # match this book
-                Playlists.is_author_reco == True
+                Books.id == book.id,
+                Playlists.is_author_reco == True,
+                Playlists.owner_id == book.author_id   # ⭐ required
             )
             .first()
         )
+
 
         response["author_reco_playlist"] = playlist.to_dict() if playlist else None
 

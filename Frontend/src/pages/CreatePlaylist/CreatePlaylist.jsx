@@ -39,6 +39,8 @@ export default function CreatePlaylist() {
   const [songs, setSongs] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const isCustomMode = !bookId && !isEditMode;
+  const [savedInLibrary, setSavedInLibrary] = useState(null);
+  const [savedOwnedByAuthor, setSavedOwnedByAuthor] = useState(null);
 
   //------------SEARCHES-----------------//
   const [searchTitle, setSearchTitle] = useState("");
@@ -62,6 +64,8 @@ export default function CreatePlaylist() {
 
       const data = await res.json();
       setBook(data);
+      setSavedInLibrary(data.in_user_library);
+      setSavedOwnedByAuthor(data.is_owned_by_author);
       setLoading(false);
     } catch (err) {
       console.error("Failed to load book:", err);
@@ -115,6 +119,7 @@ export default function CreatePlaylist() {
         );
 
         setBook(data.books?.[0] || null);
+        setIsAuthorReco(data.is_author_reco);
 
         setLoading(false);
       } catch (err) {
@@ -312,8 +317,11 @@ export default function CreatePlaylist() {
   // ------------------ RENDER ------------------ //
   if (loading) return <div>Loading...</div>;
 
-  const isVerified = !isCustomMode && book?.in_user_library;
-  const canAuthorReco = !isCustomMode && book?.is_owned_by_author;
+  const isVerified =
+    !isCustomMode && (book?.in_user_library ?? savedInLibrary);
+
+  const canAuthorReco =
+    !isCustomMode && (book?.is_owned_by_author ?? savedOwnedByAuthor);
 
   return (
     <div className="create-playlist-page">

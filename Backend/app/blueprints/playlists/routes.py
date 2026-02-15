@@ -303,10 +303,14 @@ def delete_playlist(current_user, playlist_id):
     if playlist.user_id != current_user.id:
         return jsonify({"error": "You do not have permission to delete this playlist."}), 403
 
+    # ⭐ REQUIRED: remove stale join-table rows
+    Playlist_Books.query.filter_by(playlist_id=playlist.id).delete()
+
     db.session.delete(playlist)
     db.session.commit()
 
     return jsonify({"message": "Playlist deleted successfully."}), 200
+
 
 
 #_____________________ADD TAG TO PLAYLIST_____________________#
