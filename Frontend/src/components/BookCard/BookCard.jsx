@@ -15,12 +15,11 @@ export default function BookCard({
 
   const coverUrl = book.cover_id
     ? `https://covers.openlibrary.org/b/id/${book.cover_id}-M.jpg`
-    : fallbackCover;
+    : book.cover_url || fallbackCover;
 
   return (
     <div
       className={`book-card ${showLibraryActions ? "in-library" : ""}`}
-
       onClick={() => navigate(`/book-details/${book.openlib_id}`)}
     >
       <div className="book-cover">
@@ -55,7 +54,6 @@ export default function BookCard({
         {/* LIBRARY ACTIONS */}
         {showLibraryActions && (
           <div className="library-actions">
-
             {/* CREATE PERSONAL PLAYLIST */}
             {!book.user_playlist_id && (
               <button
@@ -93,7 +91,7 @@ export default function BookCard({
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(
-                        `/playlist-details/${book.author_reco_playlist.id}`
+                        `/playlist-details/${book.author_reco_playlist.id}`,
                       );
                     }}
                   >
@@ -109,7 +107,7 @@ export default function BookCard({
                       });
                     }}
                   >
-                    create author  playlist
+                    create author playlist
                   </button>
                 )}
               </>

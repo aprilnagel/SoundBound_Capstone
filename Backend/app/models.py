@@ -103,8 +103,19 @@ class Books(db.Model):
     first_publish_year = db.Column(db.Integer, nullable=True)
     subjects = db.Column(db.JSON, nullable=True)
     source = db.Column(db.String, default="verified")
+    author_reco_playlist_id = db.Column(db.Integer, db.ForeignKey("playlists.id"), nullable=True)
+
     
 #------------RELATIONSHIPS-----------------
+
+    author_reco_playlist = relationship(
+        "Playlists",
+        backref="author_reco_book",
+        foreign_keys=[author_reco_playlist_id],
+        uselist=False
+)
+
+
     # Multi-author support
     authors = relationship(
         "Users",

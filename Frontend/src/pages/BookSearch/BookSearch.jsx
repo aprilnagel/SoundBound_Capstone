@@ -125,7 +125,6 @@ const BookSearch = () => {
     localStorage.removeItem("bookSearchMode");
   };
 
-  // ⭐ NEW: AUTHOR RECO SEARCH
   const handleAuthorRecoSearch = async () => {
     setSearchMode("author-reco");
 
@@ -145,12 +144,13 @@ const BookSearch = () => {
 
     const data = await res.json();
 
-    // ⭐ Normalize DB books to match OpenLibrary-shaped results
-    const normalized = (Array.isArray(data) ? data : []).map((book) => ({
+    // ⭐ Normalize DB books to match OpenLibrary search shape
+    const normalized = data.map((book) => ({
       ...book,
-      // BookCard + sorting expect these:
       authors: book.authors || book.author_names || [],
       publish_year: book.publish_year || book.first_publish_year || null,
+      cover_id: book.cover_id || null,
+      cover_url: book.cover_url || null,
     }));
 
     setResults(normalized);
