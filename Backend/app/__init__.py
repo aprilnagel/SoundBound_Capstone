@@ -19,11 +19,12 @@ def create_app():
     app = Flask(__name__)
     CORS(
     app,
-        resources={r"/*": {"origins": "*"}},
-        supports_credentials=True,
-        allow_headers=["Content-Type", "Authorization", "Accept"],
-        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    )
+    resources={r"/*": {"origins": "https://soundbound-capstone.onrender.com"}},
+    supports_credentials=True,
+    allow_headers=["Content-Type", "Authorization", "Accept"],
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+)
+
     
     # Load config
     app.config.from_object("config.ProductionConfig") # Change to DevelopmentConfig or ProductionConfig as needed
