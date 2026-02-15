@@ -3,7 +3,7 @@ import requests
 from app.blueprints.books.schemas import book_dump_schema
 from app.utility.auth import token_required
 from . import books_bp
-from app.models import Books, Users
+from app.models import Books, Playlists, Users
 from app.extensions import db
 from sqlalchemy import func
 from app.utility.openlibrary import fetch_openlibrary_work
@@ -83,8 +83,7 @@ def get_book_details(current_user, openlib_id):
     if book:
         response = book_dump_schema.dump(book)
 
-        # ⭐ Attach the author-recommended playlist
-        from app.models import Playlists, Books
+        
 
         playlist = (
             Playlists.query
