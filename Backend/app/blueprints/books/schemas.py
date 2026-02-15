@@ -17,6 +17,9 @@ class BookDumpSchema(Schema):
     source = fields.Str()            # optional but recommended
     author_reco_playlist = fields.Raw()  # ⭐ Needed for your right column
 
+    in_user_library = fields.Boolean()
+    is_owned_by_author = fields.Boolean()
+
 
 book_dump_schema = BookDumpSchema()
 
