@@ -15,7 +15,8 @@ class BookDumpSchema(Schema):
     api_source = fields.Str()        # optional but recommended
     api_id = fields.Str()            # optional but recommended
     source = fields.Str()            # optional but recommended
-    author_reco_playlist = fields.Raw()  # ⭐ Needed for your right column
+    author_reco_playlist = fields.Nested("PlaylistDumpSchema", allow_none=True)
+
 
     in_user_library = fields.Boolean()
     is_owned_by_author = fields.Boolean()

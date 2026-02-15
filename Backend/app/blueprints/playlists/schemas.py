@@ -60,14 +60,17 @@ class PlaylistDumpSchema(Schema):
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
 
-    # verified or author-reco playlists
-    books = fields.Nested(BookLiteSchema, many=True)
+    # ⭐ Avoid circular reference
+    book_ids = fields.Method("get_book_ids")
 
+    def get_book_ids(self, obj):
+        return [pb.book_id for pb in obj.books]
 
     # minimal nested user
     user = fields.Nested(UserPublicSchema, only=("id", "username"))
-    
+
     song_count = fields.Int()
+
 
 
 playlist_dump_schema = PlaylistDumpSchema()
