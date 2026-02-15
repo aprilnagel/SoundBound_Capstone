@@ -45,6 +45,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
   
 }
 
@@ -78,7 +79,7 @@
 .view-book-btn {
   border: none;
   height: 30px;
-  width: 120px;
+  width: 100%;
   border-radius: 30px;
   background: #ff4d6d;
   color: white;
@@ -95,20 +96,55 @@
   cursor: pointer;
 }
 
+.view-author-reco-btn {
+  border: none;
+  height: 30px;
+  width: 100%;
+  border-radius: 30px;
+  background: #a1d63e;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  font-family: "Manjari", system-ui;
+  padding: 6px 20px 2px 20px;
+  font-size: 16px;
+}
+.view-author-reco-btn:hover {
+  opacity: 0.85;
+  transform: translateY(-4px);
+}
+
+.view-playlist-btn {
+  border: none;
+  height: 30px;
+  width: 100%;
+  border-radius: 30px;
+  background: #55dec5;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  font-family: "Manjari", system-ui;
+  padding: 6px 20px 2px 20px;
+  font-size: 16px;
+}
 .library-actions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+  justify-content: center;
+  width: 70%;
   gap: 12px;
 }
 .library-actions button {
-  width: 150px;
+  width: 100%;
 }
 
 .create-playlist-btn {
   border: none;
-  
+  height: 30px;
+  width: 100%;
   border-radius: 30px;
   background: #55dec5;
   color: white;

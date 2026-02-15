@@ -140,7 +140,7 @@ def remove_book_from_library(current_user):
 
 
 
-#✅------------------3. Get user's library------------------#
+# ✅------------------3. Get user's library------------------#
 @users_bp.route('/me/library', methods=['GET'])
 @token_required
 def get_user_library(current_user):
@@ -151,24 +151,31 @@ def get_user_library(current_user):
         current_user.library = []
         db.session.commit()
 
-    # ⭐ PRINT USER LIBRARY
     print("USER LIBRARY:", current_user.library)
 
     # Fetch full book objects
     books = Books.query.filter(Books.id.in_(current_user.library)).all()
-
-    # ⭐ PRINT BOOKS LOADED FROM DB
     print("BOOKS FROM DB:", [b.id for b in books])
 
     serialized = []
-    for book in books:
 
-        # ⭐ PRINT EACH BOOK BEING CHECKED
+    for book in books:
         print("CHECKING BOOK:", book.id)
 
+        # Base book data
         book_dict = book_dump_schema.dump(book)
 
-        # Add user's personal playlist for this book
+        # ⭐ Include fields needed for author-reco logic
+        book_dict["source"] = book.source
+        book_dict["author_keys"] = book.author_keys
+
+        # ⭐ Determine if current user is an author of this book
+        book_dict["can_author_reco"] = (
+            book.source == "verified"
+            and any(key in current_user.author_keys for key in book.author_keys)
+        )
+
+        # ⭐ PERSONAL PLAYLIST
         user_playlist = (
             Playlists.query
             .filter(
@@ -180,11 +187,10 @@ def get_user_library(current_user):
             .first()
         )
 
-        # ⭐ PRINT PLAYLIST FOUND (OR NOT)
-        print("FOUND PLAYLIST:", user_playlist.id if user_playlist else None)
-
+        print("FOUND PERSONAL PLAYLIST:", user_playlist.id if user_playlist else None)
         book_dict["user_playlist_id"] = user_playlist.id if user_playlist else None
-        
+
+        # ⭐ AUTHOR RECO PLAYLIST
         author_reco = (
             Playlists.query
             .filter(
@@ -195,13 +201,14 @@ def get_user_library(current_user):
             .filter(Playlist_Books.book_id == book.id)
             .first()
         )
-        book_dict["author_reco_playlist"] = author_reco.to_dict() if author_reco else None
 
+        book_dict["author_reco_playlist"] = (
+            author_reco.to_dict() if author_reco else None
+        )
 
         serialized.append(book_dict)
 
     return jsonify({'library': serialized}), 200
-
 
 
 

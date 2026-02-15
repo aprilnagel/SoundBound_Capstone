@@ -4,17 +4,17 @@ import Navbar from "../../components/Navbar/Navbar";
 import BookCard from "../../components/BookCard/BookCard";
 import "./Library.css";
 
-const Library = () => {
+export default function Library() {
   const [library, setLibrary] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
   // ---------------------------------------------------------
   // FETCH USER LIBRARY
   // ---------------------------------------------------------
   useEffect(() => {
-    const fetchLibrary = async () => {
+    async function fetchLibrary() {
       try {
         const res = await fetch(
           "https://soundbound-capstone.onrender.com/users/me/library",
@@ -22,7 +22,7 @@ const Library = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
             },
-          },
+          }
         );
 
         const data = await res.json();
@@ -38,7 +38,7 @@ const Library = () => {
       } finally {
         setLoading(false);
       }
-    };
+    }
 
     fetchLibrary();
   }, []);
@@ -46,7 +46,7 @@ const Library = () => {
   // ---------------------------------------------------------
   // REMOVE BOOK FROM LIBRARY
   // ---------------------------------------------------------
-  const handleReturnBook = async (book) => {
+  async function handleReturnBook(book) {
     try {
       const res = await fetch(
         "https://soundbound-capstone.onrender.com/users/me/library",
@@ -57,7 +57,7 @@ const Library = () => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({ book_id: book.id }),
-        },
+        }
       );
 
       const data = await res.json();
@@ -68,12 +68,12 @@ const Library = () => {
         return;
       }
 
-      // Update UI
+      // Update UI instantly
       setLibrary((prev) => prev.filter((b) => b.id !== book.id));
     } catch (err) {
       alert("Network error removing book");
     }
-  };
+  }
 
   // ---------------------------------------------------------
   // RENDER STATES
@@ -87,7 +87,6 @@ const Library = () => {
 
       <div className="library-container">
         <h1 className="library-title">My Library</h1>
-        
 
         <div className="library-grid">
           {library.length === 0 && (
@@ -99,7 +98,11 @@ const Library = () => {
               key={book.id}
               book={book}
               showLibraryActions={true}
-              onCreatePlaylist={() => navigate(`/create-playlist?book_id=${book.id}`, { state: { book } })}
+              onCreatePlaylist={() =>
+                navigate(`/create-playlist?book_id=${book.id}`, {
+                  state: { book },
+                })
+              }
               onReturnBook={() => handleReturnBook(book)}
             />
           ))}
@@ -107,6 +110,4 @@ const Library = () => {
       </div>
     </div>
   );
-};
-
-export default Library;
+}

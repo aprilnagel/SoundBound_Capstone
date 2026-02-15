@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function BookCard({
   book,
-  onView,
+  canAuthorReco,          // ⭐ now passed in from Library.jsx
   showLibraryActions = false,
   onCreatePlaylist,
   onReturnBook,
@@ -51,7 +51,7 @@ export default function BookCard({
         {showLibraryActions && (
           <div className="library-actions">
 
-            {/* CREATE PLAYLIST (only if no personal playlist) */}
+            {/* CREATE PERSONAL PLAYLIST */}
             {!book.user_playlist_id && (
               <button
                 className="create-playlist-btn"
@@ -72,24 +72,42 @@ export default function BookCard({
                 className="view-playlist-btn"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/playlists/${book.user_playlist_id}`);
+                  navigate(`/playlist-details/${book.user_playlist_id}`);
                 }}
               >
                 view playlist
               </button>
             )}
 
-            {/* ⭐ VIEW AUTHOR RECO PLAYLIST (new button) */}
-            {book.author_reco_playlist && (
-              <button
-                className="view-author-reco-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/playlists/${book.author_reco_playlist.id}`);
-                }}
-              >
-                view author reco
-              </button>
+            {/* ⭐ AUTHOR RECO LOGIC */}
+            {canAuthorReco && (
+              <>
+                {book.author_reco_playlist?.id ? (
+                  <button
+                    className="view-author-reco-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(
+                        `/playlist-details/${book.author_reco_playlist.id}`
+                      );
+                    }}
+                  >
+                    view author reco
+                  </button>
+                ) : (
+                  <button
+                    className="create-playlist-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/create-playlist?book_id=${book.id}`, {
+                        state: { book },
+                      });
+                    }}
+                  >
+                    create author reco playlist
+                  </button>
+                )}
+              </>
             )}
 
             {/* RETURN BOOK */}
