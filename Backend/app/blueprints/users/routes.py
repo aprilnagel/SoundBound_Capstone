@@ -184,6 +184,19 @@ def get_user_library(current_user):
         print("FOUND PLAYLIST:", user_playlist.id if user_playlist else None)
 
         book_dict["user_playlist_id"] = user_playlist.id if user_playlist else None
+        
+        author_reco = (
+            Playlists.query
+            .filter(
+                Playlists.user_id == current_user.id,
+                Playlists.is_author_reco == True
+            )
+            .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
+            .filter(Playlist_Books.book_id == book.id)
+            .first()
+        )
+        book_dict["author_reco_playlist"] = author_reco.to_dict() if author_reco else None
+
 
         serialized.append(book_dict)
 

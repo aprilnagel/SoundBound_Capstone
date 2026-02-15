@@ -50,21 +50,49 @@ export default function BookCard({
 
         {showLibraryActions && (
           <div className="library-actions">
-            <button
-              className="create-playlist-btn"
-              onClick={(e) => {
-                e.stopPropagation();
 
-                // ⭐ ONLY LIBRARY BOOKS HAVE A REAL DB ID
-                // This prevents CreatePlaylist from receiving an OpenLibrary ID
-                navigate(`/create-playlist?book_id=${book.id}`, {
-                  state: { book },
-                });
-              }}
-            >
-              create playlist
-            </button>
+            {/* CREATE PLAYLIST (only if no personal playlist) */}
+            {!book.user_playlist_id && (
+              <button
+                className="create-playlist-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/create-playlist?book_id=${book.id}`, {
+                    state: { book },
+                  });
+                }}
+              >
+                create playlist
+              </button>
+            )}
 
+            {/* VIEW PERSONAL PLAYLIST */}
+            {book.user_playlist_id && (
+              <button
+                className="view-playlist-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/playlists/${book.user_playlist_id}`);
+                }}
+              >
+                view playlist
+              </button>
+            )}
+
+            {/* ⭐ VIEW AUTHOR RECO PLAYLIST (new button) */}
+            {book.author_reco_playlist && (
+              <button
+                className="view-author-reco-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/playlists/${book.author_reco_playlist.id}`);
+                }}
+              >
+                view author reco
+              </button>
+            )}
+
+            {/* RETURN BOOK */}
             <button
               className="return-book-btn"
               onClick={(e) => {

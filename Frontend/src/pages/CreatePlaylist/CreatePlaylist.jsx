@@ -58,7 +58,7 @@ export default function CreatePlaylist() {
   // ------------------ LOAD BOOK ------------------ //
   async function loadBook() {
     try {
-      const res = await fetch(`${API_URL}/books/${bookId}`, {
+      const res = await fetch(`${API_URL}/books/id/${bookId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
