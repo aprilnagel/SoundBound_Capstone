@@ -62,6 +62,8 @@ class PlaylistDumpSchema(Schema):
 
     # ⭐ Avoid circular reference
     book_ids = fields.Method("get_book_ids")
+    
+    books = fields.Nested(BookLiteSchema, many=True)
 
     def get_book_ids(self, obj):
         return [book.id for book in obj.books]
