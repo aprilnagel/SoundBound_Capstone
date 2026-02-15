@@ -144,23 +144,31 @@ def remove_book_from_library(current_user):
 @users_bp.route('/me/library', methods=['GET'])
 @token_required
 def get_user_library(current_user):
-    """
-    Retrieve the authenticated user's library with full book objects.
-    """
+    """Retrieve the authenticated user's library with full book objects."""
 
     # Ensure library exists
     if current_user.library is None:
         current_user.library = []
         db.session.commit()
 
+    # ⭐ PRINT USER LIBRARY
+    print("USER LIBRARY:", current_user.library)
+
     # Fetch full book objects
     books = Books.query.filter(Books.id.in_(current_user.library)).all()
 
+    # ⭐ PRINT BOOKS LOADED FROM DB
+    print("BOOKS FROM DB:", [b.id for b in books])
+
     serialized = []
     for book in books:
+
+        # ⭐ PRINT EACH BOOK BEING CHECKED
+        print("CHECKING BOOK:", book.id)
+
         book_dict = book_dump_schema.dump(book)
 
-        # ⭐ Add user's personal playlist for this book
+        # Add user's personal playlist for this book
         user_playlist = (
             Playlists.query
             .filter(
@@ -172,11 +180,15 @@ def get_user_library(current_user):
             .first()
         )
 
+        # ⭐ PRINT PLAYLIST FOUND (OR NOT)
+        print("FOUND PLAYLIST:", user_playlist.id if user_playlist else None)
+
         book_dict["user_playlist_id"] = user_playlist.id if user_playlist else None
 
         serialized.append(book_dict)
 
     return jsonify({'library': serialized}), 200
+
 
 
 
