@@ -1,13 +1,16 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import "./BookDetails.css";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 import fallbackCover from "../../Photos/2.png";
 import { useLocation } from "react-router-dom";
 
+import { AuthContext } from "../../contexts/Auth";
+
 const BookDetails = () => {
   const { id } = useParams();
+  const { token } = useContext(AuthContext);
   const nav = useNavigate();
 
   const [book, setBook] = useState(null);
@@ -25,13 +28,15 @@ const BookDetails = () => {
   // FETCH BOOK DETAILS
   // ---------------------------------------------------------
   useEffect(() => {
+    if (!token) return; // wait until AuthContext provides the token
+
     const fetchBook = async () => {
       try {
         const res = await fetch(
           `https://soundbound-capstone.onrender.com/books/${id}`,
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`,
             },
           },
         );
@@ -45,7 +50,6 @@ const BookDetails = () => {
           setBook(data);
           setSavedIsbn(data.latest_isbn || passedIsbn || null);
         }
-        
       } catch (err) {
         setError("Network error fetching book");
       } finally {
@@ -54,7 +58,7 @@ const BookDetails = () => {
     };
 
     fetchBook();
-  }, [id]);
+  }, [id, token]); // token is now defined
 
   // ---------------------------------------------------------
   // ADD BOOK TO USER LIBRARY
@@ -184,11 +188,11 @@ const BookDetails = () => {
               <p>
                 <strong>Publish Year:</strong>{" "}
                 {passedYear || book.first_publish_year || "Unknown"}
-                
               </p>
 
               <p>
-                <strong>ISBN:</strong> {savedIsbn || (book.isbn_list ? book.isbn_list[0] : "N/A")}
+                <strong>ISBN:</strong>{" "}
+                {savedIsbn || (book.isbn_list ? book.isbn_list[0] : "N/A")}
               </p>
 
               {book.isbn_list?.length > 1 && (
