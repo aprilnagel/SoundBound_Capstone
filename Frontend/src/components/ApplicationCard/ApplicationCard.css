@@ -27,8 +27,8 @@
 /* Hover lift */
 .application-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 14px rgba(0,0,0,0.10);
-  border: 2px solid #ff66c4;
+  border-color: #ed3b7b;
+  box-shadow: 0 0px 5px rgba(237, 59, 123, 0.5);
   cursor: pointer;
 }
 

@@ -45,9 +45,13 @@ export default function AdminDash() {
       <Navbar />
 
       <div className="admin-dash-container">
+        <h1 className="dash-admin">
+        Admin</h1>
+        <div className="library-title-underline"></div>
         <h1 className="admin-dash-title">
           Welcome, {user?.name || "Admin"}!
         </h1>
+        
 
         <p className="admin-dash-subtitle">
           Manage author applications and oversee the platform's content.

@@ -60,7 +60,7 @@ export default function Profile() {
       <div className="profile-card">
         <h1 className="profile-title">Account</h1>
         
-        <hr className="soft-divider" /> 
+        <div className="library-title-underline"></div> 
         
         {profileData ? (
           <div className="profile-grid">

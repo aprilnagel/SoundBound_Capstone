@@ -44,6 +44,7 @@ export default function Playlists() {
 
       <div className="playlists-container">
         <h1 className="page-title">My Playlists</h1>
+        <div className="library-title-underline"></div>
 
         <div className="playlists-grid">
             {playlists.length === 0 && (
