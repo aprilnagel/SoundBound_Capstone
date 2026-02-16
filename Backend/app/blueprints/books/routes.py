@@ -90,38 +90,35 @@ def get_book_details(current_user, openlib_id):
     if book:
         response = book_dump_schema.dump(book)
 
-
+        # ⭐ AUTHOR RECO PLAYLIST (already correct)
         playlist = (
             Playlists.query
             .join(Playlists.books)
             .filter(
                 Books.id == book.id,
                 Playlists.is_author_reco == True,
-                
             )
             .first()
         )
-
-
         response["author_reco_playlist"] = playlist.to_dict() if playlist else None
 
+        # ⭐ ⭐ ⭐ INSERT THIS RIGHT HERE ⭐ ⭐ ⭐
+        # PERSONAL PLAYLIST (belongs to the current user)
+        user_playlist = (
+            Playlists.query
+            .filter(
+                Playlists.user_id == current_user.id,
+                (Playlists.is_author_reco == False) | (Playlists.is_author_reco.is_(None))
+            )
+            .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
+            .filter(Playlist_Books.book_id == book.id)
+            .first()
+        )
+
+        response["user_playlist_id"] = user_playlist.id if user_playlist else None
+        # ⭐ ⭐ ⭐ END INSERT ⭐ ⭐ ⭐
+
         return jsonify(response), 200
-
-    # 2. If not in DB, fetch full metadata from Open Library
-    ol_data = fetch_openlibrary_work(openlib_id)
-    if not ol_data:
-        return jsonify({"error": "Failed to fetch book from Open Library"}), 400
-
-    # 3. book cover
-    cover_id = None
-    if "covers" in ol_data and isinstance(ol_data["covers"], list) and ol_data["covers"]:
-        cover_id = ol_data["covers"][0]
-
-    ol_data["cover_id"] = cover_id
-    ol_data["openlib_id"] = openlib_id
-
-    # 4. Return preview metadata
-    return jsonify(ol_data), 200
 
 
 #_____________________GET BOOK BY ID (AFTER IMPORT AND AFTER THE BOOK EXISTS IN USER LIBRARY)_____________________#

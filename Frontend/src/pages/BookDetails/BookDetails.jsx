@@ -110,6 +110,19 @@ const BookDetails = () => {
     }
   };
 
+  //---------------HANDLE LISTEN (NAVIGATE TO PLAYLIST PAGE)----------------
+  const handleListen = () => {
+    // If user already has a personal playlist for this book
+    if (book.user_playlist_id) {
+      nav(`/playlist/${book.user_playlist_id}`);
+      return;
+    }
+
+    // Otherwise, send them to create their own playlist
+    nav(`/create-playlist?book_id=${book.id}`, {
+      state: { book },
+    });
+  };
   // ---------------------------------------------------------
   // LOADING / ERROR STATES
   // ---------------------------------------------------------
@@ -250,7 +263,9 @@ const BookDetails = () => {
                 ))}
               </div>
 
-              <button className="listen-btn">Listen</button>
+              <button className="listen-btn" onClick={handleListen}>
+                Listen!
+              </button>
             </div>
           )}
         </div>
