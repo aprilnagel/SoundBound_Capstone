@@ -1,17 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar/Navbar";
 import BookCard from "../../components/BookCard/BookCard";
 import "./Library.css";
+import { AuthContext } from "../../contexts/Auth";
 
 export default function Library() {
+  const { token } = useContext(AuthContext); // ⭐ Use AuthContext token
   const [library, setLibrary] = useState([]);
-  const [user, setUser] = useState(null); // ⭐ NEW
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const [sortOption, setSortOption] = useState("title");
-  const [showAuthoredOnly, setShowAuthoredOnly] = useState(false); // ⭐ NEW
+  const [showAuthoredOnly, setShowAuthoredOnly] = useState(false);
 
   // ---------------------------------------------------------
   // SMART TITLE SORT — ignores "The", "A", "An"
@@ -58,6 +60,8 @@ export default function Library() {
   // FETCH USER LIBRARY + USER PROFILE
   // ---------------------------------------------------------
   useEffect(() => {
+    if (!token) return; // ⭐ Wait for AuthContext token
+
     async function fetchEverything() {
       try {
         // Fetch library
@@ -65,10 +69,11 @@ export default function Library() {
           "https://soundbound-capstone.onrender.com/users/me/library",
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`, // ⭐ Use AuthContext token
             },
           },
         );
+
         const libData = await libRes.json();
 
         if (!libRes.ok) {
@@ -77,17 +82,17 @@ export default function Library() {
           setLibrary(libData.library || []);
         }
 
-        // Fetch user profile (for author_keys)
+        // Fetch user profile
         const userRes = await fetch(
           "https://soundbound-capstone.onrender.com/users/me",
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`, // ⭐ Same here
             },
           },
         );
+
         const userData = await userRes.json();
-        console.log("USER DATA FROM BACKEND:", userData);
         setUser(userData || null);
       } catch (err) {
         setError("Network error fetching data");
@@ -97,7 +102,7 @@ export default function Library() {
     }
 
     fetchEverything();
-  }, []);
+  }, [token]); // ⭐ Re-run when token becomes available
 
   // ---------------------------------------------------------
   // REMOVE BOOK FROM LIBRARY
@@ -110,7 +115,7 @@ export default function Library() {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`, // ⭐ Updated
           },
           body: JSON.stringify({ book_id: book.id }),
         },
@@ -154,7 +159,7 @@ export default function Library() {
             >
               <option value="title">Title (A–Z)</option>
               <option value="title_desc">Title (Z–A)</option>
-               <option value="author">Author (A–Z)</option>
+              <option value="author">Author (A–Z)</option>
               <option value="author_desc">Author (Z–A)</option>
             </select>
           </div>

@@ -172,10 +172,15 @@ def get_user_library(current_user):
         book_dict["source"] = book.source
         book_dict["author_keys"] = book.author_keys
 
-        # ⭐ Determine if current user is an author of this book
+        # ⭐ SAFE HANDLING OF AUTHOR KEYS
+        # Users may have NO author_keys (normal)
+        # Some older books may also have None
+        user_keys = current_user.author_keys or []
+        book_keys = book.author_keys or []
+
         book_dict["can_author_reco"] = (
             book.source == "verified"
-            and any(key in current_user.author_keys for key in book.author_keys)
+            and any(key in user_keys for key in book_keys)
         )
 
         # ⭐ PERSONAL PLAYLIST
@@ -207,8 +212,7 @@ def get_user_library(current_user):
 
         book_dict["author_reco_playlist"] = (
             playlist_dump_schema.dump(author_reco) if author_reco else None
-)
-
+        )
 
         serialized.append(book_dict)
 
