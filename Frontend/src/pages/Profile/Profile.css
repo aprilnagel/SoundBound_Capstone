@@ -157,11 +157,11 @@
 }
 
 .edit-profile-button {
-  background: radial-gradient(#9fdde8, #52dbf4);
+  background: #ffc66e; /* warm orange */
 }
 
 .logout-button {
-  background: radial-gradient(#f27ba6, #ed3b7b);
+  background: #ff4d6d; /* vibrant pink */
 }
 .edit-profile-button:hover,
 .logout-button:hover {

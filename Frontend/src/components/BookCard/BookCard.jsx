@@ -25,7 +25,7 @@ export default function BookCard({
     >
       <div className="book-cover-wrapper">
         {/* ⭐ Badge only in search mode */}
-        {!showLibraryActions && book.author_reco_playlist && (
+        {book.author_reco_playlist && (
           <div className="bookcard-reco-badge">
             <BookmarkAddedIcon sx={{ fontSize: 50, color: "#a1d63e" }} />
           </div>

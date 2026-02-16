@@ -229,8 +229,8 @@ const BookSearch = () => {
             onChange={(e) => setIsbn(e.target.value)}
           />
 
-          <button type="submit">Search</button>
-          <button type="button" onClick={clearSearch}>
+          <button className="search-btn" type="submit">Search</button>
+          <button className="clear-btn" type="button" onClick={clearSearch}>
             Clear
           </button>
         </form>

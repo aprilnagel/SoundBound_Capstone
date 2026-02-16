@@ -18,7 +18,11 @@
 .home-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-  border-color: #ff6b9c;
+  border-color: #ffa18f;
+  box-shadow: 
+    0 0 8px rgba(255, 161, 143, 0.55),
+    0 0 16px rgba(255, 161, 143, 0.35),
+    0 0 24px rgba(255, 161, 143, 0.22);
   cursor: pointer;
 }
 

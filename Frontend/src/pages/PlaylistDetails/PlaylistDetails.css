@@ -87,7 +87,7 @@
   padding: 20px;
   margin-top: 20px;
 
-  width: 100%;        /* ⭐ force container to stay inside grid */
+  width: 82%;        /* ⭐ force container to stay inside grid */
   max-width: 100%;    /* ⭐ prevent stretching */
   min-width: 0;       /* ⭐ REQUIRED for wrapping */
   overflow: visible;  /* ⭐ allow wrapped rows to show */
@@ -280,10 +280,22 @@
   flex-direction: column;
   gap: 16px;
   padding: 20px;
-  border: 3px solid #c0e4eb; 
+  border: 2px solid #52dbf4;
   border-radius: 30px;
+
+  /* Outer glow */
+  box-shadow:
+    0 0 12px rgba(82, 219, 244, 0.45),
+    0 0 24px rgba(82, 219, 244, 0.35),
+    0 12px 20px rgba(0, 0, 0, 0.18);
+
+  /* Soft brightness pop */
+  filter: brightness(1.03);
   background: linear-gradient(#ff66c47e, #ffc56f8a);
+  
 }
+
+
 .song-album {
   font-size: 0.85rem;
   color: #888;

@@ -27,9 +27,17 @@
 /* Hover lift */
 .application-card:hover {
   transform: translateY(-3px);
-  border-color: #ed3b7b;
-  box-shadow: 0 0px 5px rgba(237, 59, 123, 0.5);
+  border-color: #582264;
+
+  /* Outer glow */
+  box-shadow:
+    0 0 8px rgba(88, 34, 100, 0.55),
+    0 0 16px rgba(88, 34, 100, 0.35),
+    0 0 24px rgba(88, 34, 100, 0.22);
+
+
   cursor: pointer;
+
 }
 
 /* ================================

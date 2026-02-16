@@ -8,22 +8,29 @@ export default function PlaylistCard({ playlist, onClick }) {
 
   return (
     <div className="playlist-card" onClick={onClick}>
-      <img src={cover} alt={playlist.title} className="playlist-card-cover" />
-
       
+      {/* ⭐ Cover wrapper so badge can float on top */}
+      <div className="playlist-cover-wrapper">
+        {playlist.is_author_reco && (
+          <div className="playlist-badge">
+            <BookmarkAddedIcon
+              sx={{
+                fontSize: 50,
+                color: "#a1d63e",
+              }}
+            />
+          </div>
+        )}
+
+        <img
+          src={cover}
+          alt={playlist.title}
+          className="playlist-card-cover"
+        />
+      </div>
 
       <div className="playlist-card-info">
-        {playlist.is_author_reco && (
-        <BookmarkAddedIcon
-          sx={{
-            fontSize: 40,
-            color: "#a1d63e",
-            filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.15))",
-          }}
-        />
-      )}
         <h2 className="playlist-card-title">{playlist.title}</h2>
-        
 
         <p className="playlist-card-book">
           {book ? book.title : "Custom Book"}

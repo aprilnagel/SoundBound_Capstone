@@ -197,7 +197,7 @@ export default function UpdateProfile() {
 
           <button
             type="button"
-            className="cancel-button"
+            className="pro-cancel-button"
             onClick={() => navigate("/profile")}
           >
             Cancel

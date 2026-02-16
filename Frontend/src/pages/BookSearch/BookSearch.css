@@ -59,13 +59,19 @@
   height: 40px;
   width: 120px;
   border: none;
-  background: linear-gradient(90deg, #ff774d, #ffc66e);
+  
   color: white;
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s ease;
   font-family: "Manjari", system-ui;
   font-size: 20px;
+}
+.search-btn {
+  background: #52dbf4;
+}
+.clear-btn {
+  background: #c89cef;
 }
 
 .search-bar button:hover {
