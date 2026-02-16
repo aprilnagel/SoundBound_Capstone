@@ -86,6 +86,7 @@ const BookSearch = () => {
     if (isbn) params.append("isbn", isbn);
     if (year) params.append("year", year);
 
+    // 1️⃣ Fetch from Open Library (unchanged)
     const res = await fetch(
       `https://soundbound-capstone.onrender.com/books/search?${params.toString()}`,
       {
@@ -98,10 +99,34 @@ const BookSearch = () => {
     const data = await res.json();
     const finalResults = Array.isArray(data) ? data : [];
 
-    setResults(finalResults);
+    // 2️⃣ Collect Open Library IDs
+    const openlibIds = finalResults.map((b) => b.openlib_id);
 
-    // Save results + inputs + sort + mode
-    localStorage.setItem("bookSearchResults", JSON.stringify(finalResults));
+    // 3️⃣ Ask backend which of these exist in DB
+    const enrichRes = await fetch(
+      "https://soundbound-capstone.onrender.com/books/enrich",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ openlib_ids: openlibIds }),
+      },
+    );
+
+    const enrichData = await enrichRes.json();
+
+    // 4️⃣ Merge DB metadata into Open Library results
+    const merged = finalResults.map((book) => ({
+      ...book,
+      ...(enrichData[book.openlib_id] || {}),
+    }));
+
+    // 5️⃣ Save + set results
+    setResults(merged);
+
+    localStorage.setItem("bookSearchResults", JSON.stringify(merged));
     localStorage.setItem(
       "bookSearchInputs",
       JSON.stringify({ title, author, year, isbn }),
@@ -169,11 +194,13 @@ const BookSearch = () => {
         <h1 className="search-title">Books</h1>
 
         {/* SEARCH BAR */}
-        <form className="search-bar" onSubmit={(e) => {e.preventDefault();
+        <form
+          className="search-bar"
+          onSubmit={(e) => {
+            e.preventDefault();
             handleSearch(e);
           }}
         >
-
           <input
             type="text"
             placeholder="Title..."

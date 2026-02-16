@@ -22,6 +22,17 @@
   border: 2px solid #ff4d6d;
 }
 
+/* --- WRAPPER FOR BADGE POSITIONING --- */
+.book-cover-wrapper {
+  position: relative;
+  width: 90%;   /* match .book-cover width */
+  height: 80%;  /* match .book-cover height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 /* COVER */
 .book-cover {
   width: 90%;
@@ -31,6 +42,31 @@
   background: #f2f2f2;
   margin-bottom: 20px;
 }
+/* --- WRAPPER FOR BADGE POSITIONING --- */
+.book-cover-wrapper {
+  position: relative;
+  width: 90%;   /* match .book-cover width */
+  height: 80%;  /* match .book-cover height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* The floating bookmark badge */
+/* --- FLOATING BOOKMARK BADGE --- */
+/* --- FLOATING BOOKMARK BADGE --- */
+.bookcard-reco-badge {
+  position: absolute;
+  top: 10px;
+  right: 6px;
+  padding: 4px;
+  z-index: 20;
+  
+}
+
+
+
 
 .book-cover img {
   width: 100%;

@@ -1,6 +1,7 @@
 import fallbackCover from "../../Photos/2.png";
 import "./BookCard.css";
 import { useNavigate } from "react-router-dom";
+import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
 
 export default function BookCard({
   book,
@@ -22,8 +23,17 @@ export default function BookCard({
       className={`book-card ${showLibraryActions ? "in-library" : ""}`}
       onClick={() => navigate(`/book-details/${book.openlib_id}`)}
     >
-      <div className="book-cover">
-        <img src={coverUrl} alt={book.title} />
+      <div className="book-cover-wrapper">
+        {/* ⭐ Badge only in search mode */}
+        {!showLibraryActions && book.author_reco_playlist && (
+          <div className="bookcard-reco-badge">
+            <BookmarkAddedIcon sx={{ fontSize: 50, color: "#a1d63e" }} />
+          </div>
+        )}
+
+        <div className="book-cover">
+          <img src={coverUrl} alt={book.title} />
+        </div>
       </div>
 
       <div className="book-info">

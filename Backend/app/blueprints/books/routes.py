@@ -76,12 +76,33 @@ def get_author_reco_books(current_user):
     return jsonify(BookDumpSchema(many=True).dump(books)), 200
 
 
+#___________________ENRICHED BOOK DETAILS (DB + OPEN LIBRARY)___________________#
+@books_bp.route("/enrich", methods=["POST"])
+@token_required
+def enrich_books(current_user):
+    data = request.get_json()
+    ids = data.get("openlib_ids", [])
+
+    if not ids:
+        return jsonify({}), 200
+
+    books = Books.query.filter(Books.openlib_id.in_(ids)).all()
+
+    result = {}
+
+    for book in books:
+        # Dump DB book
+        dumped = BookDumpSchema().dump(book)
+
+        result[book.openlib_id] = dumped
+
+    return jsonify(result), 200
+
 #_____________________BOOK DETAILS_____________________#
 
 @books_bp.route("/<openlib_id>", methods=["GET"])
 @token_required
 def get_book_details(current_user, openlib_id):
-    # Normalize ID
     openlib_id = openlib_id.split("/")[-1]
 
     # 1. Try to fetch from DB first
@@ -90,7 +111,7 @@ def get_book_details(current_user, openlib_id):
     if book:
         response = book_dump_schema.dump(book)
 
-        # ⭐ AUTHOR RECO PLAYLIST (already correct)
+        # AUTHOR RECO PLAYLIST
         playlist = (
             Playlists.query
             .join(Playlists.books)
@@ -102,8 +123,7 @@ def get_book_details(current_user, openlib_id):
         )
         response["author_reco_playlist"] = playlist.to_dict() if playlist else None
 
-        # ⭐ ⭐ ⭐ INSERT THIS RIGHT HERE ⭐ ⭐ ⭐
-        # PERSONAL PLAYLIST (belongs to the current user)
+        # PERSONAL PLAYLIST
         user_playlist = (
             Playlists.query
             .filter(
@@ -114,11 +134,26 @@ def get_book_details(current_user, openlib_id):
             .filter(Playlist_Books.book_id == book.id)
             .first()
         )
-
         response["user_playlist_id"] = user_playlist.id if user_playlist else None
-        # ⭐ ⭐ ⭐ END INSERT ⭐ ⭐ ⭐
 
+        # ⭐ THIS RETURN MUST STAY HERE
         return jsonify(response), 200
+
+    # 2. If not in DB, fetch from Open Library
+    ol_data = fetch_openlibrary_work(openlib_id)
+    if not ol_data:
+        return jsonify({"error": "Failed to fetch book from Open Library"}), 400
+
+    cover_id = None
+    if "covers" in ol_data and isinstance(ol_data["covers"], list) and ol_data["covers"]:
+        cover_id = ol_data["covers"][0]
+
+    ol_data["cover_id"] = cover_id
+    ol_data["openlib_id"] = openlib_id
+
+    # ⭐ THIS RETURN MUST STAY HERE TOO
+    return jsonify(ol_data), 200
+
 
 
 #_____________________GET BOOK BY ID (AFTER IMPORT AND AFTER THE BOOK EXISTS IN USER LIBRARY)_____________________#

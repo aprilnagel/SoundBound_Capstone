@@ -111,17 +111,36 @@ const BookDetails = () => {
   };
 
   //---------------HANDLE LISTEN (NAVIGATE TO PLAYLIST PAGE)----------------
-  const handleListen = () => {
-    // If user already has a personal playlist for this book
-    if (book.user_playlist_id) {
-      nav(`/playlist/${book.user_playlist_id}`);
-      return;
-    }
+  const handleListen = async () => {
+    try {
+      const res = await fetch(
+        "https://soundbound-capstone.onrender.com/playlists/listen",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            book_id: book.id,
+            playlist_id: book.author_reco_playlist.id,
+          }),
+        },
+      );
 
-    // Otherwise, send them to create their own playlist
-    nav(`/create-playlist?book_id=${book.id}`, {
-      state: { book },
-    });
+      const data = await res.json();
+      console.log("LISTEN RESPONSE:", data);
+
+      if (!res.ok) {
+        console.error("Listen error:", data.error);
+        return;
+      }
+
+      // ⭐ Navigate to the correct route
+      nav(`/playlist-details/${data.user_playlist_id}`);
+    } catch (err) {
+      console.error("Listen error:", err);
+    }
   };
   // ---------------------------------------------------------
   // LOADING / ERROR STATES
