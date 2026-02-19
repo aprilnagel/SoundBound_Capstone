@@ -6,6 +6,18 @@
   padding-bottom: 40px;
 }
 
+.pending-container {
+  width: 70%;
+    margin-top: 30px;
+    padding: 25px;
+    border-radius: 20px;
+    background: white;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 .admin-pending-page h1 {
   margin-top: 30px;
   font-size: 2rem;

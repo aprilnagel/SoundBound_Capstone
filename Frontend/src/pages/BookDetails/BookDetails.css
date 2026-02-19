@@ -57,13 +57,15 @@
 }
 
 .checkout-btn {
-  background: radial-gradient(#a8db56, #7dc638 );
+  background: #a1d63e;
+  height: 50px;
+  width: 80%;
   color: white;
   border: none;
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 8px 14px 6px 14px;
+  border-radius: 30px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.5rem;
   transition: 0.2s ease;
 }
 
@@ -268,13 +270,14 @@
 
 
 /* BUTTON */
-.close-btn {
+.cls-btn {
   background: #ad7ad8;
   color: white;
   border: none;
+  height: 40px;
   padding: 10px 28px 8px 28px;
   border-radius: 30px;
-  font-weight: 700;
+  cursor: pointer;
   font-family: "Manjari", system-ui;
 }
 

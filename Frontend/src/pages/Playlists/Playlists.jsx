@@ -85,6 +85,7 @@ export default function Playlists() {
       <div className="playlists-container">
         <h1 className="page-title">My Playlists</h1>
         <div className="library-title-underline"></div>
+        <p className="playlist-count">Playlists: {playlists.length}</p>
 
         {/* SORT CONTROLS */}
         <div className="playlists-controls">

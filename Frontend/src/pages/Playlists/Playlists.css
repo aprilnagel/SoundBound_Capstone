@@ -35,6 +35,12 @@
   justify-items: center;
   align-items: start;
 }
+.playlist-count {
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+}
 
 .empty-text {
   grid-column: 1 / -1;
@@ -52,20 +58,28 @@
 }
 
 .playlists-sort label {
-  font-size: 16px;
+  font-size: 15px;
   color: #444;
 }
 
 .playlists-sort select {
   padding: 3px 8px 5px 10px;
   border-radius: 30px;
+  
   background: #fafafa;
   font-size: 15px;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid #ddd;
 }
 
+.playlists-controls {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 25px;              /* space between sort + toggle */
+  
+  margin-left: 50px;
+}
 .playlists-sort select:hover {
   background: #f0f0f0;
   border-color: #ed3b7b;

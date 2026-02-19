@@ -29,9 +29,9 @@ h2{
 
 .signup-form input {
     width: 80%;
-    padding: 10px;
+    padding: 13px 20px 10px 20px; /* optical centering */
     border: 1px solid #ccc;
-    border-radius: 20px;
+    border-radius: 30px;
     font-size: 20px;
     font-family: "Manjari", system-ui;
     background-color: #f5f3f3;
@@ -43,10 +43,15 @@ h2{
     border-color: #ed3b7b;
     box-shadow: 0 0 5px rgba(237, 59, 123, 0.5);
 }
+
+.signup-form input:hover {
+    border-color: #ed3b7b;
+    box-shadow: 0 0 5px rgba(237, 59, 123, 0.5);
+}
 .signuppage-button {
-    padding: 10px 20px 6px 20px;
+    padding: 6px 25px 6px 25px; /* optical centering */
     border: none;
-    border-radius: 20px;
+    border-radius: 30px;
     font-family: "Manjari", system-ui;
     color: white;
     font-size: 20px;
@@ -128,7 +133,7 @@ h2{
     }
 
 .backtologin-button {
-    padding: 10px 30px 6px 30px; /* optical centering */
+    padding: 6px 30px 6px 30px; /* optical centering */
     border: none;
     border-radius: 20px;
     font-family: "Manjari", system-ui;

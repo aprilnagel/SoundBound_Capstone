@@ -52,6 +52,11 @@
   box-shadow: 0 0 5px rgba(237, 59, 123, 0.5);
 }
 
+.search-bar input:hover {
+  border-color: #ed3b7b;
+  box-shadow: 0 0 5px rgba(237, 59, 123, 0.3);
+}
+
 /* Search button */
 .search-bar button {
   padding: 10px 20px 6px 20px;

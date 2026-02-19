@@ -25,11 +25,13 @@
 .book-info-small {
   display: flex;
   align-items: center;
+  line-height: 1.4;
 }
 .playlist-heading {
   display: flex;
-  align-items: center;   /* vertically centers both pieces */
-  justify-content: center; /* horizontally centers the whole line */
+  align-items: center;
+  text-align: left;  
+  
   gap: 8px;            /* space between label + title */
 }
 
@@ -37,8 +39,25 @@
   font-size: 1.6rem;
   font-weight: 700;
   padding-top: 2px;
+  padding-left: 6px;
+  text-align: left;
 }
 
+.book-meta {
+  width: 70%;
+  gap: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  
+}
+
+.label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  width: 30%;
+}
 
 .book-meta h3 {
   margin: 10px 0 4px 0;
@@ -52,6 +71,23 @@
   color: #555;
 }
 
+.custom-book-fields {
+  gap: 20px;
+  display: flex;
+  justify-content: space-around
+}
+.cus-playlist-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 30px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  font-size: 1rem;
+  outline: none;
+  gap: 12px;
+  justify-content: space-between;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
 /* ---------------- PLAYLIST INPUTS ---------------- */
 .playlist-input-row {
   display: flex;
@@ -72,6 +108,7 @@
   font-size: 1rem;
   outline: none;
   transition: border 0.2s ease, box-shadow 0.2s ease;
+  gap: 12px;
 }
 .song-search-input {
   flex: 1;
@@ -93,16 +130,17 @@
 
 /* Save button */
 .save-btn {
-  padding: 10px 20px 8px 20px;
+  padding: 13px 20px 8px 20px;
   border-radius: 30px;
   border: none;
   background: #a1d63e;
   color: white;
   font-weight: 600;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 18px;
   transition: opacity 0.2s ease;
   font-family: "Manjari", system-ui;
+  height: 44px;
 }
 
 .save-btn:hover {
@@ -121,16 +159,17 @@
 }
 
 .song-search-btn {
-  padding: 10px 20px 8px 20px;
+  padding: 13px 20px 8px 20px;
   border-radius: 30px;
   border: none;
   background:#52dbf4;
   color: white;
   font-weight: 600;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 18px;
   transition: opacity 0.2s ease;
   font-family: "Manjari", system-ui;
+  height: 44px;
 }
 
 /* ---------------- SONG RESULTS + PLAYLIST SONGS ---------------- */
@@ -217,7 +256,7 @@
   background: #ff4d6d;
   color: white;
   border: none;
-  padding: 6px 12px;
+  padding: 9px 12px;
   border-radius: 30px;
   cursor: pointer;
   font-size: 14px;
@@ -301,37 +340,57 @@
 }
 
 .author-reco-toggle {
-   display: inline-flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
   margin-left: 10px;
+  user-select: none;
 }
-.author-reco-toggle label {
-  font-size: 0.9rem;
-  color: #444;
-}
+
+/* Hide the native checkbox */
 .author-reco-toggle input {
+  display: none;
+}
+
+/* Custom toggle */
+.author-reco-toggle .toggle {
   width: 40px;
   height: 20px;
-  border-radius: 30px;
-  border: 1px solid #ddd;
   background: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 30px;
   position: relative;
-  cursor: pointer;
   transition: background 0.2s ease;
 }
-.author-reco-toggle input[type="checkbox"]:hover {
-  accent-color: #ff4d6d;
-  cursor: pointer;
+
+/* The circle */
+.author-reco-toggle .toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
 }
 
-.author-reco-toggle input[type="checkbox"]:checked {
-  accent-color: #ed3b7b;
+/* Checked state */
+.author-reco-toggle input:checked + .toggle {
+  background: #ed3b7b;
+  border-color: #ed3b7b;
 }
+
+.author-reco-toggle input:checked + .toggle::after {
+  transform: translateX(20px);
+}
+
 
 .song-row button {
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 30px;
   border: none;
   background: #ff4d6d;
@@ -393,6 +452,11 @@
   align-items: center;
   gap: 10px;
   animation: fadeInOut 1.5s ease forwards;
+}
+
+.del-btn {
+  padding: 8px 12px;
+   
 }
 
 .checkmark {

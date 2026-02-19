@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../config";
 
 export default function Profile() {
-  const { user, token, logout } = useAuth();
+  const { token, logout } = useAuth();
   const navigate = useNavigate();
 
   const [profileData, setProfileData] = useState(null);
@@ -49,7 +49,6 @@ export default function Profile() {
     }
   }, [token]);
 
-  // Derived state
   const hasPending = applications.some((app) => app.status === "pending");
   const hasHistory = applications.length > 0;
 
@@ -59,68 +58,49 @@ export default function Profile() {
 
       <div className="profile-card">
         <h1 className="profile-title">Account</h1>
-        
-        <div className="library-title-underline"></div> 
-        
+        <div className="library-title-underline"></div>
+
         {profileData ? (
           <div className="profile-grid">
-            {/* LEFT COLUMN */}
+            {/* LEFT COLUMN — CLEAN TWO-COLUMN GRID */}
             <div className="profile-left">
-              <div className="profile-info">
-                <div className="info-row">
-                  <span className="label">Pen Name:</span>
-                  <span className="value">{profileData.username}</span>
-                </div>
+              <span className="pro-label">Pen Name:</span>
+              <span className="value">{profileData.username}</span>
 
-                <div className="info-row">
-                  <span className="label">First Name:</span>
-                  <span className="value">{profileData.first_name}</span>
-                </div>
+              <span className="pro-label">First Name:</span>
+              <span className="value">{profileData.first_name}</span>
 
-                <div className="info-row">
-                  <span className="label">Last Name:</span>
-                  <span className="value">{profileData.last_name}</span>
-                </div>
+              <span className="pro-label">Last Name:</span>
+              <span className="value">{profileData.last_name}</span>
 
-                <div className="info-row">
-                  <span className="label">Email:</span>
-                  <span className="value">{profileData.email}</span>
-                </div>
+              <span className="pro-label">Email:</span>
+              <span className="value">{profileData.email}</span>
 
-                <div className="info-row">
-                  <span className="label">Role:</span>
-                  <span className="value">{profileData.role}</span>
-                </div>
+              <span className="pro-label">Role:</span>
+              <span className="value">{profileData.role}</span>
 
-                {profileData.role === "author" && (
-                  <>
-                    <div className="info-row">
-                      <span className="label">Author Keys:</span>
-                      <span className="value">
-                        {Array.isArray(profileData.author_keys)
-                          ? profileData.author_keys.join(", ")
-                          : profileData.author_keys}
-                      </span>
-                    </div>
+              {profileData.role === "author" && (
+                <>
+                  <span className="pro-label">Author Keys:</span>
+                  <span className="value">
+                    {Array.isArray(profileData.author_keys)
+                      ? profileData.author_keys.join(", ")
+                      : profileData.author_keys}
+                  </span>
 
-                    <div className="info-row">
-                      <span className="label">Author Bio:</span>
-                      <span className="value">{profileData.author_bio}</span>
-                    </div>
-                  </>
-                )}
-              </div>
+                  <span className="pro-label">Author Bio:</span>
+                  <span className="value">{profileData.author_bio}</span>
+                </>
+              )}
             </div>
 
             {/* RIGHT COLUMN */}
             <div className="profile-right">
-              {/* READER */}
               {profileData.role === "reader" && (
                 <>
-                  {/* PRIMARY BUTTON */}
                   {hasPending ? (
                     <button
-                      style={{ background: "#ffa18f" }} /* soft green */
+                      style={{ background: "#ffa18f", width: "90%" }}
                       onClick={() => navigate("/application-status")}
                       className="apply-author-button"
                     >
@@ -128,6 +108,7 @@ export default function Profile() {
                     </button>
                   ) : (
                     <button
+                      style={{ width: "100%" }}
                       onClick={() => navigate("/apply-for-author")}
                       className="apply-author-button"
                     >
@@ -135,10 +116,9 @@ export default function Profile() {
                     </button>
                   )}
 
-                  {/* SECONDARY BUTTON */}
                   {hasHistory && (
                     <button
-                      style={{ background: "#ffa18f" }} /* soft green */
+                      style={{ background: "#ffa18f", width: "90%" }}
                       onClick={() => navigate("/application-history")}
                       className="history-button"
                     >
@@ -158,7 +138,7 @@ export default function Profile() {
                 </Link>
               )}
 
-              <button className="spotify">Sync to Spotify</button>
+              <button className="spotify-btn">Sync to Spotify</button>
             </div>
           </div>
         ) : (

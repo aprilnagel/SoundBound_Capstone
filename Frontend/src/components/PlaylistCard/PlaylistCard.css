@@ -1,10 +1,10 @@
 .playlist-card {
-  width: 350px;
-  height: 590px;
+  width: 300px;
+  height: 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   background: white;
   border-radius: 20px;
   
@@ -19,8 +19,8 @@
 /* --- WRAPPER FOR BADGE POSITIONING --- */
 .playlist-cover-wrapper {
   position: relative;
-  width: 90%; /* match .book-cover width */
-  height: 80%; /* match .book-cover height */
+  width: 80%; /* match .book-cover width */
+  height: 90%; /* match .book-cover height */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -29,8 +29,8 @@
 /* --- FLOATING BADGE ON PLAYLIST COVER --- */
 .playlist-badge {
   position: absolute;
-  top: -1px;
-  right: 10px;
+  top: -6px;
+  right: 8px;
   padding: 4px;
   z-index: 20;
 }
@@ -59,7 +59,6 @@
   margin-bottom: 0px;
 }
 .playlist-card-cover img {
-  width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
@@ -71,13 +70,14 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  padding-bottom: 10px;
 }
 
 .playlist-card-title {
   font-size: 20px;
   font-weight: 600;
   display: flex;
+  text-align: center;
   justify-content: center;
   line-height: 1.5;
   margin-top: 5px;

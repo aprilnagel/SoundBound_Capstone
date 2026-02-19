@@ -209,8 +209,8 @@ export default function AdminAppDetails() {
             <h2>{popupMessage}</h2>
 
             {/* BUTTON */}
-            <button onClick={() => navigate("/admin/apps/pending")}>
-              Back to Pending Apps
+            <button onClick={() => navigate("/admin/apps/all")}>
+              Back to All Apps
             </button>
           </div>
         </div>

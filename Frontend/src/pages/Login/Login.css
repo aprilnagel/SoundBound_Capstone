@@ -25,7 +25,7 @@
     width: 80%;
     padding: 13px 20px 10px 20px; /* optical centering */
     border: 1px solid #ccc;
-    border-radius: 20px;
+    border-radius: 30px;
     font-size: 20px;
     font-family: "Manjari", system-ui;
     background-color: #f5f3f3;
@@ -36,6 +36,10 @@
     border-color: #ed3b7b; /* purple from your Go to Login button */
     box-shadow: 0 0 5px rgba(237, 59, 123, 0.5); /* subtle purple glow */
 }
+.login-form input:hover {
+    border-color: #ed3b7b; /* purple from your Go to Login button */
+    box-shadow: 0 0 5px rgba(237, 59, 123, 0.5); /* subtle purple glow */
+}
 
 .login-actions {
     display: flex;
@@ -43,9 +47,9 @@
 }
 
 .login-button {
-    padding: 10px 20px;
+    padding: 6px 20px 10px 20px; /* optical centering */
     border: none;
-    border-radius: 20px;
+    border-radius: 30px;
     font-family: "Manjari", system-ui;
     color: white;
     font-size: 20px;
@@ -57,9 +61,9 @@
     opacity: 0.7;
 }
 .signup-button {
-    padding: 10px 20px;
+    padding: 6px 20px 10px 20px; /* optical centering */
     border: none;
-    border-radius: 20px;
+    border-radius: 30px;
     font-family: "Manjari", system-ui;
     color: white;
     font-size: 20px;

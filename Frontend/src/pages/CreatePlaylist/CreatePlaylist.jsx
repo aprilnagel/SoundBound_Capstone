@@ -382,6 +382,7 @@ export default function CreatePlaylist() {
                   checked={isAuthorReco}
                   onChange={(e) => setIsAuthorReco(e.target.checked)}
                 />
+                <span className="toggle"></span>
                 Author Recommended
               </label>
             )}
@@ -390,19 +391,19 @@ export default function CreatePlaylist() {
             {isCustomMode && (
               <div className="custom-book-fields">
                 <input
-                  className="playlist-input"
+                  className="cus-playlist-input"
                   value={customTitle}
                   onChange={(e) => setCustomTitle(e.target.value)}
                   placeholder="Custom book title"
                 />
                 <input
-                  className="playlist-input"
+                  className="cus-playlist-input"
                   value={customAuthor}
                   onChange={(e) => setCustomAuthor(e.target.value)}
                   placeholder="Custom book author"
                 />
                 <input
-                  className="playlist-input"
+                  className="cus-playlist-input"
                   value={customYear}
                   onChange={(e) => setCustomYear(e.target.value)}
                   placeholder="Year (optional)"
@@ -531,7 +532,7 @@ export default function CreatePlaylist() {
                       <div className="song-artist">{song.artist}</div>
                     </div>
 
-                    <button
+                    <button className="del-btn"
                       onClick={() => !saving && removeSong(song.id)}
                       disabled={saving}
                     >

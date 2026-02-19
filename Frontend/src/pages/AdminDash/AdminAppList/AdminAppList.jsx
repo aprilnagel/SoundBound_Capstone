@@ -29,16 +29,20 @@ export default function AdminAppList() {
   return (
     <div className="admin-app-list-page">
       <Navbar />
-        <div className="admin-all-apps-container">
 
-            <h1 className="admin-app-list-title">All Author Applications</h1>
+      <div className="admin-all-apps-container">
+        <h1>All Author Applications</h1>
 
-            <div className="applications-grid">
-                {applications.map(app => (
-                <AdminCard key={app.id} application={app} />
-                ))}
-            </div>
+        <div className="admin-applications-grid">
+          {applications.length === 0 ? (
+            <p>No applications found.</p>
+          ) : (
+            applications.map((app) => (
+              <AdminCard key={app.id} application={app} />
+            ))
+          )}
         </div>
+      </div>
     </div>
   );
 }

@@ -43,13 +43,19 @@
   gap: 25px;
 }
 
+.update-form input:hover {
+  border-color: #ed3b7b;
+  box-shadow: 0 0 5px rgba(237, 59, 123, 0.3);
+  cursor: text;
+}
+
 /* Inputs */
 .update-form input,
 .update-form textarea {
   width: 80%;
-  padding: 10px;
+  padding: 13px 20px 10px 20px;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 30px;
   font-size: 20px;
   font-family: "Manjari", system-ui;
   background-color: #f5f3f3;
@@ -62,9 +68,9 @@
 
 /* Buttons */
 .save-button {
-  padding: 10px 15px 8px 15px; /* optical centering */
+  padding: 6px 15px 8px 15px; /* optical centering */
   border: none;
-  border-radius: 20px;
+  border-radius: 30px;
   font-family: "Manjari", system-ui;
   color: white;
   font-size: 20px;
@@ -77,9 +83,9 @@
 }
 
 .pro-cancel-button {
-  padding: 10px 15px 8px 15px; /* optical centering */
+  padding: 6px 15px 8px 15px; /* optical centering */
   border: none;
-  border-radius: 20px;
+  border-radius: 30px;
   font-family: "Manjari", system-ui;
   color: white;
   font-size: 20px;
@@ -146,7 +152,7 @@
   background: radial-gradient(#ad7ad8, #9b68c2);
   color: white;
   border: none;
-  border-radius: 20px;
+  border-radius: 30px;
   cursor: pointer;
   font-size: 18px;
   font-family: "Manjari", system-ui;

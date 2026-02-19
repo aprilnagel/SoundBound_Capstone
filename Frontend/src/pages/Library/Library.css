@@ -55,7 +55,7 @@
   justify-content: flex-start;
   align-items: center;
   gap: 25px;              /* space between sort + toggle */
-  margin-bottom: 25px;
+  
   margin-left: 50px; /* align with book cards */
 }
 
@@ -111,7 +111,7 @@
 
 
 .library-sort label {
-  font-size: 16px;
+  font-size: 15px;
   color: #444;
 }
 

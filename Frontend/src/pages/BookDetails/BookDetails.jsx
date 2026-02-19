@@ -177,7 +177,7 @@ const BookDetails = () => {
 
             <h2>{message}</h2>
 
-            <button className="close-btn" onClick={() => setMessage(null)}>
+            <button className="cls-btn" onClick={() => setMessage(null)}>
               Close
             </button>
           </div>

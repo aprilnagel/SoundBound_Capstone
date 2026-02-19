@@ -120,12 +120,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px 5px 12px;
+  padding: 8px 10px 5px 12px;
   background: #ff4d6d;
   color: white;
   border-radius: 30px;
-  font-size: 14px;
+  font-size: 18px;
   gap: 6px;
+  height: 20px;
   white-space: nowrap;
 
   
@@ -198,6 +199,10 @@
   outline: none;
 }
 
+.tag-select:hover {
+  border-color: #ff4d6d;
+  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.15);
+}
 .tag-select optgroup {
   font-weight: 700;
   font-size: 0.95rem;
@@ -218,7 +223,7 @@
 
 /* ---------------- ADD TAG BUTTON ---------------- */
 .add-tag-btn {
-  padding: 10px 20px 4px 20px;
+  padding: 6px 20px 4px 20px;
   border-radius: 30px;
   font-family: "Manjari", sans-serif;
   border: none;

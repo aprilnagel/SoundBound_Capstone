@@ -66,6 +66,7 @@
 /* SECTIONS */
 .details-section {
   border-bottom: 1px solid #eee;
+
 }
 
 .details-section:last-of-type {
@@ -110,16 +111,17 @@
   border-radius: 30px;
   border: none;
   font-weight: 700;
+  font-size: 20px;
   font-family: "Manjari", system-ui;
   cursor: pointer;
   transition: opacity 0.2s ease;
   color: white;
-  font-size: 16px;
+ 
 }
 
 /* Approve = mint green */
 .approve-btn {
-  background: #55dec5;
+  background: #55deb5;
 }
 
 /* Reject = pink/red */
