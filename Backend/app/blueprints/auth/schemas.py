@@ -2,6 +2,7 @@ from marshmallow import Schema, fields
 from app.models import Users
 from app.extensions import ma
 
+#ONLY INPUT SCHEMAS
 
 # Schemas validate and transform data.
     # meta tells them how.
@@ -15,7 +16,7 @@ from app.extensions import ma
     # validating and deserializing signup data
     # returns a dictionary that can be used to create a new user
 
-#CREATING USER (LOAD) includes password
+#Exclude fields that users should never set, like id, role, library, created_at, updated_at, playlists, authored_books, verification_requests, and author_keys. These are managed by the system and should not be provided by the user during signup. This tightens security and prevents users from manipulating critical fields that could lead to unauthorized access or data corruption.
 class SignupSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Users

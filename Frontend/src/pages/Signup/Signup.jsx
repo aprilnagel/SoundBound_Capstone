@@ -96,7 +96,7 @@ export default function Signup() {
                 />
                 <input
                     name="username"
-                    placeholder="Username"
+                    placeholder="Pen Name (Username)"
                     value={form.username}
                     onChange={handleChange}
                     required

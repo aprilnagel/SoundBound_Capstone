@@ -9,7 +9,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app.extensions import limiter, db
 
 
-#__________________1. USER SIGNUP_____________________
+# ============================================================
+# 1. USER SIGNUP
+# ============================================================
 @auth_bp.route('/signup', methods=['POST'])
 def signup():
     try:
@@ -39,7 +41,9 @@ def signup():
     return user_schema.jsonify(new_user), 201
 
 
-#__________________2. USER LOGIN_____________________
+# ============================================================
+# 2. USER LOGIN
+# ============================================================
 @auth_bp.route('/login', methods=['POST'])
 # @limiter.limit("10 per minute") # Limit to 10 login attempts per minute per IP
 def login():
@@ -55,7 +59,9 @@ def login():
             "message": f"Welcome back, {user.first_name}!"}), 200 # Return the token as a JSON response with a 200 OK status code
     return jsonify({'message': 'Invalid email or password'}), 401 # If authentication fails, return an error message with a 401 Unauthorized status code.
 
-#__________________3. USER ME (GET CURRENT USER)_____________________
+# ============================================================
+# 3. USER ME (GET CURRENT USER)
+# ============================================================
 # This route retrieves the current user's information based on the provided authentication token.
 @auth_bp.route('/me', methods=['GET'])
 @token_required
@@ -66,7 +72,11 @@ def get_current_user(current_user):
     return user_schema.jsonify(current_user), 200 # Return the current user's data as a JSON response with a 200 OK status code.
 
 
-#__________________4. LOGOUT (FRONTEND HANDLED) (DEV ONLY)_____________________
+# ============================================================
+# 4. LOGOUT (FRONTEND HANDLED) (DEV ONLY)
+# ============================================================
+
+#frontend is actually deleting the token to perform the logout. 
 @auth_bp.route('/logout', methods=['POST'])
 @token_required
 def logout(current_user):

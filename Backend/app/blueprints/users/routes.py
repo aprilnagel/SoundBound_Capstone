@@ -18,44 +18,27 @@ from flask_cors import cross_origin
             # - All roles have the same access. 
             # - Role dependent fields (front end will handle)
 
-#✅------------------1. Get current user's profile------------------#
+#
+# ============================================================
+# 1. GET CURRENT USER PROFILE
+# ============================================================
+# USED FOR: Retrieving the profile information of the currently authenticated user
 @users_bp.route('/me', methods=['GET'])
 @token_required
 def get_current_user_profile(current_user):
-    """
-    Retrieve the authenticated user's full profile.
-
-    Behavior:
-        - Serializes the user using UserSchema.
-        - Returns all non-sensitive user fields.
-
-    Returns:
-        200 OK: Serialized user profile.
-    """
-
+    
     user_schema = UserSchema()
     return jsonify(user_schema.dump(current_user)), 200
 
-#✅-------------------2. Update current user's profile------------------#
+# ============================================================
+# 2. UPDATE CURRENT USER PROFILE
+# ============================================================
+# USED FOR: Updating the profile information of the currently authenticated user
 @users_bp.route('/me', methods=['PUT'])
 @token_required
 def update_current_user(current_user):
-    """
-    Update the authenticated user's profile.
-
-    Request JSON:
-        Any subset of fields allowed by UserUpdateSchema.
-
-    Behavior:
-        - Validates input using Marshmallow.
-        - Hashes password if provided.
-        - Applies partial updates to the user model.
-
-    Returns:
-        200 OK: Updated user profile.
-        400 Bad Request: Validation errors.
-    """
-    # Use your update schema (must allow partial updates)
+    
+    # Use update schema (must allow partial updates)
     user_update_schema = UserUpdateSchema(partial=True)
 
     try:
@@ -63,7 +46,7 @@ def update_current_user(current_user):
     except ValidationError as err:
         return jsonify(err.messages), 400
     
-    #block readers from updating author_bio. They shouldnt see it anyway, but just in case they try to update it via API call, we want to prevent that since its an author-only field.
+    #block readers from updating author_bio. They shouldn't see it anyway, but just in case they try to update it via API call, we want to prevent that since its an author-only field.
     if 'author_bio' in update_data and current_user.role != 'author':
         return jsonify({'error': 'Only authors can update their author bio.'}), 403
 
@@ -82,35 +65,16 @@ def update_current_user(current_user):
 
 
 #________________LIBRARY ROUTES________________#
-
-        # - Library = internal
+            # - Library = internal
             # - Users can add/remove books to their library (list of book IDs)
-            
-
-
-
-#✅------------------2. Remove a book from library------------------#
+        
+# ============================================================
+# 2. REMOVE A BOOK FROM LIBRARY
+# ============================================================
 
 @users_bp.route('/me/library', methods=['DELETE'])
 @token_required
 def remove_book_from_library(current_user):
-    """
-    Remove a book from the authenticated user's library.
-
-    Request JSON:
-        {
-            "book_id": <string or int>
-        }
-
-    Behavior:
-        - Ensures the library exists.
-        - Validates that the book is present.
-        - Removes the book ID from the library list.
-
-    Returns:
-        200 OK: Book removed.
-        404 Not Found: Book not in library.
-    """
 
     try:
         book_id = request.json.get('book_id')
@@ -119,7 +83,7 @@ def remove_book_from_library(current_user):
     except Exception as e:
         return jsonify({'message': 'Invalid input', 'error': str(e)}), 400
 
-    # Convert to int because your library stores integers
+    # Convert to int because library stores integers
     try:
         book_id = int(book_id)
     except ValueError:
@@ -134,7 +98,7 @@ def remove_book_from_library(current_user):
         return jsonify({'message': 'Book not found in library'}), 404
 
     # REASSIGN instead of mutating
-    current_user.library = [b for b in current_user.library if b != book_id]
+    current_user.library = [b for b in current_user.library if b != book_id] #list comprehension instead of normal for loop to create new list without the removed book ID. nice and concise. Also avoids mutating the existing list which can cause issues with SQLAlchemy change tracking.
 
     db.session.commit()
 
@@ -142,37 +106,35 @@ def remove_book_from_library(current_user):
 
 
 
-# ✅------------------3. Get user's library------------------#
+# ============================================================
+# 3. GET USER'S LIBRARY
+# ============================================================
 @users_bp.route('/me/library', methods=['GET'])
 @token_required
 @cross_origin(supports_credentials=True)
 def get_user_library(current_user):
-    """Retrieve the authenticated user's library with full book objects."""
 
     # Ensure library exists
     if current_user.library is None:
         current_user.library = []
         db.session.commit()
 
-    print("USER LIBRARY:", current_user.library)
-
     # Fetch full book objects
     books = Books.query.filter(Books.id.in_(current_user.library)).all()
-    print("BOOKS FROM DB:", [b.id for b in books])
 
     serialized = []
 
+    #For loop:
     for book in books:
-        print("CHECKING BOOK:", book.id)
-
+        
         # Base book data
         book_dict = book_dump_schema.dump(book)
 
-        # ⭐ Include fields needed for author-reco logic
+        #  Adding fields needed for author-reco logic
         book_dict["source"] = book.source
         book_dict["author_keys"] = book.author_keys
 
-        # ⭐ SAFE HANDLING OF AUTHOR KEYS
+        # SAFE HANDLING OF AUTHOR KEYS
         # Users may have NO author_keys (normal)
         # Some older books may also have None
         user_keys = current_user.author_keys or []
@@ -183,7 +145,8 @@ def get_user_library(current_user):
             and any(key in user_keys for key in book_keys)
         )
 
-        # ⭐ PERSONAL PLAYLIST
+        #CHECK PLAYLISTS FOR THIS BOOK (PERSONAL OR AUTHOR RECO) TO INFORM FRONTEND DISPLAY
+        # PERSONAL PLAYLIST
         user_playlist = (
             Playlists.query
             .filter(
@@ -195,10 +158,9 @@ def get_user_library(current_user):
             .first()
         )
 
-        print("FOUND PERSONAL PLAYLIST:", user_playlist.id if user_playlist else None)
         book_dict["user_playlist_id"] = user_playlist.id if user_playlist else None
 
-        # ⭐ AUTHOR RECO PLAYLIST
+        # AUTHOR RECO PLAYLIST
         author_reco = (
             Playlists.query
             .filter(
@@ -219,19 +181,14 @@ def get_user_library(current_user):
     return jsonify({'library': serialized}), 200
 
 
-
-
 #________________AUTHOR APPLICATION ROUTES________________#
 
-#✅------------------1. Apply to be an author------------------#
+# ============================================================
+# 1. APPLY TO BE AN AUTHOR
+# ============================================================
 @users_bp.route('/apply-author', methods=['POST'])
 @token_required
 def apply_to_be_author(current_user):
-    """
-    Submit a full author verification request.
-    User provides only their fields.
-    System generates all lifecycle fields.
-    """
 
     # Authors cannot reapply
     if current_user.role == 'author':
@@ -242,6 +199,7 @@ def apply_to_be_author(current_user):
         return jsonify({'message': 'You already have a pending author application!'}), 400
 
     # Validate input using your schema
+    #{} is there so marshmallow doesn't explode when it tries to load an empty body. 
     data = request.get_json() or {}
     validated = author_app_schema.load(data)
 
@@ -262,22 +220,13 @@ def apply_to_be_author(current_user):
 
 
 
-#✅------------------2. View own author application status------------------#
-
+# ============================================================
+# 2. VIEW OWN AUTHOR APPLICATION STATUS
+# ============================================================
 @users_bp.route('/me/applications', methods=['GET'])
 @token_required
 def view_own_author_application_status(current_user):
-    """
-    View all author verification requests submitted by the authenticated user.
 
-    Behavior:
-        - Returns only user-safe fields (no admin-only data).
-        - Returns 404 if the user has never applied.
-
-    Returns:
-        200 OK: List of applications.
-        404 Not Found: No applications submitted.
-    """
     requests = current_user.verification_requests.all()
     # If the user has never submitted an application
     if not requests:
@@ -291,7 +240,7 @@ def view_own_author_application_status(current_user):
             "submitted_at": req.submitted_at,
             "reviewed_at": req.reviewed_at,
             "reviewed_by": req.reviewed_by,
-             "reviewed_by_username": req.reviewer.username if req.reviewer else None,
+            "reviewed_by_username": req.reviewer.username if req.reviewer else None,
 
         }
         for req in requests
@@ -300,27 +249,19 @@ def view_own_author_application_status(current_user):
     return jsonify({'applications': applications}), 200
 
 
-#✅------------------3. View all author applications (admin)------------------#
+# ============================================================
+# 3. VIEW ALL AUTHOR APPLICATIONS (ADMIN)
+# ============================================================
 @users_bp.route('/author-applications', methods=['GET'])
 @token_required
 @require_role('admin')
 def view_all_author_applications(current_user):
-    """
-    Retrieve all author verification requests (admin only).
-
-    Behavior:
-        - Includes user email and all admin-only fields.
-        - Returns full moderation context for each application.
-
-    Returns:
-        200 OK: List of all verification requests with user info.
-    """
 
     applications = VerificationRequest.query.all()
     result = [] #empty list to hold application requests with user info
 
     for app in applications: #looping through each app request
-        user = app.user #get the user associated with the app request
+        user = app.user #get the user associated with the application request. 
         
 
         result.append({ #build dictionary 
@@ -343,22 +284,13 @@ def view_all_author_applications(current_user):
 
     return jsonify({'applications': result}), 200 #return the python list of dictionaries as JSON response
 
-#✅------------------4. View pending author applications (admin)------------------#
+# ============================================================
+# 4. VIEW PENDING AUTHOR APPLICATIONS (ADMIN)
+# ============================================================
 @users_bp.route('/author-applications/pending', methods=['GET'])
 @token_required
 @require_role('admin')
 def get_pending_author_applications(current_user):
-    """
-    Retrieve all pending author verification requests (admin only).
-
-    Behavior:
-        - Returns full moderation context for each pending application.
-        - Includes user info (email, name) for admin review.
-        - Returns 200 with an empty list if no pending apps exist.
-
-    Returns:
-        200 OK: List of pending applications.
-    """
 
     pending_apps = VerificationRequest.query.filter_by(status='pending').all()
     
@@ -388,23 +320,17 @@ def get_pending_author_applications(current_user):
 
     return jsonify({"pending_applications": results}), 200
 
-#--------------------Get one author application by ID (admin)------------------#
+# ============================================================
+# 5. GET ONE AUTHOR APPLICATION BY ID (ADMIN)
+# ============================================================
 @users_bp.route('/author-applications/<int:application_id>', methods=['GET'])
 @token_required
 def get_author_application_by_id(current_user, application_id):
-    """
-    Retrieve a specific author verification request by its ID.
-
-    Behavior:
-        - Users can only view their own applications.
-        - Admins can view any application.
-        - Returns 404 if the application does not exist.
-    """
 
     app = VerificationRequest.query.get_or_404(application_id)
     user = app.user
 
-    # 🔒 SECURITY CHECK
+    # 🔒 SECURITY CHECK. Only accessible for admin
     if app.user_id != current_user.id and current_user.role != "admin":
         return jsonify({"error": "Unauthorized"}), 403
 
@@ -429,17 +355,18 @@ def get_author_application_by_id(current_user, application_id):
     return jsonify(result), 200
 
 
-#✅------------------5. Approve author application (admin)------------------#
+# ============================================================
+# 5. APPROVE AUTHOR APPLICATION (ADMIN)
+# ============================================================
 @users_bp.route('/<int:user_id>/approve-author', methods=['PUT'])
 @token_required
 @require_role('admin')
 def approve_author_application(current_user, user_id):
-    """
-    Approve a user's pending author verification request (admin only).
-    """
+    
 
     user = Users.query.get_or_404(user_id)
 
+    #Security check: if user is already an author, they can't be approved again.
     if user.role == 'author':
         return jsonify({'message': 'User is already an author!'}), 400
 
@@ -463,15 +390,15 @@ def approve_author_application(current_user, user_id):
 
     return jsonify({'message': f'User {user.email} has been approved as an author!'}), 200
 
-#✅------------------6. Reject author application (admin)------------------#
+# ============================================================
+# 6. REJECT AUTHOR APPLICATION (ADMIN)
+# ============================================================
 @users_bp.route('/<int:user_id>/reject-author', methods=['PUT'])
 @token_required
 @require_role('admin')
 def reject_author_application(current_user, user_id):
-    """
-    Reject a user's pending author verification request (admin only).
-    """
-
+    
+    #Security check: if user is already an author, they can't be rejected.
     user = Users.query.get_or_404(user_id)
 
     if user.role == 'author':
@@ -494,22 +421,12 @@ def reject_author_application(current_user, user_id):
 
     return jsonify({'message': f"User {user.email}'s author application has been rejected."}), 200
 
-#_____________________AUTHOR LIST ROUTE_____________________# #MAY NOT USE THIS, DEPENDS ON FRONTEND DESIGN. IF WE HAVE A PUBLIC AUTHOR DIRECTORY PAGE, THIS WILL BE USEFUL. IF NOT, MAYBE NOT NEEDED. CAN ALSO IMPLEMENT LATER IF WE DECIDE TO ADD AN AUTHOR DIRECTORY PAGE.could use it for internal stats or future features even if we don't have a public author directory page, so might be worth implementing regardless.
-
-#✅------------------1. Get list of all authors (admin)------------------#
+# ============================================================
+# 7. GET LIST OF ALL AUTHORS (ADMIN) (DORMANT, CAN BE USED FOR FRONTEND AUTHOR DIRECTORY)
+# ============================================================
 @users_bp.route('/authors', methods=['GET'])
 def get_all_authors():
-    """
-    Retrieve all verified authors.
-
-    Behavior:
-        - Filters users by role='author'.
-        - Serializes authors using UserSchema.
-
-    Returns:
-        200 OK: List of verified authors.
-    """
-
+    
     authors = Users.query.filter_by(role='author').all()
     user_schema = UserSchema(many=True)
     return jsonify(user_schema.dump(authors)), 200

@@ -10,6 +10,8 @@ from app.models import Users
     #  /me endpoint, when the backend needs to send user info to the frontend
 
 #SERIALIZATION (dump) excludes password for security reasons
+#BACKEND OUTPUT
+#we excl
 class UserSchema(ma.SQLAlchemyAutoSchema): 
     class Meta:
         from app.models import Users
@@ -43,7 +45,7 @@ user_update_schema = UserUpdateSchema()
 
 class AuthorApplicationSchema(Schema):
     class Meta:
-        unknown = "EXCLUDE"
+        unknown = "EXCLUDE" # Ignore any fields not defined in the schema to prevent users from setting unintended fields.
     author_bio = fields.String(required=False, validate=validate.Length(min=10))
     proof_links = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
     author_keys = fields.List(fields.String(), required=True, validate=validate.Length(min=1))
@@ -51,6 +53,7 @@ class AuthorApplicationSchema(Schema):
     
 author_app_schema = AuthorApplicationSchema()
 
+#minimal serialization schema for public user data, used in places like author bios where we want to show the username but not expose sensitive info.
 class UserPublicSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Users

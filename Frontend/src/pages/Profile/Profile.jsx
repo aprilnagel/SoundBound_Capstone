@@ -88,7 +88,7 @@ export default function Profile() {
                 </div>
 
                 <div className="info-row">
-                  <span className="label">Character:</span>
+                  <span className="label">Role:</span>
                   <span className="value">{profileData.role}</span>
                 </div>
 
