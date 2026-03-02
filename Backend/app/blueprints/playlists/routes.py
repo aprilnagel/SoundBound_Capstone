@@ -404,8 +404,9 @@ def listen_action(current_user):
         current_user.library.append(book_id)
         db.session.commit()
 
-    # no cloning, no adding to user's playlists
+    # return the original author playlist id
     return {
         "user_playlist_id": author_playlist_id
     }, 200
+
 
