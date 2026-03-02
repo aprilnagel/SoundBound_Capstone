@@ -169,9 +169,6 @@ def add_song_to_playlist(current_user, playlist_id):
     playlist = Playlists.query.get(playlist_id)
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
-    
-    if playlist.is_author_reco and playlist.user_id != current_user.id:
-        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     # Only the owner can modify the playlist
     if playlist.user_id != current_user.id:
@@ -270,9 +267,6 @@ def update_playlist(current_user, playlist_id):
 
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
-    
-    if playlist.is_author_reco and playlist.user_id != current_user.id:
-        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     if playlist.user_id != current_user.id:
         return jsonify({"error": "You do not own this playlist."}), 403
@@ -306,9 +300,6 @@ def delete_playlist(current_user, playlist_id):
 
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
-    
-    if playlist.is_author_reco and playlist.user_id != current_user.id:
-        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     # Only the owner can delete their playlist
     if playlist.user_id != current_user.id:
@@ -332,9 +323,6 @@ def add_tag_to_playlist(current_user, playlist_id):
     playlist = Playlists.query.get(playlist_id)
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
-    
-    if playlist.is_author_reco and playlist.user_id != current_user.id:
-        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     if playlist.user_id != current_user.id:
         return jsonify({"error": "You do not own this playlist."}), 403
@@ -366,9 +354,6 @@ def remove_tag_from_playlist(current_user, playlist_id, tag_id):
     playlist = Playlists.query.get(playlist_id)
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
-    
-    if playlist.is_author_reco and playlist.user_id != current_user.id:
-        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     if playlist.user_id != current_user.id:
         return jsonify({"error": "You do not own this playlist."}), 403
@@ -396,24 +381,81 @@ def listen_action(current_user):
     if not book_id or not author_playlist_id:
         return {"error": "Missing book_id or playlist_id"}, 400
 
-    # add book to user's library if needed
-    if current_user.library is None:
-        current_user.library = []
+    user = current_user
 
-    if book_id not in current_user.library:
-        current_user.library.append(book_id)
+    # ------------------------------------------------------------
+    # 1. Add book to user's library ONLY if not already there
+    # ------------------------------------------------------------
+    if user.library is None:
+        user.library = []
 
-    # ⭐ ADD AUTHOR PLAYLIST TO USER'S PLAYLIST LIBRARY (NO CLONING)
+    if book_id not in user.library:
+        user.library.append(book_id)
+
+    # ------------------------------------------------------------
+    # 2. Check if user already has the AUTHOR-RECO clone for this book
+    #    (Do NOT touch the user's personal playlist)
+    # ------------------------------------------------------------
+    user_author_clone = (
+        Playlists.query
+        .filter_by(user_id=user.id, is_author_reco=True)
+        .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
+        .filter(Playlist_Books.book_id == book_id)
+        .first()
+    )
+
+    if user_author_clone:
+        # Already cloned — return it
+        return {
+            "user_playlist_id": user_author_clone.id,
+            "author_playlist_id": author_playlist_id
+        }, 200
+
+    # ------------------------------------------------------------
+    # 3. Clone the author playlist (FULL COPY)
+    # ------------------------------------------------------------
     author_playlist = Playlists.query.get(author_playlist_id)
+    if not author_playlist:
+        return {"error": "Author playlist not found"}, 404
 
-    if author_playlist not in current_user.playlists:
-        current_user.playlists.append(author_playlist)
+    cloned = Playlists(
+        user_id=user.id,
+        title=author_playlist.title,
+        description=author_playlist.description,
+        is_public=False,
+        is_author_reco=True  # ⭐ SHOW BADGE
+    )
+    db.session.add(cloned)
+    db.session.flush()
+
+    # Link the book to the cloned playlist
+    db.session.add(Playlist_Books(
+        playlist_id=cloned.id,
+        book_id=book_id
+    ))
+
+    # ------------------------------------------------------------
+    # 4. Copy all songs
+    # ------------------------------------------------------------
+    for ps in author_playlist.playlist_songs:
+        db.session.add(Playlist_Songs(
+            playlist_id=cloned.id,
+            song_id=ps.song_id,
+            order_index=ps.order_index
+        ))
+
+    # ------------------------------------------------------------
+    # 5. Copy tags
+    # ------------------------------------------------------------
+    for tag in author_playlist.tags:
+        db.session.add(Playlist_Tags(
+            playlist_id=cloned.id,
+            tag_id=tag.id
+        ))
 
     db.session.commit()
 
     return {
-        "user_playlist_id": author_playlist_id
+        "user_playlist_id": cloned.id,
+        "author_playlist_id": author_playlist_id
     }, 200
-
-
-

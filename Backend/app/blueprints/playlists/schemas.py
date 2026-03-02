@@ -5,7 +5,7 @@ from app.blueprints.books.schemas import BookLiteSchema
 
 
 
-class PlaylistBaseSchema(Schema): #input
+class PlaylistBaseSchema(Schema):
     title = fields.String(required=True, validate=validate.Length(min=1))
     description = fields.String(allow_none=True)
 
@@ -60,17 +60,19 @@ class PlaylistDumpSchema(Schema):
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
 
+    # ⭐ Avoid circular reference
     book_ids = fields.Method("get_book_ids")
+    
     books = fields.Nested(BookLiteSchema, many=True)
 
-    # ⭐ TRUE OWNER — not the join-table users
-    user_id = fields.Int()
-    user = fields.Nested(UserPublicSchema, only=("id", "username"), attribute="user")
+    def get_book_ids(self, obj):
+        return [book.id for book in obj.books]
+
+
+    # minimal nested user
+    user = fields.Nested(UserPublicSchema, only=("id", "username"))
 
     song_count = fields.Int()
-
-    class Meta:
-        exclude = ("users",)   # CRITICAL to prevent circular reference with UserPublicSchema
 
 
 playlist_dump_schema = PlaylistDumpSchema()

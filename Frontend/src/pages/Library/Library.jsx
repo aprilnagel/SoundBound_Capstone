@@ -196,7 +196,6 @@ export default function Library() {
                 })
               }
               onReturnBook={() => handleReturnBook(book)}
-              isAuthor={user?.role === "author"}
             />
           ))}
         </div>

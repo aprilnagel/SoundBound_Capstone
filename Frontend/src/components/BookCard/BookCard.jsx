@@ -8,7 +8,6 @@ export default function BookCard({
   showLibraryActions = false,
   onCreatePlaylist,
   onReturnBook,
-  isAuthor,
 }) {
   const navigate = useNavigate();
 
@@ -94,30 +93,34 @@ export default function BookCard({
             )}
 
             {/* ⭐ AUTHOR RECO LOGIC */}
-            {book.author_reco_playlist?.id ? (
-              <button
-                className="view-author-reco-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/playlist-details/${book.author_reco_playlist.id}`);
-                }}
-              >
-                view author reco
-              </button>
-            ) : (
-              isAuthor && (
-                <button
-                  className="create-author-playlist-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`/create-playlist?book_id=${book.id}`, {
-                      state: { book },
-                    });
-                  }}
-                >
-                  create author playlist
-                </button>
-              )
+            {canAuthorReco && (
+              <>
+                {book.author_reco_playlist?.id ? (
+                  <button
+                    className="view-author-reco-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(
+                        `/playlist-details/${book.author_reco_playlist.id}`,
+                      );
+                    }}
+                  >
+                    view author reco
+                  </button>
+                ) : (
+                  <button
+                    className="create-author-playlist-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/create-playlist?book_id=${book.id}`, {
+                        state: { book },
+                      });
+                    }}
+                  >
+                    create author playlist
+                  </button>
+                )}
+              </>
             )}
 
             {/* RETURN BOOK */}

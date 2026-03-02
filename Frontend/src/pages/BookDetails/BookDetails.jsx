@@ -137,7 +137,7 @@ const BookDetails = () => {
       }
 
       // ⭐ Navigate to the correct route
-      nav(`/playlist-details/${book.author_reco_playlist.id}`);
+      nav(`/playlist-details/${data.user_playlist_id}`);
     } catch (err) {
       console.error("Listen error:", err);
     }
