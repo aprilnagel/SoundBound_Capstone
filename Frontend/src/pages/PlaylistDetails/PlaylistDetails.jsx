@@ -1,27 +1,24 @@
-import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, useRef, useContext } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import "./PlaylistDetails.css";
 import Navbar from "../../components/Navbar/Navbar";
-import { useNavigate } from "react-router-dom";
 import fallbackCover from "../../Photos/2.png";
 import BookmarkAddedIcon from "@mui/icons-material/BookmarkAdded";
+import { AuthContext } from "../../contexts/Auth";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 export default function PlaylistDetails() {
   const { id } = useParams();
-  const token = localStorage.getItem("token");
+  const { token, user } = useContext(AuthContext);   // ⭐ GET CURRENT USER HERE
   const navigate = useNavigate();
 
   const [playlist, setPlaylist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Tag dropdown state
   const [allTags, setAllTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-
   const dropdownRef = useRef(null);
   const [showDeletePopup, setShowDeletePopup] = useState(false);
 
@@ -65,7 +62,7 @@ export default function PlaylistDetails() {
     fetchTags();
   }, [id, token]);
 
-  // Close dropdown when clicking outside
+  // close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -76,42 +73,32 @@ export default function PlaylistDetails() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Delete playlist handler
-
+  // delete playlist
   const handleDeletePlaylist = async () => {
     try {
       const res = await fetch(`${API_URL}/playlists/${playlist.id}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await res.json();
-
       if (!res.ok) {
         console.error(data.error || "Failed to delete playlist");
         return;
       }
 
-      // Close popup
       setShowDeletePopup(false);
-
-      // Redirect after delete
       navigate("/playlists");
     } catch (err) {
       console.error("Failed to delete playlist", err);
     }
   };
 
-  // Add Tag handler
+  // add tag
   const handleAddTag = async () => {
     if (!selectedTag) return;
 
-    // ⭐ Prevent duplicates
-    if (playlist.tags.some((t) => t.id === Number(selectedTag))) {
-      return; // or show a message
-    }
+    if (playlist.tags.some((t) => t.id === Number(selectedTag))) return;
 
     try {
       const res = await fetch(`${API_URL}/playlists/${id}/tags`, {
@@ -124,7 +111,6 @@ export default function PlaylistDetails() {
       });
 
       const data = await res.json();
-
       if (res.ok) {
         setPlaylist(data);
         setSelectedTag("");
@@ -136,19 +122,17 @@ export default function PlaylistDetails() {
     }
   };
 
+  // remove tag
   const handleRemoveTag = async (tagId) => {
     try {
       const res = await fetch(`${API_URL}/playlists/${id}/tags/${tagId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       const data = await res.json();
-
       if (res.ok) {
-        setPlaylist(data); // backend returns updated playlist
+        setPlaylist(data);
       } else {
         console.error("Error removing tag:", data.error);
       }
@@ -162,11 +146,12 @@ export default function PlaylistDetails() {
   if (!playlist) return <div className="pd-loading">Loading...</div>;
 
   const book = playlist.books?.[0];
-  const currentUserId = playlist.current_user_id; // if your backend sends it
-  const isReadOnly =
-    playlist.is_author_reco && playlist.user_id !== currentUserId;
 
-  // Group tags by category
+  // ⭐ CORRECT OWNER LOGIC
+  const isOwner = playlist.user.id === user?.id;
+  const isReadOnly = !isOwner;
+
+  // group tags
   const groupedTags = allTags.reduce((groups, tag) => {
     const category = tag.category || "uncategorized";
     if (!groups[category]) groups[category] = [];
@@ -174,14 +159,13 @@ export default function PlaylistDetails() {
     return groups;
   }, {});
 
+  
   return (
     <div className="playlist-details-page">
       <Navbar />
 
       <div className="playlist-details-container">
-        {/* HEADER — 3 COLUMNS */}
         <div className="playlist-header">
-          {/* COLUMN 1 — COVER */}
           {book && (
             <img
               src={book.cover_url || fallbackCover}
@@ -190,7 +174,6 @@ export default function PlaylistDetails() {
             />
           )}
 
-          {/* COLUMN 2 — TITLE + BOOK + EDIT */}
           <div className="playlist-info">
             {playlist.is_author_reco && (
               <BookmarkAddedIcon
@@ -207,7 +190,8 @@ export default function PlaylistDetails() {
 
             {book && <h2 className="playlist-book">Book: {book.title}</h2>}
 
-            {!isReadOnly && (
+            {/* ⭐ ONLY AUTHOR SEES EDIT/DELETE */}
+            {isOwner && (
               <div className="playlist-actions">
                 <button
                   className="edit-playlist-btn"
@@ -217,12 +201,14 @@ export default function PlaylistDetails() {
                 >
                   Edit Playlist
                 </button>
+
                 <button
                   className="delete-playlist-btn"
                   onClick={() => setShowDeletePopup(true)}
                 >
                   Delete Playlist
                 </button>
+
                 {showDeletePopup && (
                   <div className="popup-overlay">
                     <div className="popup">
@@ -251,8 +237,6 @@ export default function PlaylistDetails() {
             )}
           </div>
 
-
-          {/* COLUMN 3 — TAGS + SELECT + ADD */}
           <div className="playlist-tags-col">
             <h3 className="tags-header">Tags</h3>
 
@@ -264,53 +248,58 @@ export default function PlaylistDetails() {
               {playlist.tags.map((tag) => (
                 <div key={tag.id} className="tag-pill">
                   {tag.mood_name}
-                  <button
-                    className="remove-tag-btn"
-                    onClick={() => handleRemoveTag(tag.id)}
-                  >
-                    x
-                  </button>
+
+                  {/* ⭐ ONLY AUTHOR CAN REMOVE TAGS */}
+                  {isOwner && (
+                    <button
+                      className="remove-tag-btn"
+                      onClick={() => handleRemoveTag(tag.id)}
+                    >
+                      x
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
 
-            <div className="tag-controls">
-              <select
-                className="tag-select"
-                value={selectedTag}
-                onChange={(e) => setSelectedTag(e.target.value)}
-              >
-                <option value="">Select a tag...</option>
+            {/* ⭐ ONLY AUTHOR CAN ADD TAGS */}
+            {isOwner && (
+              <div className="tag-controls">
+                <select
+                  className="tag-select"
+                  value={selectedTag}
+                  onChange={(e) => setSelectedTag(e.target.value)}
+                >
+                  <option value="">Select a tag...</option>
 
-                {Object.entries(groupedTags).map(([category, tags]) => (
-                  <optgroup key={category} label={category}>
-                    {tags.map((tag) => (
-                      <option key={tag.id} value={tag.id}>
-                        {tag.mood_name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
+                  {Object.entries(groupedTags).map(([category, tags]) => (
+                    <optgroup key={category} label={category}>
+                      {tags.map((tag) => (
+                        <option key={tag.id} value={tag.id}>
+                          {tag.mood_name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+                </select>
 
-              <button className="add-tag-btn" onClick={handleAddTag}>
-                Add Tag
-              </button>
-            </div>
+                <button className="add-tag-btn" onClick={handleAddTag}>
+                  Add Tag
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* SONGS COLUMN */}
         <div className="playlist-columns">
           <section className="songs-column">
             <h2 className="section-title">
-              Song Count :{" "}
+              Song Count:{" "}
               <span className="song-count">
                 {playlist.playlist_songs.length}
               </span>
             </h2>
 
-            {/* ⭐ COLUMN HEADERS */}
             <div className="song-header-row">
               <span className="header-col">Song Title</span>
               <span className="header-col">Artists</span>

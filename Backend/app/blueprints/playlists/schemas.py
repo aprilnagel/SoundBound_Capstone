@@ -59,6 +59,7 @@ class PlaylistDumpSchema(Schema): #serializer for dumping playlist data with nes
     is_author_reco = fields.Boolean()
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
+    
 
    
     book_ids = fields.Method("get_book_ids")

@@ -402,11 +402,18 @@ def listen_action(current_user):
 
     if book_id not in current_user.library:
         current_user.library.append(book_id)
-        db.session.commit()
 
-    # return the original author playlist id
+    # ⭐ ADD AUTHOR PLAYLIST TO USER'S PLAYLIST LIBRARY (NO CLONING)
+    author_playlist = Playlists.query.get(author_playlist_id)
+
+    if author_playlist not in current_user.playlists:
+        current_user.playlists.append(author_playlist)
+
+    db.session.commit()
+
     return {
         "user_playlist_id": author_playlist_id
     }, 200
+
 
 
