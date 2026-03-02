@@ -30,6 +30,30 @@ def get_current_user_profile(current_user):
     user_schema = UserSchema()
     return jsonify(user_schema.dump(current_user)), 200
 
+#______________________________DELETE ACCOUNT___________________________
+@users_bp.route('/me', methods=['DELETE'])
+# USED FOR: Deleting the account of the currently authenticated user. THE deletion should not delete anything but the user instance.Playlists will be reassigned to "deleted user" and books will remain in the system since they are not owned by users.
+@token_required
+def delete_current_user(current_user):
+    # Reassign user's playlists to "Deleted User" (user_id = 1)
+    deleted_user = Users.query.get(1) #assuming user with ID 1 is the "Deleted User" placeholder account
+    if not deleted_user:
+        return jsonify({'error': 'Deleted User account not found. Please contact support.'}), 500
+
+    user_playlists = Playlists.query.filter_by(user_id=current_user.id).all()
+    for playlist in user_playlists:
+        playlist.user_id = deleted_user.id
+
+    # Optionally, you could also anonymize the user's email and username to prevent reuse and protect privacy
+    current_user.email = f'deleted_user_{current_user.id}@example.com'
+    current_user.username = f'deleted_user_{current_user.id}'
+    current_user.first_name = 'Deleted'
+    current_user.last_name = 'User'
+    current_user.role = 'deleted' #optional: change role to "deleted" to easily filter out deleted accounts if needed
+    db.session.commit()
+    return jsonify({'message': 'Your account has been deleted.'}), 200
+
+
 # ============================================================
 # 2. UPDATE CURRENT USER PROFILE
 # ============================================================

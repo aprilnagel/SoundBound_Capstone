@@ -5,7 +5,7 @@ from app.blueprints.books.schemas import BookLiteSchema
 
 
 
-class PlaylistBaseSchema(Schema):
+class PlaylistBaseSchema(Schema): #input
     title = fields.String(required=True, validate=validate.Length(min=1))
     description = fields.String(allow_none=True)
 
@@ -51,7 +51,7 @@ class PlaylistUpdateSchema(Schema):
 
 playlist_update_schema = PlaylistUpdateSchema()
 
-class PlaylistDumpSchema(Schema):
+class PlaylistDumpSchema(Schema): #serializer for dumping playlist data with nested books and user
     id = fields.Int()
     title = fields.String()
     description = fields.String()
@@ -60,7 +60,7 @@ class PlaylistDumpSchema(Schema):
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
 
-    # ⭐ Avoid circular reference
+   
     book_ids = fields.Method("get_book_ids")
     
     books = fields.Nested(BookLiteSchema, many=True)

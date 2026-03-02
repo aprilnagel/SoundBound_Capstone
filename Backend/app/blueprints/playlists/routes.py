@@ -169,6 +169,9 @@ def add_song_to_playlist(current_user, playlist_id):
     playlist = Playlists.query.get(playlist_id)
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
+    
+    if playlist.is_author_reco and playlist.user_id != current_user.id:
+        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     # Only the owner can modify the playlist
     if playlist.user_id != current_user.id:
@@ -267,6 +270,9 @@ def update_playlist(current_user, playlist_id):
 
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
+    
+    if playlist.is_author_reco and playlist.user_id != current_user.id:
+        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     if playlist.user_id != current_user.id:
         return jsonify({"error": "You do not own this playlist."}), 403
@@ -300,6 +306,9 @@ def delete_playlist(current_user, playlist_id):
 
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
+    
+    if playlist.is_author_reco and playlist.user_id != current_user.id:
+        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     # Only the owner can delete their playlist
     if playlist.user_id != current_user.id:
@@ -323,6 +332,9 @@ def add_tag_to_playlist(current_user, playlist_id):
     playlist = Playlists.query.get(playlist_id)
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
+    
+    if playlist.is_author_reco and playlist.user_id != current_user.id:
+        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     if playlist.user_id != current_user.id:
         return jsonify({"error": "You do not own this playlist."}), 403
@@ -354,6 +366,9 @@ def remove_tag_from_playlist(current_user, playlist_id, tag_id):
     playlist = Playlists.query.get(playlist_id)
     if not playlist:
         return jsonify({"error": "Playlist not found"}), 404
+    
+    if playlist.is_author_reco and playlist.user_id != current_user.id:
+        return jsonify({"error": "Author recommended playlists cannot be edited."}), 403
 
     if playlist.user_id != current_user.id:
         return jsonify({"error": "You do not own this playlist."}), 403

@@ -38,9 +38,6 @@ def spotify_search(current_user):
     return jsonify({"tracks": tracks}), 200
 
 
-
-
-
 # ---------------------------------------------------------
 # IMPORT SONG FROM SPOTIFY (standalone)
 # ---------------------------------------------------------

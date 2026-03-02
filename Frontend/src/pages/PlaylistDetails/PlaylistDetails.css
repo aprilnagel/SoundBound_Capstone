@@ -482,7 +482,7 @@ button{
 /* Delete button (red) */
 .confirm-delete {
   flex: 1;
-  padding: 0.7rem 1.2rem;
+  padding: 8px 20px 6px 20px;
   background: #ed3b7b;
   color: white;
   border: none;
@@ -499,7 +499,7 @@ button{
 /* Cancel button (purple, matches your app) */
 .cancel-delete {
   flex: 1;
-  padding: 0.7rem 1.2rem;
+  padding: 8px 20px 6px 20px;
   background: #ad7ad8;
   color: white;
   border: none;

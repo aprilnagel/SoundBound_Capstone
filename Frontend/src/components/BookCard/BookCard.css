@@ -58,6 +58,7 @@
 .book-cover-wrapper {
   position: relative;
   width: 90%;
+  height: 75%;
   display: flex;
   justify-content: center;
   align-items: center;

@@ -1,32 +1,28 @@
 import requests
 import re
 
+#=======================================================================
+# Helper file: 
+# - Fetches and normalizes book metadata from Open Library APIs since there are multiple endpoints (Work, Edition, Author) that each provide different pieces of data.
+# - Combines data from Work, Edition, and Author APIs for a comprehensive result
+#=====================================================================
 BASE_WORK_URL = "https://openlibrary.org/works/{work_key}.json"
 BASE_EDITIONS_URL = "https://openlibrary.org/works/{work_key}/editions.json?limit=50"
 BASE_AUTHOR_URL = "https://openlibrary.org/authors/{author_key}.json"
 
+#___________________1. MAIN FUNCTION TO FETCH AND NORMALIZE OPEN LIBRARY DATA___________________#
 
 def fetch_openlibrary_work(openlib_work_key: str):
-    """
-    Fetch full metadata for a book from Open Library by merging:
-    - Work API (subjects, description, covers, author keys)
-    - Edition API (ISBNs, author names, publish year)
-    - Author API (fallback for author names)
-
-    Always normalizes the work key so it accepts:
-    - "OL82563W"
-    - "/works/OL82563W"
-    """
-
+    
     # -------------------------
-    # Normalize Work ID
+    # Normalize Work ID (/works/OL12345W -> OL12345W)
     # -------------------------
     openlib_work_key = openlib_work_key.split("/")[-1]
 
     # -------------------------
     # 1. Fetch Work metadata
     # -------------------------
-    work_url = BASE_WORK_URL.format(work_key=openlib_work_key)
+    work_url = BASE_WORK_URL.format(work_key=openlib_work_key) 
     resp = requests.get(work_url, headers={"User-Agent": "YourApp/1.0"})
 
     if resp.status_code != 200:
@@ -34,7 +30,7 @@ def fetch_openlibrary_work(openlib_work_key: str):
 
     work = resp.json()
 
-    # Normalize description
+    # Normalize description. Make everything a string
     description = extract_description(work)
 
     # Extract subjects
@@ -44,10 +40,10 @@ def fetch_openlibrary_work(openlib_work_key: str):
     covers = work.get("covers") or []
     cover_id = covers[0] if covers else None
 
-    # Extract author keys
+    # Extract author keys (list comprehension with checks to avoid KeyErrors)
     author_keys = [
         a["author"]["key"].split("/")[-1]
-        for a in work.get("authors", [])
+        for a in work.get("authors", []) # Ensure "authors" exists and has the expected structure. [] as fallback to avoid KeyError
         if "author" in a and "key" in a["author"]
     ]
 
@@ -62,7 +58,7 @@ def fetch_openlibrary_work(openlib_work_key: str):
         editions = ed_resp.json().get("entries", [])
 
     # -------------------------
-    # ⭐ NEW LOGIC: earliest year + ALL ISBNs + latest ISBN
+    #  LOGIC: earliest year + ALL ISBNs + latest ISBN
     # -------------------------
     earliest_year = None
     latest_year = None
@@ -71,6 +67,7 @@ def fetch_openlibrary_work(openlib_work_key: str):
 
     for ed in editions:
         # Collect ALL ISBNs
+        # Note: isbn_13 and isbn_10 are lists of 10 or 13 digit strings. We want to flatten them into a single list of ISBNs.
         if ed.get("isbn_13"):
             all_isbns.extend(ed["isbn_13"])
         if ed.get("isbn_10"):
@@ -100,7 +97,7 @@ def fetch_openlibrary_work(openlib_work_key: str):
     isbn_list = all_isbns
 
     # -------------------------
-    # 2b. Edition cover fallback (keep your original logic)
+    # 2b. Edition cover fallback
     # -------------------------
     edition_data = editions[0] if editions else {}
     if not cover_id:
@@ -137,9 +134,9 @@ def fetch_openlibrary_work(openlib_work_key: str):
         "subjects": subjects,
         "author_names": edition_author_names,
         "author_keys": author_keys,
-        "isbn_list": isbn_list,              # ⭐ ALL ISBNs
-        "latest_isbn": latest_isbn,          # ⭐ NEW: LATEST EDITION ISBN
-        "first_publish_year": first_publish_year,  # ⭐ EARLIEST YEAR
+        "isbn_list": isbn_list,              
+        "latest_isbn": latest_isbn,          
+        "first_publish_year": first_publish_year,  
         "cover_id": cover_id,
         "cover_url": cover_url,
         "openlib_work_key": openlib_work_key,
@@ -148,7 +145,7 @@ def fetch_openlibrary_work(openlib_work_key: str):
 
 
 def extract_description(data):
-    """Normalize Open Library description field."""
+    
     desc = data.get("description")
 
     if isinstance(desc, str):
@@ -161,7 +158,7 @@ def extract_description(data):
 
 
 def fetch_author_names(author_keys):
-    """Fetch author names from the Author API."""
+    
     names = []
 
     for key in author_keys:

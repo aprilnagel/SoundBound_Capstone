@@ -16,10 +16,7 @@ SPOTIFY_SEARCH_URL = "https://api.spotify.com/v1/search"
 # --------------------------------------------------------
 
 def get_spotify_token():
-    """
-    Client Credentials Flow.
-    Returns a valid access token or None.
-    """
+    
     client_id = current_app.config["SPOTIFY_CLIENT_ID"]
     client_secret = current_app.config["SPOTIFY_CLIENT_SECRET"]
 
@@ -46,10 +43,7 @@ def get_spotify_token():
 # --------------------------------------------------------
 
 def fetch_spotify_track(spotify_id):
-    """
-    Fetch a track's metadata from Spotify.
-    Returns a normalized dict or None.
-    """
+    
     token = get_spotify_token()
     if not token:
         return None
@@ -77,10 +71,7 @@ def fetch_spotify_track(spotify_id):
 # --------------------------------------------------------
 
 def fetch_audio_features(spotify_id):
-    """
-    Fetch audio features (energy, valence, tempo, etc.)
-    Returns a dict or None.
-    """
+    
     token = get_spotify_token()
     if not token:
         return None
@@ -99,10 +90,7 @@ def fetch_audio_features(spotify_id):
 # --------------------------------------------------------
 
 def fetch_artist_genres(artist_id):
-    """
-    Fetch genres for a given artist.
-    Returns a list of strings.
-    """
+   
     token = get_spotify_token()
     if not token:
         return []
@@ -117,10 +105,6 @@ def fetch_artist_genres(artist_id):
 
 
 def fetch_genres_for_artists(artist_ids):
-    """
-    Fetch and merge genres for all artists on a track.
-    Returns a deduplicated list.
-    """
     genres = []
     for artist_id in artist_ids:
         g = fetch_artist_genres(artist_id)
@@ -131,14 +115,10 @@ def fetch_genres_for_artists(artist_ids):
 
 
 # --------------------------------------------------------
-# SEARCH TRACKS (NEW)
+# SEARCH TRACKS 
 # --------------------------------------------------------
 
 def search_spotify_tracks(query):
-    """
-    Search Spotify for tracks by name.
-    Returns a list of normalized track dicts.
-    """
     token = get_spotify_token()
     if not token:
         return []

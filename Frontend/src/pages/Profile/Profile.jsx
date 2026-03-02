@@ -52,6 +52,32 @@ export default function Profile() {
   const hasPending = applications.some((app) => app.status === "pending");
   const hasHistory = applications.length > 0;
 
+  const handleDeleteAccount = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your account? This cannot be undone.",
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/users/me`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        logout(); // clear token
+        navigate("/signup"); // or home page
+      } else {
+        console.error("Failed to delete account");
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    }
+  };
+
   return (
     <div className="profile-page">
       <Navbar />
@@ -100,7 +126,13 @@ export default function Profile() {
                 <>
                   {hasPending ? (
                     <button
-                      style={{ background: "#ffa18f", width: "90%" }}
+                      style={{
+                        background: "#ffa18f",
+                        width: "100%",
+                        fontSize: "20px",
+                        color: "white",
+                        fontFamily: "Manjari, system-ui",
+                      }}
                       onClick={() => navigate("/application-status")}
                       className="apply-author-button"
                     >
@@ -118,7 +150,12 @@ export default function Profile() {
 
                   {hasHistory && (
                     <button
-                      style={{ background: "#ffa18f", width: "90%" }}
+                      style={{
+                        background: "#ffa18f",
+                        width: "100%",
+                        color: "white",
+                        fontFamily: "Manjari, system-ui",
+                      }}
                       onClick={() => navigate("/application-history")}
                       className="history-button"
                     >
@@ -161,6 +198,13 @@ export default function Profile() {
             className="logout-button"
           >
             Logout
+          </button>
+
+          <button
+            onClick={handleDeleteAccount}
+            className="delete-account-button"
+          >
+            Delete Account
           </button>
         </div>
       </div>

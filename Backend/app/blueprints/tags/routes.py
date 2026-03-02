@@ -19,6 +19,9 @@ from app.utility.auth import token_required, require_role
 # Blueprint
 from . import tags_bp
 
+#=========================================
+#Creating tags is obsolete right now. I am manually inserting intot he DB"
+#=========================================
 
 #___________________CREATE TAG___________________#
 @tags_bp.post("")

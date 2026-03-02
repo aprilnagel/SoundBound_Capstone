@@ -151,49 +151,13 @@ def get_book_details(current_user, openlib_id):
     ol_data["cover_id"] = cover_id
     ol_data["openlib_id"] = openlib_id
 
-    # ⭐ THIS RETURN MUST STAY HERE TOO
+    
     return jsonify(ol_data), 200
 
 
-
-#_____________________GET BOOK BY ID (AFTER IMPORT AND AFTER THE BOOK EXISTS IN USER LIBRARY)_____________________#
-@books_bp.route("/id/<int:book_id>", methods=["GET"])
-@token_required
-def get_book_by_id(current_user, book_id):
-    book = Books.query.get(book_id)
-    if not book:
-        return jsonify({"error": "Book not found"}), 404
-
-    response = book_dump_schema.dump(book)
-
-    # Safe library check
-    library = current_user.library or []
-    response["in_user_library"] = int(book.id) in [int(x) for x in library]
-
-    # Safe author ownership check
-    user_keys = set(current_user.author_keys or [])
-    book_keys = set(book.author_keys or [])
-    response["is_owned_by_author"] = bool(user_keys.intersection(book_keys))
-    
-    # ⭐ ADD THIS — this is what CreatePlaylist needs ⭐
-    author_reco = (
-    Playlists.query
-    .filter(Playlists.is_author_reco == True)
-    .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
-    .filter(Playlist_Books.book_id == book.id)
-    .first()
-)
-
-    response["author_reco_playlist"] = (
-        author_reco.to_dict() if author_reco else None
-    )
-
-    # ⭐ END ADDITION ⭐
-
-    return jsonify(response), 200
-
 #_____________________IMPORT BOOK FROM OPEN LIBRARY_____________________#
 
+#ol = openlibrary 
 @books_bp.route("/add-book", methods=["POST"])
 @cross_origin()  # Allow CORS for this route
 @token_required
@@ -281,8 +245,6 @@ def import_book(current_user):
         source="verified"
         
     )
-
-
     db.session.add(book)
     db.session.commit()
 
@@ -295,6 +257,50 @@ def import_book(current_user):
 
     return jsonify({"book_id": book.id}), 201
 
+
+#===============================================================================
+# OBSOLETE. RETAINED BECAUSE I AM SCARED
+#===============================================================================
+
+#_____________________GET BOOK BY ID (AFTER IMPORT AND AFTER THE BOOK EXISTS IN USER LIBRARY)_____________________#
+@books_bp.route("/id/<int:book_id>", methods=["GET"])
+@token_required
+def get_book_by_id(current_user, book_id):
+    book = Books.query.get(book_id)
+    if not book:
+        return jsonify({"error": "Book not found"}), 404
+
+    response = book_dump_schema.dump(book)
+
+    # Safe library check
+    library = current_user.library or []
+    response["in_user_library"] = int(book.id) in [int(x) for x in library]
+
+    # Safe author ownership check
+    user_keys = set(current_user.author_keys or [])
+    book_keys = set(book.author_keys or [])
+    response["is_owned_by_author"] = bool(user_keys.intersection(book_keys))
+    
+    # ⭐ ADD THIS — this is what CreatePlaylist needs ⭐
+    author_reco = (
+    Playlists.query
+    .filter(Playlists.is_author_reco == True)
+    .join(Playlist_Books, Playlist_Books.playlist_id == Playlists.id)
+    .filter(Playlist_Books.book_id == book.id)
+    .first()
+)
+
+    response["author_reco_playlist"] = (
+        author_reco.to_dict() if author_reco else None
+    )
+
+    # ⭐ END ADDITION ⭐
+
+    return jsonify(response), 200
+
+#===============================================================================
+#FUTURE FEATURES (NOT YET IMPLEMENTED)
+#===============================================================================
 
 #_____________________SIMILAR BOOKS_____________________#
 

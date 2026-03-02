@@ -103,10 +103,15 @@
 
 .history-button {
   background: radial-gradient(#ad7ad8, #9b68c2);
+  height: 40px;
+  font-size: 22px;
 }
+
+
 
 .spotify-btn {
   
+  position: relative;          /* required for ::after positioning */
   padding: 10px 20px 6px 20px;
   border-radius: 20px;
   font-family: "Manjari", system-ui;
@@ -115,19 +120,34 @@
   height: 40px;
 
   color: white;
-  background: #a1d63e; /* soft green */
+  background: #a1d63e;
   text-decoration: none;
   cursor: pointer;
 
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  transition: transform 0.15s ease;
-  border: none; /* remove default button border */
+  transition: transform 0.15s ease, color 0.15s ease;
+  border: none;
   text-align: center;
+
 }
 
 .spotify-btn:hover {
   transform: translateY(-2px);
+  color: transparent; 
 }
+
+.spotify-btn:hover::after {
+  content: "Coming soon!";
+  position: absolute;
+  top: 56%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 25px;
+  font-weight: bold;
+  white-space: nowrap;   /* ← this keeps it on ONE line */
+}
+
 
 .apply-author-button:hover,
 .history-button:hover{
@@ -144,7 +164,7 @@
 }
 
 .edit-profile-button,
-.logout-button {
+.logout-button, .delete-account-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -160,6 +180,9 @@
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
+.delete-account-button {
+  background: #d63e3e;
+}
 .edit-profile-button {
   background: #ffc66e;
 }
