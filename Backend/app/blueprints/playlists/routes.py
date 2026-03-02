@@ -396,12 +396,15 @@ def listen_action(current_user):
     if not book_id or not author_playlist_id:
         return {"error": "Missing book_id or playlist_id"}, 400
 
-    # Add book to user's library if needed
+    # add book to user's library if needed
+    if current_user.library is None:
+        current_user.library = []
+
     if book_id not in current_user.library:
         current_user.library.append(book_id)
         db.session.commit()
 
-    # ⭐ DO NOT CLONE ANYTHING
+    # no cloning, no adding to user's playlists
     return {
         "user_playlist_id": author_playlist_id
     }, 200
