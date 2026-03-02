@@ -8,7 +8,7 @@
 }
 
 /* Main card (same as profile-card) */
-.application-history-card {
+.application-history-container {
   width: 75%;              /* matches your profile page */
   margin-top: 30px;
   padding: 25px;
@@ -26,11 +26,11 @@
 }
 
 /* Grid of square cards */
-.applications-grid {
+.applications-history-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 20px;
-  justify-items: start;
+  justify-items: center;
 }
 
 .application-history-back-button {
@@ -40,7 +40,7 @@
 }
 
 .back-button {
-  padding: 10px 20px 6px 20px;
+  padding: 6px 20px 6px 20px;
   border-radius: 20px;
   background: radial-gradient(#ad7ad8, #9b68c2);
   color: white;

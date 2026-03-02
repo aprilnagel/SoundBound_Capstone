@@ -15,14 +15,6 @@ export default function AdminCard({ application }) {
         <p><strong>User:</strong> {application.username}</p>
         <p><strong>Name:</strong> {application.first_name} {application.last_name}</p>
         <p><strong>Submitted:</strong> {new Date(application.submitted_at).toLocaleDateString()}</p>
-
-        {application.author_bio && (
-          <p className="admin-card-bio">
-            {application.author_bio.length > 80
-              ? application.author_bio.slice(0, 80) + "..."
-              : application.author_bio}
-          </p>
-        )}
       </div>
 
       <div className="admin-card-footer">

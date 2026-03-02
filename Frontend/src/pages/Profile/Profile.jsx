@@ -68,6 +68,7 @@ export default function Profile() {
       });
 
       if (response.ok) {
+        setProfileData(null);
         logout(); // clear token
         navigate("/signup"); // or home page
       } else {
@@ -167,9 +168,9 @@ export default function Profile() {
 
               {profileData.role === "author" && (
                 <Link
-                  style={{ background: "#ffa18f" }}
+                  style={{ background: "#ffa18f"}}
                   to="/application-history"
-                  className="apply-author-button"
+                  className="my-apps"
                 >
                   My Applications
                 </Link>

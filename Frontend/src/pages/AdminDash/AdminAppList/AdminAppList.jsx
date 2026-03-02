@@ -27,13 +27,13 @@ export default function AdminAppList() {
   }, []);
 
   return (
-    <div className="admin-app-list-page">
+    <div className="admin-all-apps-list-page">
       <Navbar />
 
       <div className="admin-all-apps-container">
         <h1>All Author Applications</h1>
 
-        <div className="admin-applications-grid">
+        <div className="admin-all-apps-grid">
           {applications.length === 0 ? (
             <p>No applications found.</p>
           ) : (

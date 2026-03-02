@@ -41,7 +41,7 @@ export default function ApplicationHistory() {
     <div className="application-history-page">
       <Navbar />
 
-      <div className="application-history-card">
+      <div className="application-history-container">
         <h1 className="application-history-title">My Author Applications</h1>
         <div className="application-history-back-button">
           <button onClick={() => navigate("/profile")} className="back-button">
@@ -56,7 +56,7 @@ export default function ApplicationHistory() {
             You haven’t submitted any author applications yet.
           </p>
         ) : (
-          <div className="applications-grid">
+          <div className="applications-history-grid">
             {applications.map((app) => (
               <ApplicationCard key={app.id} app={app} mode="user" />
             ))}

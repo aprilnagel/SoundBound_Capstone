@@ -1,9 +1,10 @@
 .admin-card {
   width: 300px;
-  min-height: 260px;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  
 
   background: white;
   border-radius: 20px;

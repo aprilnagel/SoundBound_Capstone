@@ -85,7 +85,7 @@
   width: 100%;
 
   padding: 10px 20px 6px 20px;
-  border-radius: 20px;
+  border-radius: 30px;
   font-family: "Manjari", system-ui;
   font-size: 25px;
   font-weight: bold;
@@ -97,6 +97,30 @@
   transition: transform 0.15s ease;
   border: none; /* remove default button border */
   text-align: center;
+}
+
+.my-apps {
+  position: relative;          /* required for ::after positioning */
+  padding: 10px 15px 6px 20px;
+  border-radius: 30px;
+  font-family: "Manjari", system-ui;
+  font-size: 25px;
+  font-weight: bold;
+  height: 25px;
+
+  color: white;
+  
+  text-decoration: none;
+  cursor: pointer;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.15s ease, color 0.15s ease;
+  border: none;
+  text-align: center;
+}
+.my-apps:hover {
+  transform: translateY(-2px);
+  opacity: 0.8;
 }
 
 
@@ -113,7 +137,7 @@
   
   position: relative;          /* required for ::after positioning */
   padding: 10px 20px 6px 20px;
-  border-radius: 20px;
+  border-radius: 30px;
   font-family: "Manjari", system-ui;
   font-size: 25px;
   font-weight: bold;
