@@ -51,7 +51,7 @@ class PlaylistUpdateSchema(Schema):
 
 playlist_update_schema = PlaylistUpdateSchema()
 
-class PlaylistDumpSchema(Schema): #serializer for dumping playlist data with nested books and user
+class PlaylistDumpSchema(Schema):
     id = fields.Int()
     title = fields.String()
     description = fields.String()
@@ -59,21 +59,18 @@ class PlaylistDumpSchema(Schema): #serializer for dumping playlist data with nes
     is_author_reco = fields.Boolean()
     created_at = fields.DateTime()
     updated_at = fields.DateTime()
-    
 
-   
     book_ids = fields.Method("get_book_ids")
-    
     books = fields.Nested(BookLiteSchema, many=True)
 
-    def get_book_ids(self, obj):
-        return [book.id for book in obj.books]
-
-
-    # minimal nested user
-    user = fields.Nested(UserPublicSchema, only=("id", "username"))
+    # ⭐ TRUE OWNER — not the join-table users
+    user_id = fields.Int()
+    user = fields.Nested(UserPublicSchema, only=("id", "username"), attribute="user")
 
     song_count = fields.Int()
+
+    class Meta:
+        exclude = ("users",)   # CRITICAL to prevent circular reference with UserPublicSchema
 
 
 playlist_dump_schema = PlaylistDumpSchema()

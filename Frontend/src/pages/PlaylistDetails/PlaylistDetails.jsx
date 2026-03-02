@@ -10,7 +10,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export default function PlaylistDetails() {
   const { id } = useParams();
-  const { token, user } = useContext(AuthContext);   // ⭐ GET CURRENT USER HERE
+  const { token, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [playlist, setPlaylist] = useState(null);
@@ -147,9 +147,10 @@ export default function PlaylistDetails() {
 
   const book = playlist.books?.[0];
 
-  // ⭐ CORRECT OWNER LOGIC
-  const isOwner = playlist.user.id === user?.id;
-  const isReadOnly = !isOwner;
+  // ⭐ UNIVERSAL OWNER LOGIC (WORKS FOR ALL PLAYLIST TYPES)
+  const ownerId = playlist.user_id ?? playlist.user?.id;
+  const isOwner = ownerId === user?.id;
+
 
   // group tags
   const groupedTags = allTags.reduce((groups, tag) => {
@@ -159,7 +160,6 @@ export default function PlaylistDetails() {
     return groups;
   }, {});
 
-  
   return (
     <div className="playlist-details-page">
       <Navbar />
@@ -190,7 +190,7 @@ export default function PlaylistDetails() {
 
             {book && <h2 className="playlist-book">Book: {book.title}</h2>}
 
-            {/* ⭐ ONLY AUTHOR SEES EDIT/DELETE */}
+            {/* ⭐ ONLY OWNER SEES EDIT/DELETE */}
             {isOwner && (
               <div className="playlist-actions">
                 <button
@@ -249,7 +249,7 @@ export default function PlaylistDetails() {
                 <div key={tag.id} className="tag-pill">
                   {tag.mood_name}
 
-                  {/* ⭐ ONLY AUTHOR CAN REMOVE TAGS */}
+                  {/* ⭐ ONLY OWNER CAN REMOVE TAGS */}
                   {isOwner && (
                     <button
                       className="remove-tag-btn"
@@ -262,7 +262,7 @@ export default function PlaylistDetails() {
               ))}
             </div>
 
-            {/* ⭐ ONLY AUTHOR CAN ADD TAGS */}
+            {/* ⭐ ONLY OWNER CAN ADD TAGS */}
             {isOwner && (
               <div className="tag-controls">
                 <select
