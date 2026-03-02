@@ -162,6 +162,9 @@ export default function PlaylistDetails() {
   if (!playlist) return <div className="pd-loading">Loading...</div>;
 
   const book = playlist.books?.[0];
+  const currentUserId = playlist.current_user_id; // if your backend sends it
+  const isReadOnly =
+    playlist.is_author_reco && playlist.user_id !== currentUserId;
 
   // Group tags by category
   const groupedTags = allTags.reduce((groups, tag) => {
@@ -204,47 +207,50 @@ export default function PlaylistDetails() {
 
             {book && <h2 className="playlist-book">Book: {book.title}</h2>}
 
-            <div className="playlist-actions">
-              <button
-                className="edit-playlist-btn"
-                onClick={() =>
-                  navigate(`/create-playlist?playlist_id=${playlist.id}`)
-                }
-              >
-                Edit Playlist
-              </button>
-              <button
-                className="delete-playlist-btn"
-                onClick={() => setShowDeletePopup(true)}
-              >
-                Delete Playlist
-              </button>
-              {showDeletePopup && (
-                <div className="popup-overlay">
-                  <div className="popup">
-                    <h3>Delete Playlist?</h3>
-                    <p>This action cannot be undone.</p>
+            {!isReadOnly && (
+              <div className="playlist-actions">
+                <button
+                  className="edit-playlist-btn"
+                  onClick={() =>
+                    navigate(`/create-playlist?playlist_id=${playlist.id}`)
+                  }
+                >
+                  Edit Playlist
+                </button>
+                <button
+                  className="delete-playlist-btn"
+                  onClick={() => setShowDeletePopup(true)}
+                >
+                  Delete Playlist
+                </button>
+                {showDeletePopup && (
+                  <div className="popup-overlay">
+                    <div className="popup">
+                      <h3>Delete Playlist?</h3>
+                      <p>This action cannot be undone.</p>
 
-                    <div className="popup-buttons">
-                      <button
-                        className="confirm-delete"
-                        onClick={handleDeletePlaylist}
-                      >
-                        Delete
-                      </button>
+                      <div className="popup-buttons">
+                        <button
+                          className="confirm-delete"
+                          onClick={handleDeletePlaylist}
+                        >
+                          Delete
+                        </button>
 
-                      <button
-                        className="cancel-delete"
-                        onClick={() => setShowDeletePopup(false)}
-                      >
-                        Cancel
-                      </button>
+                        <button
+                          className="cancel-delete"
+                          onClick={() => setShowDeletePopup(false)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
+
 
           {/* COLUMN 3 — TAGS + SELECT + ADD */}
           <div className="playlist-tags-col">
