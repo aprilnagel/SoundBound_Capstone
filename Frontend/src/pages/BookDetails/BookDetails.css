@@ -184,11 +184,11 @@
 }
 
 
-.listen-btn {
+.listen-bd-btn {
   background: #52dbf4;
   color: white;
   border: none;
-  padding: 10px 14px 6px 14px;
+  padding: 8px 6px 10px 14px;
   border-radius: 30px;
   cursor: pointer;
   font-size: 25px;
@@ -198,9 +198,10 @@
   align-items: center;
   text-align: center;
   justify-content: center;
+  height: 30px;
 }
 
-.listen-btn:hover {
+.listen-bd-btn:hover {
   opacity: 0.85;
 }
 

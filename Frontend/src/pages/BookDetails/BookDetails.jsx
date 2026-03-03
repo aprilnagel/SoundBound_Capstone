@@ -282,7 +282,7 @@ const BookDetails = () => {
                 ))}
               </div>
 
-              <button className="listen-btn" onClick={handleListen}>
+              <button className="listen-bd-btn" onClick={handleListen}>
                 Listen!
               </button>
             </div>
