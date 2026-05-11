@@ -1,33 +1,32 @@
 import Navbar from "../../components/Navbar/Navbar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import "./CreatePlaylist.css";
-import { useContext } from "react";
 import { AuthContext } from "../../contexts/Auth";
 
 const API_URL = "https://soundbound-capstone.onrender.com";
 
 export default function CreatePlaylist() {
+  // ------------------ CONTEXT + NAV ------------------ //
   const { user, loading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const token = localStorage.getItem("token");
-
-  const currentUserRole = user?.role;
 
   // ------------------ MODE ------------------ //
   const bookId = searchParams.get("book_id");
-
-  // ----------------MODE CHECK----------------//
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const playlistId = params.get("playlist_id");
+  const playlistId = new URLSearchParams(location.search).get("playlist_id");
   const isEditMode = Boolean(playlistId);
-  const [saving, setSaving] = useState(false);
+  const isCustomMode = !bookId && !isEditMode;
 
   // ------------------ STATE ------------------ //
   const [pageLoading, setPageLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
   const [book, setBook] = useState(null);
+  const [savedInLibrary, setSavedInLibrary] = useState(null);
+  const [savedOwnedByAuthor, setSavedOwnedByAuthor] = useState(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -40,11 +39,7 @@ export default function CreatePlaylist() {
 
   const [songs, setSongs] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
-  const isCustomMode = !bookId && !isEditMode;
-  const [savedInLibrary, setSavedInLibrary] = useState(null);
-  const [savedOwnedByAuthor, setSavedOwnedByAuthor] = useState(null);
 
-  //------------SEARCHES-----------------//
   const [searchTitle, setSearchTitle] = useState("");
   const [searchArtist, setSearchArtist] = useState("");
   const [searchAlbum, setSearchAlbum] = useState("");
@@ -52,10 +47,29 @@ export default function CreatePlaylist() {
   const [sortBy, setSortBy] = useState("");
   const [filter, setFilter] = useState("");
 
-  //----------------POP UP----------------//
   const [showSaved, setShowSaved] = useState(false);
 
-  // ------------------ LOAD BOOK ------------------ //
+  const currentUserRole = user?.role;
+
+  // ------------------ PROCESSED RESULTS ------------------ //
+  const processedResults = Array.isArray(searchResults)
+    ? [...searchResults]
+        .filter((song) => {
+          if (!filter) return true;
+          const q = filter.toLowerCase();
+          return (
+            song.title?.toLowerCase().includes(q) ||
+            song.artist?.toLowerCase().includes(q) ||
+            song.album?.toLowerCase().includes(q)
+          );
+        })
+        .sort((a, b) => {
+          if (!sortBy || sortBy === "relevance") return 0;
+          return (a[sortBy] || "").localeCompare(b[sortBy] || "");
+        })
+    : [];
+
+  // ------------------ LOAD BOOK (CREATE MODE) ------------------ //
   async function loadBook() {
     try {
       const res = await fetch(`${API_URL}/books/id/${bookId}`, {
@@ -65,7 +79,6 @@ export default function CreatePlaylist() {
       if (!res.ok) throw new Error("Failed to fetch book");
 
       const data = await res.json();
-      console.log("BOOK IN CREATE PLAYLIST:", book);
       setBook(data);
       setSavedInLibrary(data.in_user_library);
       setSavedOwnedByAuthor(data.is_owned_by_author);
@@ -76,26 +89,20 @@ export default function CreatePlaylist() {
     }
   }
 
-  // ----------EFFECT (create/edit modes) -------------- //
   useEffect(() => {
-    if (isEditMode) return; // do NOT load book in edit mode
+    if (isEditMode) return;
     if (!bookId) return;
-
     loadBook();
   }, [bookId, isEditMode]);
 
-  // ------------------ CUSTOM MODE: STOP LOADING ------------------ //
+  // ------------------ CUSTOM MODE ------------------ //
   useEffect(() => {
-    if (isCustomMode) {
-      setPageLoading(false);
-    }
+    if (isCustomMode) setPageLoading(false);
   }, [isCustomMode]);
 
-  // ----------- LOAD PLAYLIST (EDIT MODE) -------------- //
+  // ------------------ LOAD PLAYLIST (EDIT MODE) ------------------ //
   useEffect(() => {
-    if (!isEditMode) return;
-    if (!playlistId) return;
-    if (!token) return;
+    if (!isEditMode || !playlistId || !token) return;
 
     async function fetchPlaylist() {
       try {
@@ -106,11 +113,11 @@ export default function CreatePlaylist() {
         if (!res.ok) throw new Error("Failed to fetch playlist");
 
         const data = await res.json();
-        console.log("PLAYLIST DATA:", data);
 
-        // Prefill fields
+        // Prefill playlist fields
         setTitle(data.title || "");
         setDescription(data.description || "");
+
         setSongs(
           (data.playlist_songs || []).map((ps) => ({
             id: ps.song.id,
@@ -118,23 +125,38 @@ export default function CreatePlaylist() {
             artist: ps.song.artists,
             album: ps.song.album,
             spotify_id: ps.song.spotify_id,
-          })),
+          }))
         );
 
-        // TEMPORARY book (lite version)
-        const liteBook = data.books?.[0] || null;
-        setBook(liteBook);
         setIsAuthorReco(data.is_author_reco);
 
-        // ⭐ FETCH FULL BOOK METADATA
-        if (liteBook?.openlib_id) {
-          const bookRes = await fetch(`${API_URL}/books/id/${liteBook.id}`, {
+        // Normalize lite book
+        const liteBook = data.books?.[0] || null;
+
+        if (liteBook) {
+          const normalizedLite = {
+            ...liteBook,
+            authors: liteBook.authors || liteBook.author_names || [],
+            publish_year:
+              liteBook.publish_year ||
+              liteBook.first_publish_year ||
+              null,
+            cover_url: liteBook.cover_url || null,
+            cover_id: liteBook.cover_id || null,
+            author_reco_playlist_id:
+              data.is_author_reco ? data.id : liteBook.author_reco_playlist_id,
+          };
+
+          setBook(normalizedLite);
+
+          // Fetch full metadata
+          const fullRes = await fetch(`${API_URL}/books/id/${liteBook.id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
-          if (bookRes.ok) {
-            const fullBook = await bookRes.json();
-            setBook(fullBook); // overwrite with full metadata
+          if (fullRes.ok) {
+            const fullBook = await fullRes.json();
+            setBook(fullBook);
             setSavedInLibrary(fullBook.in_user_library);
             setSavedOwnedByAuthor(fullBook.is_owned_by_author);
           }
@@ -161,10 +183,8 @@ export default function CreatePlaylist() {
       const res = await fetch(
         `${API_URL}/songs/spotify/search?q=${encodeURIComponent(query)}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
 
       if (!res.ok) throw new Error("Spotify search failed");
@@ -176,29 +196,20 @@ export default function CreatePlaylist() {
     }
   }
 
-  // ⭐ AUTO-SEARCH EFFECT — PLACE IT RIGHT HERE ⭐
   useEffect(() => {
     const query = [searchTitle, searchArtist, searchAlbum]
       .filter(Boolean)
       .join(" ");
 
-    if (query.length > 1) {
-      searchSongs(query);
-    } else {
-      setSearchResults([]);
-    }
+    if (query.length > 1) searchSongs(query);
+    else setSearchResults([]);
   }, [searchTitle, searchArtist, searchAlbum]);
 
-  // ---------------ADD / REMOVE SONGS -------------- //
-
+  // ------------------ ADD / REMOVE SONGS ------------------ //
   async function addSong(song) {
-    // Prevent duplicates in UI
     if (songs.some((s) => s.id === song.id)) return;
-
-    // Update UI immediately
     setSongs((prev) => [...prev, song]);
 
-    // If editing, update playlist immediately
     if (isEditMode) {
       await fetch(`${API_URL}/playlists/${playlistId}/songs`, {
         method: "POST",
@@ -212,16 +223,12 @@ export default function CreatePlaylist() {
   }
 
   async function removeSong(songId) {
-    // Update UI immediately
     setSongs((prev) => prev.filter((s) => s.id !== songId));
 
-    // If editing, update playlist immediately
     if (isEditMode) {
       await fetch(`${API_URL}/playlists/${playlistId}/songs/${songId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
     }
   }
@@ -229,11 +236,10 @@ export default function CreatePlaylist() {
   // ------------------ SAVE PLAYLIST ------------------ //
   async function savePlaylist() {
     try {
-      setSaving(true); // disable UI
+      setSaving(true);
 
-      let payload; // ⭐ REQUIRED — declare before assigning
+      let payload;
 
-      // ------------------ CREATE MODE ------------------ //
       if (!isEditMode) {
         if (bookId) {
           payload = {
@@ -251,15 +257,8 @@ export default function CreatePlaylist() {
             custom_publish_year: customYear || null,
           };
         }
-
-        // ------------------ EDIT MODE ------------------ //
       } else {
-        payload = {
-          title,
-          description,
-        };
-
-        // Only authors can toggle this field
+        payload = { title, description };
         if (currentUserRole === "author") {
           payload.is_author_reco = isAuthorReco;
         }
@@ -280,15 +279,10 @@ export default function CreatePlaylist() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error("SAVE ERROR RESPONSE:", errText);
-        throw new Error("Failed to save playlist");
-      }
+      if (!res.ok) throw new Error("Failed to save playlist");
 
       const playlist = await res.json();
 
-      // ------------------ ADD SONGS (CREATE ONLY) ------------------ //
       if (!isEditMode) {
         for (const s of songs) {
           await fetch(`${API_URL}/playlists/${playlist.id}/songs`, {
@@ -302,8 +296,18 @@ export default function CreatePlaylist() {
         }
       }
 
-      setShowSaved(true);
+      if (isEditMode && book?.id) {
+        const updatedBookRes = await fetch(`${API_URL}/books/id/${book.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
+        if (updatedBookRes.ok) {
+          const updatedBook = await updatedBookRes.json();
+          setBook(updatedBook);
+        }
+      }
+
+      setShowSaved(true);
       setTimeout(() => {
         setShowSaved(false);
         navigate(`/playlist-details/${playlist.id}`);
@@ -315,38 +319,22 @@ export default function CreatePlaylist() {
     }
   }
 
-  const processedResults = [...searchResults]
-    .filter((song) => {
-      if (!filter) return true;
-      const q = filter.toLowerCase();
-      return (
-        song.title.toLowerCase().includes(q) ||
-        song.artist.toLowerCase().includes(q) ||
-        song.album.toLowerCase().includes(q)
-      );
-    })
-    .sort((a, b) => {
-      if (!sortBy || sortBy === "relevance") return 0; // keep original order
-
-      return (a[sortBy] || "").localeCompare(b[sortBy] || "");
-    });
-
   // ------------------ RENDER ------------------ //
-  if (loading) return <div>Loading...</div>; // from AuthContext
-  if (pageLoading) return <div>Loading book...</div>; // your component
+  if (loading) return <div>Loading...</div>;
+  if (pageLoading) return <div>Loading book...</div>;
 
   const isVerified = !isCustomMode && book?.source === "verified";
 
   const canAuthorReco =
     !isCustomMode &&
     book?.source === "verified" &&
-    book?.author_keys?.some((key) => user?.author_keys?.includes(key));
+    book?.author_keys?.some((key) => user?.author_keys?.includes(key)) &&
+    !book?.author_reco_playlist_id;
 
   return (
     <div className="create-playlist-page">
-      {" "}
       <Navbar />
-      {/* ⭐ SAVED POPUP GOES RIGHT HERE ⭐ */}
+
       {showSaved && (
         <div className="success-popup">
           <div className="success-box">
@@ -355,15 +343,14 @@ export default function CreatePlaylist() {
           </div>
         </div>
       )}
+
       <div className="playlist-container">
-        {/* ---------------- BOOK INFO + BOOK FIELDS ---------------- */}
+        {/* BOOK INFO */}
         <div className="book-info-small">
           <div className="book-meta">
             <h3 className="playlist-heading">
               <span className="label">
-                {isEditMode
-                  ? "Editing playlist for:"
-                  : "Creating playlist for:"}
+                {isEditMode ? "Editing playlist for:" : "Creating playlist for:"}
               </span>
               <span className="book-title">
                 {isCustomMode ? customTitle || "(Custom Book)" : book?.title}
@@ -374,8 +361,7 @@ export default function CreatePlaylist() {
               Verified: <span>{isVerified ? "Yes" : "No"}</span>
             </p>
 
-            {/* Verified book → optional author reco */}
-            {isVerified && canAuthorReco && !book?.author_reco_playlist && (
+            {isVerified && canAuthorReco && (
               <label className="author-reco-toggle">
                 <input
                   type="checkbox"
@@ -387,7 +373,6 @@ export default function CreatePlaylist() {
               </label>
             )}
 
-            {/* Custom book → custom fields */}
             {isCustomMode && (
               <div className="custom-book-fields">
                 <input
@@ -413,7 +398,7 @@ export default function CreatePlaylist() {
           </div>
         </div>
 
-        {/* ---------------- PLAYLIST TITLE ROW ---------------- */}
+        {/* PLAYLIST TITLE */}
         <div className="playlist-input-row">
           <input
             className="playlist-input"
@@ -434,7 +419,7 @@ export default function CreatePlaylist() {
           </button>
         </div>
 
-        {/* ---------------- SONG SEARCH & RESULTS ---------------- */}
+        {/* SONG SEARCH */}
         <div className="song-search-row">
           <input
             className="song-search-input"
@@ -471,7 +456,7 @@ export default function CreatePlaylist() {
         </div>
 
         <div className="song-columns">
-          {/* LEFT SIDE: HEADER + RESULTS */}
+          {/* LEFT: RESULTS */}
           <div className="song-results-table">
             <div className="results-controls">
               <select
@@ -520,7 +505,7 @@ export default function CreatePlaylist() {
             </div>
           </div>
 
-          {/* RIGHT SIDE: PLAYLIST SONGS */}
+          {/* RIGHT: PLAYLIST SONGS */}
           {songs.length > 0 && (
             <div className="current-songs">
               <h3>Playlist Songs</h3>
@@ -532,7 +517,8 @@ export default function CreatePlaylist() {
                       <div className="song-artist">{song.artist}</div>
                     </div>
 
-                    <button className="del-btn"
+                    <button
+                      className="del-btn"
                       onClick={() => !saving && removeSong(song.id)}
                       disabled={saving}
                     >

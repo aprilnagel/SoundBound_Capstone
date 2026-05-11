@@ -260,6 +260,8 @@ def get_author_reco_playlists():
 
 #_____________________UPDATE PLAYLIST_____________________#
 
+#_____________________UPDATE PLAYLIST_____________________#
+
 @playlists_bp.route("/<int:playlist_id>", methods=["PUT"])
 @token_required
 def update_playlist(current_user, playlist_id):
@@ -284,12 +286,23 @@ def update_playlist(current_user, playlist_id):
     if "is_author_reco" in data:
         if current_user.role != "author":
             return jsonify({"error": "Only authors can toggle author recommendation."}), 403
+
         playlist.is_author_reco = data["is_author_reco"]
         playlist.is_public = data["is_author_reco"]
 
+        # ⭐ GET THE BOOK ASSOCIATED WITH THIS PLAYLIST
+        book = playlist.books[0] if playlist.books else None
+
+        if book:
+            if data["is_author_reco"]:
+                # ⭐ TURNING ON — link book → playlist
+                book.author_reco_playlist_id = playlist.id
+            else:
+                # ⭐ TURNING OFF — unlink book → playlist
+                book.author_reco_playlist_id = None
+
     db.session.commit()
     return jsonify(playlist_dump_schema.dump(playlist)), 200
-
 
 #_____________________DELETE PLAYLIST_____________________#
 

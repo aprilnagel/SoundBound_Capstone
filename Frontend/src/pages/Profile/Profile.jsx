@@ -11,6 +11,7 @@ export default function Profile() {
 
   const [profileData, setProfileData] = useState(null);
   const [applications, setApplications] = useState([]);
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
 
   useEffect(() => {
     async function fetchProfileData() {
@@ -52,15 +53,8 @@ export default function Profile() {
   const hasPending = applications.some((app) => app.status === "pending");
   const hasHistory = applications.length > 0;
 
+  // 🔥 NEW: Delete handler no longer uses window.confirm()
   const handleDeleteAccount = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete your account? This cannot be undone.",
-      )
-    ) {
-      return;
-    }
-
     try {
       const response = await fetch(`${API_BASE_URL}/users/me`, {
         method: "DELETE",
@@ -69,8 +63,8 @@ export default function Profile() {
 
       if (response.ok) {
         setProfileData(null);
-        logout(); // clear token
-        navigate("/signup"); // or home page
+        logout();
+        navigate("/signup");
       } else {
         console.error("Failed to delete account");
       }
@@ -89,7 +83,7 @@ export default function Profile() {
 
         {profileData ? (
           <div className="profile-grid">
-            {/* LEFT COLUMN — CLEAN TWO-COLUMN GRID */}
+            {/* LEFT COLUMN */}
             <div className="profile-left">
               <span className="pro-label">Pen Name:</span>
               <span className="value">{profileData.username}</span>
@@ -168,7 +162,7 @@ export default function Profile() {
 
               {profileData.role === "author" && (
                 <Link
-                  style={{ background: "#ffa18f"}}
+                  style={{ background: "#ffa18f" }}
                   to="/application-history"
                   className="my-apps"
                 >
@@ -183,6 +177,7 @@ export default function Profile() {
           <p>Loading profile data...</p>
         )}
 
+        {/* ACTION BUTTONS */}
         <div className="profile-actions">
           <button
             onClick={() => navigate("/profile/edit")}
@@ -201,12 +196,40 @@ export default function Profile() {
             Logout
           </button>
 
+          {/* 🔥 DELETE BUTTON OPENS POPUP */}
           <button
-            onClick={handleDeleteAccount}
+            onClick={() => setShowDeletePopup(true)}
             className="delete-account-button"
           >
             Delete Account
           </button>
+
+          {/* 🔥 POPUP (kept inside profile-actions, but fixed-position overlay) */}
+          {showDeletePopup && (
+            <div className="delete-popup">
+              <div className="delete-box">
+                <div className="delete-icon">⚠️</div>
+                <h2>Delete Account?</h2>
+                <p>This action cannot be undone.</p>
+
+                <div className="delete-buttons">
+                  <button
+                    className="delete-cancel"
+                    onClick={() => setShowDeletePopup(false)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    className="delete-confirm"
+                    onClick={handleDeleteAccount}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

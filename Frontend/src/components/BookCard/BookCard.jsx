@@ -18,14 +18,18 @@ export default function BookCard({
     ? `https://covers.openlibrary.org/b/id/${book.cover_id}-M.jpg`
     : book.cover_url || fallbackCover;
 
+  
+
+
   return (
     <div
       className={`book-card ${showLibraryActions ? "in-library" : ""}`}
       onClick={() => navigate(`/book-details/${book.openlib_id}`)}
     >
       <div className="book-cover-wrapper">
-        {/* ⭐ Badge only in search mode */}
-        {book.author_reco_playlist && (
+
+        {/* ⭐ FIXED: Badge only when author_reco_playlist_id exists */}
+        {book.author_reco_playlist_id && (
           <div className="bookcard-reco-badge">
             <BookmarkAddedIcon sx={{ fontSize: 50, color: "#a1d63e" }} />
           </div>
@@ -64,6 +68,7 @@ export default function BookCard({
         {/* LIBRARY ACTIONS */}
         {showLibraryActions && (
           <div className="library-actions">
+
             {/* CREATE PERSONAL PLAYLIST */}
             {!book.user_playlist_id && (
               <button
@@ -92,16 +97,16 @@ export default function BookCard({
               </button>
             )}
 
-            {/* ⭐ AUTHOR RECO LOGIC */}
+            {/* ⭐ FIXED AUTHOR RECO LOGIC */}
             {canAuthorReco && (
               <>
-                {book.author_reco_playlist?.id ? (
+                {book.author_reco_playlist_id ? (
                   <button
                     className="view-author-reco-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigate(
-                        `/playlist-details/${book.author_reco_playlist.id}`,
+                        `/playlist-details/${book.author_reco_playlist_id}`
                       );
                     }}
                   >

@@ -2,23 +2,39 @@ import { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar/Navbar";
 import BookCard from "../../components/BookCard/BookCard";
 import "./BookSearch.css";
-import { useNavigate, useNavigationType } from "react-router-dom";
+import { useNavigate, useNavigationType, useLocation } from "react-router-dom";
+
+const API_URL = "https://soundbound-capstone.onrender.com";
 
 const BookSearch = () => {
   const navigate = useNavigate();
   const navType = useNavigationType();
+  const location = useLocation();
 
+  // ------------------ STATE ------------------ //
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [isbn, setIsbn] = useState("");
   const [year, setYear] = useState("");
+
   const [results, setResults] = useState([]);
   const [sortBy, setSortBy] = useState("relevance");
-
-  // ⭐ NEW: track whether user is doing normal search or author-reco search
   const [searchMode, setSearchMode] = useState("normal"); // "normal" | "author-reco"
 
-  // Restore saved search on mount
+  // ------------------ REFRESH ON RETURN ------------------ //
+  useEffect(() => {
+    if (location.state?.refresh) {
+      clearSearch();
+    }
+  }, [location.state]);
+
+  useEffect(() => {
+    if (location.state?.refresh) {
+      navigate(location.pathname, { replace: true });
+    }
+  }, [location.state, navigate, location.pathname]);
+
+  // ------------------ RESTORE SEARCH ON BACK NAV ------------------ //
   useEffect(() => {
     if (navType === "POP") {
       const savedResults = localStorage.getItem("bookSearchResults");
@@ -45,14 +61,14 @@ const BookSearch = () => {
     }
   }, [navType]);
 
-  // Extract last name from "First Last"
+  // ------------------ UTIL ------------------ //
   const getLastName = (name) => {
     if (!name) return "";
     const parts = name.trim().split(" ");
     return parts[parts.length - 1];
   };
 
-  // SORTING LOGIC
+  // ------------------ SORTING ------------------ //
   const sortedResults = [...results].sort((a, b) => {
     const authorA = a.authors?.[0] || "";
     const authorB = b.authors?.[0] || "";
@@ -75,7 +91,7 @@ const BookSearch = () => {
     }
   });
 
-  // SEARCH HANDLER
+  // ------------------ NORMAL SEARCH ------------------ //
   const handleSearch = async (e) => {
     e.preventDefault();
     setSearchMode("normal");
@@ -86,46 +102,53 @@ const BookSearch = () => {
     if (isbn) params.append("isbn", isbn);
     if (year) params.append("year", year);
 
-    // 1️⃣ Fetch from Open Library (unchanged)
-    const res = await fetch(
-      `https://soundbound-capstone.onrender.com/books/search?${params.toString()}`,
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      },
-    );
+    const res = await fetch(`${API_URL}/books/search?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
 
     const data = await res.json();
     const finalResults = Array.isArray(data) ? data : [];
 
-    // 2️⃣ Collect Open Library IDs
+    // Fetch enrich data
     const openlibIds = finalResults.map((b) => b.openlib_id);
 
-    // 3️⃣ Ask backend which of these exist in DB
-    const enrichRes = await fetch(
-      "https://soundbound-capstone.onrender.com/books/enrich",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ openlib_ids: openlibIds }),
+    const enrichRes = await fetch(`${API_URL}/books/enrich`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
-    );
+      body: JSON.stringify({ openlib_ids: openlibIds }),
+    });
 
     const enrichData = await enrichRes.json();
 
-    // 4️⃣ Merge DB metadata into Open Library results
-    const merged = finalResults.map((book) => ({
-      ...book,
-      ...(enrichData[book.openlib_id] || {}),
-    }));
+    // ⭐ FIXED MERGE — NEVER DROP PLAYLIST ID
+    const merged = finalResults.map((book) => {
+      const enriched = enrichData[book.openlib_id] || {};
 
-    // 5️⃣ Save + set results
+      return {
+        ...book,
+        ...enriched,
+
+        // ⭐ ALWAYS preserve playlist ID if it exists anywhere
+        author_reco_playlist_id:
+          enriched.author_reco_playlist_id ??
+          book.author_reco_playlist_id ??
+          book.author_reco_playlist?.id ??
+          null,
+
+        // ⭐ Normalize fields
+        authors: book.authors || book.author_names || [],
+        publish_year: book.publish_year || book.first_publish_year || null,
+        cover_id: book.cover_id || null,
+        cover_url: book.cover_url || null,
+      };
+    });
+
     setResults(merged);
 
+    // Save search state
     localStorage.setItem("bookSearchResults", JSON.stringify(merged));
     localStorage.setItem(
       "bookSearchInputs",
@@ -135,21 +158,7 @@ const BookSearch = () => {
     localStorage.setItem("bookSearchMode", "normal");
   };
 
-  // CLEAR SEARCH
-  const clearSearch = () => {
-    setTitle("");
-    setAuthor("");
-    setYear("");
-    setIsbn("");
-    setResults([]);
-    setSearchMode("normal");
-
-    localStorage.removeItem("bookSearchResults");
-    localStorage.removeItem("bookSearchInputs");
-    localStorage.removeItem("bookSearchSort");
-    localStorage.removeItem("bookSearchMode");
-  };
-
+  // ------------------ AUTHOR RECO SEARCH ------------------ //
   const handleAuthorRecoSearch = async () => {
     setSearchMode("author-reco");
 
@@ -158,20 +167,19 @@ const BookSearch = () => {
     setYear("");
     setIsbn("");
 
-    const res = await fetch(
-      "https://soundbound-capstone.onrender.com/books/author-reco",
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      },
-    );
+    const res = await fetch(`${API_URL}/books/author-reco`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
 
     const data = await res.json();
 
-    // ⭐ Normalize DB books to match OpenLibrary search shape
+    // ⭐ FIXED NORMALIZATION — PRESERVE PLAYLIST ID
     const normalized = data.map((book) => ({
       ...book,
+
+      author_reco_playlist_id:
+        book.author_reco_playlist_id ?? book.author_reco_playlist?.id ?? null,
+
       authors: book.authors || book.author_names || [],
       publish_year: book.publish_year || book.first_publish_year || null,
       cover_id: book.cover_id || null,
@@ -186,6 +194,22 @@ const BookSearch = () => {
     localStorage.setItem("bookSearchMode", "author-reco");
   };
 
+  // ------------------ CLEAR SEARCH ------------------ //
+  const clearSearch = () => {
+    setTitle("");
+    setAuthor("");
+    setYear("");
+    setIsbn("");
+    setResults([]);
+    setSearchMode("normal");
+
+    localStorage.removeItem("bookSearchResults");
+    localStorage.removeItem("bookSearchInputs");
+    localStorage.removeItem("bookSearchSort");
+    localStorage.removeItem("bookSearchMode");
+  };
+
+  // ------------------ RENDER ------------------ //
   return (
     <div className="book-search-page">
       <Navbar />
@@ -229,29 +253,28 @@ const BookSearch = () => {
             onChange={(e) => setIsbn(e.target.value)}
           />
 
-          <button className="search-btn" type="submit">Search</button>
+          <button className="search-btn" type="submit">
+            Search
+          </button>
           <button className="clear-btn" type="button" onClick={clearSearch}>
             Clear
           </button>
         </form>
 
-        {/* ⭐ AUTHOR RECO BUTTON */}
+        {/* AUTHOR RECO TOGGLE */}
         <label className="author-reco-checkbox inline-with-form">
           <input
             type="checkbox"
             onChange={(e) => {
               e.stopPropagation();
-              if (e.target.checked) {
-                handleAuthorRecoSearch();
-              } else {
-                clearSearch();
-              }
+              if (e.target.checked) handleAuthorRecoSearch();
+              else clearSearch();
             }}
           />
           Show Author Reco Books
         </label>
 
-        {/* RESULTS + RADIO SORTING */}
+        {/* RESULTS + SORTING */}
         {results.length > 0 && (
           <>
             <p className="results-count">{results.length} results found</p>

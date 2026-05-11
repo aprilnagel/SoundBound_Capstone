@@ -30,7 +30,7 @@ def get_current_user_profile(current_user):
     user_schema = UserSchema()
     return jsonify(user_schema.dump(current_user)), 200
 
-#______________________________DELETE ACCOUNT___________________________
+
 #______________________________DELETE ACCOUNT___________________________
 @users_bp.route('/me', methods=['DELETE'])
 @token_required

@@ -51,6 +51,13 @@
   background-color: #f5f3f3;
 }
 
+.apply-author-form input:focus,
+.apply-author-form textarea:focus {
+    outline: none;
+    border-color: #ed3b7b;
+    box-shadow: 0 0 5px rgba(237, 59, 123, 0.5);
+}
+
 .apply-author-form textarea {
   min-height: 120px;
   resize: vertical;
@@ -237,7 +244,3 @@
   }
 }
 
-form:focus{
-  border-color: #ff4d6d;
-  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.2);
-}
